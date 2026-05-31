@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 const CALENDLY = "https://calendly.com/curvetechsolution/book-a-meeting";
-const WA_NO = "923239236099";
+const WA_NO = "923316310490";
 const SITE = "https://curvetechsolution.online";
 const waLink = (msg = "") => `https://wa.me/${WA_NO}${msg ? `?text=${encodeURIComponent(msg)}` : ""}`;
 const fmtPKR = n => `Rs. ${Number(n).toLocaleString()}`;
@@ -568,7 +568,7 @@ function Footer() {
           🌐 Visit curvetechsolution.online →
         </a>
         <div className="footer-links">
-          <a href={waLink()} target="_blank" rel="noopener noreferrer">💬 WhatsApp: 0323 923 6099</a>
+          <a href={waLink()} target="_blank" rel="noopener noreferrer">💬 WhatsApp: 033 16310490</a>
           <span>·</span>
           <a href={CALENDLY} target="_blank" rel="noopener noreferrer">📅 Book a Meeting</a>
           <span>·</span>
@@ -726,7 +726,7 @@ export default function App() {
             <div className="cta-block">
               <p>Want a custom package? Talk to us — we respond fast.</p>
               <div className="cta-btns">
-                <a href={waLink()} target="_blank" rel="noopener noreferrer" className="cta-btn-wa">💬 WhatsApp: 0323 923 6099</a>
+                <a href={waLink()} target="_blank" rel="noopener noreferrer" className="cta-btn-wa">💬 WhatsApp: 0331 6310490</a>
                 <a href={CALENDLY} target="_blank" rel="noopener noreferrer" className="cta-btn-cal">📅 Book Free Meeting</a>
               </div>
             </div>
