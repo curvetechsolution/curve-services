@@ -146,37 +146,92 @@ const GlobalStyles = () => (
 
 // ── GetStarted Modal ──────────────────────────────────────────────
 function GSModal({ open, onClose, name, price }) {
+  const [showInvoiceForm, setShowInvoiceForm] = useState(false);
+  const [form, setForm] = useState({ name: "", email: "" });
+  const [submitted, setSubmitted] = useState(false);
+
   if (!open) return null;
   const msg = name ? `Hi! I'm interested in the *${name}* package${price ? ` (${price})` : ""}. Please share more details.` : "";
+
+  const handleInvoiceRequest = () => {
+    if (!form.name || !form.email) return;
+    // Pending invoice data store karo
+    const requests = JSON.parse(localStorage.getItem("curve_invoice_requests") || "[]");
+    requests.push({
+      id: Date.now().toString(),
+      clientName: form.name,
+      clientEmail: form.email,
+      serviceName: name,
+      price: price,
+      status: "pending",
+      timestamp: new Date().toISOString()
+    });
+    localStorage.setItem("curve_invoice_requests", JSON.stringify(requests));
+    setSubmitted(true);
+  };
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-box" onClick={e=>e.stopPropagation()}>
         <button onClick={onClose} style={{ position:"absolute", top:14, right:16, background:"#f1f5f9", border:"none", borderRadius:8, width:30, height:30, cursor:"pointer", fontSize:15, color:"#64748b", fontWeight:700 }}>✕</button>
-        <div style={{ textAlign:"center", marginBottom:16 }}>
-          <div style={{ fontSize:36, marginBottom:8 }}>🚀</div>
-          <h3 style={{ fontSize:20, fontWeight:800, color:"#0f172a", marginBottom:6 }}>Let's Get Started</h3>
-          {name && <p style={{ fontSize:13, color:B.s, fontWeight:600, margin:0 }}>{name}{price ? ` — ${price}` : ""}</p>}
-          <p style={{ fontSize:13, color:"#64748b", marginTop:6 }}>Choose how you'd like to connect with us</p>
-        </div>
-        <div className="modal-grid">
-          <a href={waLink(msg)} target="_blank" rel="noopener noreferrer"
-            style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:8, padding:"16px 10px", background:"#f0fdf4", border:"1.5px solid #86efac", borderRadius:16, textDecoration:"none" }}>
-            <span style={{ fontSize:26 }}>💬</span>
-            <span style={{ fontSize:14, fontWeight:700, color:"#166534" }}>WhatsApp Us</span>
-            <span style={{ fontSize:11, color:"#64748b", textAlign:"center" }}>Instant reply during business hours</span>
-          </a>
-          <a href={CALENDLY} target="_blank" rel="noopener noreferrer"
-            style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:8, padding:"16px 10px", background:B.p, border:`1.5px solid ${B.mid}`, borderRadius:16, textDecoration:"none" }}>
-            <span style={{ fontSize:26 }}>📅</span>
-            <span style={{ fontSize:14, fontWeight:700, color:B.d }}>Book Free Meeting</span>
-            <span style={{ fontSize:11, color:"#64748b", textAlign:"center" }}>30-min strategy call</span>
-          </a>
-        </div>
+        
+        {submitted ? (
+          <div style={{ textAlign:"center", padding:"20px 0" }}>
+            <div style={{ fontSize:40, marginBottom:12 }}>✅</div>
+            <h3 style={{ fontSize:18, fontWeight:800, color:"#0f172a" }}>Request Sent!</h3>
+            <p style={{ fontSize:13, color:"#64748b", marginTop:8 }}>We'll review and send your invoice shortly.</p>
+          </div>
+        ) : showInvoiceForm ? (
+          <div>
+            <h3 style={{ fontSize:17, fontWeight:800, color:"#0f172a", marginBottom:4 }}>Invoice Request</h3>
+            <p style={{ fontSize:12, color:B.s, fontWeight:600, marginBottom:16 }}>{name}{price ? ` — ${price}` : ""}</p>
+            <input placeholder="Your Name *" value={form.name}
+              onChange={e=>setForm({...form, name:e.target.value})}
+              style={{ width:"100%", padding:"10px 12px", border:"1.5px solid #e2e8f0", borderRadius:10, fontSize:14, marginBottom:10, fontFamily:"inherit" }} />
+            <input placeholder="Email Address *" type="email" value={form.email}
+              onChange={e=>setForm({...form, email:e.target.value})}
+              style={{ width:"100%", padding:"10px 12px", border:"1.5px solid #e2e8f0", borderRadius:10, fontSize:14, marginBottom:14, fontFamily:"inherit" }} />
+            <button onClick={handleInvoiceRequest}
+              style={{ width:"100%", padding:"11px", background:`linear-gradient(90deg,${B.d},${B.s})`, color:"#fff", border:"none", borderRadius:10, fontWeight:700, fontSize:14, cursor:"pointer" }}>
+              Submit Request →
+            </button>
+            <button onClick={()=>setShowInvoiceForm(false)}
+              style={{ width:"100%", marginTop:8, padding:"8px", background:"transparent", color:"#64748b", border:"1px solid #e2e8f0", borderRadius:10, fontSize:13, cursor:"pointer" }}>
+              ← Back
+            </button>
+          </div>
+        ) : (
+          <>
+            <div style={{ textAlign:"center", marginBottom:16 }}>
+              <div style={{ fontSize:36, marginBottom:8 }}>🚀</div>
+              <h3 style={{ fontSize:20, fontWeight:800, color:"#0f172a", marginBottom:6 }}>Let's Get Started</h3>
+              {name && <p style={{ fontSize:13, color:B.s, fontWeight:600, margin:0 }}>{name}{price ? ` — ${price}` : ""}</p>}
+            </div>
+            <div className="modal-grid">
+              <a href={waLink(msg)} target="_blank" rel="noopener noreferrer"
+                style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:8, padding:"16px 10px", background:"#f0fdf4", border:"1.5px solid #86efac", borderRadius:16, textDecoration:"none" }}>
+                <span style={{ fontSize:26 }}>💬</span>
+                <span style={{ fontSize:14, fontWeight:700, color:"#166534" }}>WhatsApp Us</span>
+                <span style={{ fontSize:11, color:"#64748b", textAlign:"center" }}>Instant reply</span>
+              </a>
+              <a href={CALENDLY} target="_blank" rel="noopener noreferrer"
+                style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:8, padding:"16px 10px", background:B.p, border:`1.5px solid ${B.mid}`, borderRadius:16, textDecoration:"none" }}>
+                <span style={{ fontSize:26 }}>📅</span>
+                <span style={{ fontSize:14, fontWeight:700, color:B.d }}>Book Meeting</span>
+                <span style={{ fontSize:11, color:"#64748b", textAlign:"center" }}>30-min strategy call</span>
+              </a>
+            </div>
+            {/* Invoice button — full width below */}
+            <button onClick={()=>setShowInvoiceForm(true)}
+              style={{ marginTop:12, width:"100%", padding:"11px", background:`${B.d}`, color:"#fff", border:"none", borderRadius:12, fontWeight:700, fontSize:14, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}>
+              🧾 Request Invoice
+            </button>
+          </>
+        )}
       </div>
     </div>
   );
 }
-
 // ── Counter ──────────────────────────────────────────────────────
 function Ctr({ v, set, min=0, color=B.s, size=36 }) {
   return (
