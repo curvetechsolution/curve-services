@@ -407,6 +407,31 @@ function WebPlanChooser({ color }) {
   );
 }
 
+// ── Web Section (toggle: Packages / Build Your Own) ──────────────
+function WebSection({ packages, color }) {
+  const [mode, setMode] = useState("packages");
+  return (
+    <div>
+      {/* Toggle pill — same style as SMM */}
+      <div style={{ display:"flex", background:"#f1f5f9", borderRadius:12, padding:4, marginBottom:28, gap:4, maxWidth:360, margin:"0 auto 28px" }}>
+        {[{k:"packages",l:"📦 Packages"},{k:"custom",l:"🛠 Build Your Own Plan"}].map(t=>(
+          <button key={t.k} onClick={()=>setMode(t.k)} style={{ flex:1, padding:"9px 0", borderRadius:9, border:"none", cursor:"pointer", fontSize:13, fontWeight:700, background:mode===t.k?color:"transparent", color:mode===t.k?"#fff":"#64748b", transition:"all .2s" }}>{t.l}</button>
+        ))}
+      </div>
+
+      {mode==="packages" && (
+        <div className="web-cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20, marginBottom:40 }}>
+          {packages.map((pkg,i) => <WebCard key={i} pkg={pkg} color={color} />)}
+        </div>
+      )}
+
+      {mode==="custom" && (
+        <WebPlanChooser color={color} />
+      )}
+    </div>
+  );
+}
+
 function WebCard({ pkg, color }) {
   const [tab, setTab] = useState("service");
   return (
@@ -596,9 +621,10 @@ function SMMService({ color }) {
       )}
 
       {mode==="custom" && (
-        <div className="custom-builder">
-          <div>
-            <div style={{ background:"#fff", border:"1.5px solid #e8edf2", borderRadius:16, padding:"1.2rem", marginBottom:14 }}>
+        <div style={{ display:"flex", flexDirection:"column", gap:20 }}>
+          {/* TOP: all feature selectors */}
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))", gap:12 }}>
+            <div style={{ background:"#fff", border:"1.5px solid #e8edf2", borderRadius:16, padding:"1.2rem" }}>
               <div style={{ fontWeight:700, fontSize:14, color:"#0f172a", marginBottom:4 }}>📱 Platforms <span style={{ fontSize:12, color:"#94a3b8", fontWeight:400 }}>— {fmtPKR(PLAT_P)}/platform/mo</span></div>
               <div style={{ display:"flex", flexWrap:"wrap", gap:8, marginTop:10 }}>
                 {PLATS_DEF.map(p=>{
@@ -609,14 +635,14 @@ function SMMService({ color }) {
                 })}
               </div>
             </div>
-            <div style={{ background:"#fff", border:"1.5px solid #e8edf2", borderRadius:16, padding:"1.2rem", marginBottom:14 }}>
+            <div style={{ background:"#fff", border:"1.5px solid #e8edf2", borderRadius:16, padding:"1.2rem" }}>
               <div style={{ fontWeight:700, fontSize:14, color:"#0f172a", marginBottom:4 }}>📝 Graphic Posts <span style={{ fontSize:12, color:"#94a3b8", fontWeight:400 }}>— {fmtPKR(POST_P)}/post</span></div>
               <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:8, marginTop:10, flexWrap:"wrap" }}>
                 <span style={{ fontSize:13, color:"#475569" }}>Posts per month: <strong style={{ color:"#0f172a" }}>{posts}</strong></span>
                 <Ctr v={posts} set={setPosts} min={0} color={color} />
               </div>
             </div>
-            <div style={{ background:"#fff", border:"1.5px solid #e8edf2", borderRadius:16, padding:"1.2rem", marginBottom:14 }}>
+            <div style={{ background:"#fff", border:"1.5px solid #e8edf2", borderRadius:16, padding:"1.2rem" }}>
               <div style={{ fontWeight:700, fontSize:14, color:"#0f172a", marginBottom:12 }}>🎬 Reels / Short Videos</div>
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
                 <div style={{ background:aiReels>0?`${color}08`:"#f8fafc", border:`1.5px solid ${aiReels>0?color:"#e2e8f0"}`, borderRadius:12, padding:"12px", transition:"all .2s" }}>
@@ -647,30 +673,32 @@ function SMMService({ color }) {
             </div>
           </div>
 
-          <div className="summary-sticky">
-            <div style={{ background:"#fff", border:`2px solid ${color}33`, borderRadius:18, padding:"1.4rem", boxShadow:`0 6px 24px ${color}15` }}>
-              <div style={{ fontWeight:800, fontSize:16, color:"#0f172a", marginBottom:14 }}>💰 Package Summary</div>
-              <div style={{ display:"flex", flexDirection:"column", gap:7, marginBottom:14, fontSize:13 }}>
-                <div style={{ display:"flex", justifyContent:"space-between" }}><span style={{ color:"#64748b" }}>📱 Platforms ({plats.length})</span><span style={{ fontWeight:600 }}>{fmtPKR(plats.length*PLAT_P)}</span></div>
-                <div style={{ display:"flex", justifyContent:"space-between" }}><span style={{ color:"#64748b" }}>📝 Posts ({posts})</span><span style={{ fontWeight:600 }}>{fmtPKR(posts*POST_P)}</span></div>
-                {aiReels>0 && <div style={{ display:"flex", justifyContent:"space-between" }}><span style={{ color:"#64748b" }}>🎨 AI Reels ({aiReels})</span><span style={{ fontWeight:600 }}>{fmtPKR(aiReels*AIR_P)}</span></div>}
-                {edReels>0 && <div style={{ display:"flex", justifyContent:"space-between" }}><span style={{ color:"#64748b" }}>✂️ Edit Reels ({edReels})</span><span style={{ fontWeight:600 }}>{fmtPKR(edReels*EDR_P)}</span></div>}
-                {fbAds>0 && <div style={{ display:"flex", justifyContent:"space-between" }}><span style={{ color:"#64748b" }}>📘 FB Ads ({fbAds})</span><span style={{ fontWeight:600 }}>{fmtPKR(fbAds*FB_AD)}</span></div>}
-                {ttAds>0 && <div style={{ display:"flex", justifyContent:"space-between" }}><span style={{ color:"#64748b" }}>🎵 TikTok Ads ({ttAds})</span><span style={{ fontWeight:600 }}>{fmtPKR(ttAds*TT_AD)}</span></div>}
-                {liAds>0 && <div style={{ display:"flex", justifyContent:"space-between" }}><span style={{ color:"#64748b" }}>💼 LinkedIn Ads ({liAds})</span><span style={{ fontWeight:600 }}>{fmtPKR(liAds*LI_AD)}</span></div>}
-              </div>
-              <div style={{ borderTop:"1.5px solid #e8edf2", paddingTop:10, marginBottom:14 }}>
-                <div style={{ fontSize:11, color:"#94a3b8", marginBottom:3, textTransform:"uppercase", letterSpacing:".06em" }}>Monthly Total</div>
-                <div style={{ fontSize:28, fontWeight:900, color }}>{fmtPKR(customTotal)}</div>
-              </div>
-              <div style={{ background:B.p, borderRadius:10, padding:"8px 12px", marginBottom:14, fontSize:11, color:"#64748b", lineHeight:1.6 }}>
-                <strong style={{ color:"#0f172a" }}>Selected platforms:</strong> {plats.map(id=>PLATS_DEF.find(p=>p.id===id)?.label).join(", ")}
-              </div>
-              <button onClick={()=>setGsOpen(true)} style={{ width:"100%", background:`linear-gradient(90deg,${color},${color}cc)`, color:"#fff", border:"none", borderRadius:12, padding:"13px 0", fontSize:14, fontWeight:700, cursor:"pointer", boxShadow:`0 4px 16px ${color}40` }}>
-                Get Started →
-              </button>
-              <GSModal open={gsOpen} onClose={()=>setGsOpen(false)} name="Custom Social Media Package" price={fmtPKR(customTotal)+"/mo"} />
+          {/* BOTTOM: price summary */}
+          <div style={{ background:`linear-gradient(135deg,${color}10,${color}04)`, border:`2px solid ${color}30`, borderRadius:18, padding:"20px 22px" }}>
+            <div style={{ fontSize:11, fontWeight:700, color, textTransform:"uppercase", letterSpacing:".08em", marginBottom:14 }}>💰 Package Summary</div>
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))", gap:"6px 20px", marginBottom:18 }}>
+              <div style={{ display:"flex", justifyContent:"space-between", fontSize:13 }}><span style={{ color:"#64748b" }}>📱 Platforms ({plats.length})</span><span style={{ fontWeight:700 }}>{fmtPKR(plats.length*PLAT_P)}</span></div>
+              <div style={{ display:"flex", justifyContent:"space-between", fontSize:13 }}><span style={{ color:"#64748b" }}>📝 Posts ({posts})</span><span style={{ fontWeight:700 }}>{fmtPKR(posts*POST_P)}</span></div>
+              {aiReels>0 && <div style={{ display:"flex", justifyContent:"space-between", fontSize:13 }}><span style={{ color:"#64748b" }}>🎨 AI Reels ({aiReels})</span><span style={{ fontWeight:700 }}>{fmtPKR(aiReels*AIR_P)}</span></div>}
+              {edReels>0 && <div style={{ display:"flex", justifyContent:"space-between", fontSize:13 }}><span style={{ color:"#64748b" }}>✂️ Edit Reels ({edReels})</span><span style={{ fontWeight:700 }}>{fmtPKR(edReels*EDR_P)}</span></div>}
+              {fbAds>0 && <div style={{ display:"flex", justifyContent:"space-between", fontSize:13 }}><span style={{ color:"#64748b" }}>📘 FB Ads ({fbAds})</span><span style={{ fontWeight:700 }}>{fmtPKR(fbAds*FB_AD)}</span></div>}
+              {ttAds>0 && <div style={{ display:"flex", justifyContent:"space-between", fontSize:13 }}><span style={{ color:"#64748b" }}>🎵 TikTok Ads ({ttAds})</span><span style={{ fontWeight:700 }}>{fmtPKR(ttAds*TT_AD)}</span></div>}
+              {liAds>0 && <div style={{ display:"flex", justifyContent:"space-between", fontSize:13 }}><span style={{ color:"#64748b" }}>💼 LinkedIn Ads ({liAds})</span><span style={{ fontWeight:700 }}>{fmtPKR(liAds*LI_AD)}</span></div>}
             </div>
+            <div style={{ borderTop:`1.5px dashed ${color}40`, paddingTop:14, marginBottom:16, display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:12 }}>
+              <div>
+                <div style={{ fontSize:12, color:"#64748b", fontWeight:600, marginBottom:2 }}>Selected Platforms</div>
+                <div style={{ fontSize:13, fontWeight:700, color:"#0f172a" }}>{plats.map(id=>PLATS_DEF.find(p=>p.id===id)?.label).join(", ")}</div>
+              </div>
+              <div style={{ textAlign:"right" }}>
+                <div style={{ fontSize:12, color:"#64748b", marginBottom:2 }}>Monthly Total</div>
+                <div style={{ fontSize:32, fontWeight:900, color, lineHeight:1 }}>{fmtPKR(customTotal)}</div>
+              </div>
+            </div>
+            <button onClick={()=>setGsOpen(true)} style={{ width:"100%", background:`linear-gradient(90deg,${color},${color}cc)`, color:"#fff", border:"none", borderRadius:12, padding:"13px 0", fontSize:14, fontWeight:700, cursor:"pointer", boxShadow:`0 4px 16px ${color}40` }}>
+              Get Started →
+            </button>
+            <GSModal open={gsOpen} onClose={()=>setGsOpen(false)} name="Custom Social Media Package" price={fmtPKR(customTotal)+"/mo"} />
           </div>
         </div>
       )}
@@ -801,14 +829,7 @@ function ServiceDetail({ svc, onBack, onOther }) {
           {svc.type === "smm" && <SMMService color={color} />}
           {svc.type === "video" && <VideoService color={color} />}
           {svc.type === "web" && (
-            <>
-              <div className="web-cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20, marginBottom:40 }}>
-                {svc.packages.map((pkg,i) => <WebCard key={i} pkg={pkg} color={color} />)}
-                <div style={{ gridColumn:"1 / -1" }}>
-                  <WebPlanChooser color={color} />
-                </div>
-              </div>
-            </>
+            <WebSection packages={svc.packages} color={color} />
           )}
           {svc.type === "packages" && (
             <>
