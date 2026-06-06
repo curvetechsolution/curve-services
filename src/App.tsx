@@ -6,6 +6,16 @@ const SITE = "https://curvetechsolution.online";
 const waLink = (msg = "") => `https://wa.me/${WA_NO}${msg ? `?text=${encodeURIComponent(msg)}` : ""}`;
 const fmtPKR = n => `Rs. ${Number(n).toLocaleString()}`;
 
+// ── Supabase Config ───────────────────────────────────────────────
+const SUPABASE_URL = "https://dbyrmttpkeftcgcdneas.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRieXJtdHRwa2VmdGNnY2RuZWFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3NTY1NzcsImV4cCI6MjA5NjMzMjU3N30.ipTjwyyRakLK8Ac9n7TXh-5bQp3tXlOsktcs6bE5mxI";
+
+const SUPABASE_HEADERS = {
+  "Content-Type": "application/json",
+  "apikey": SUPABASE_KEY,
+  "Authorization": `Bearer ${SUPABASE_KEY}`,
+};
+
 const B = { s:"#0ea5e9", m:"#0369a1", d:"#0c4a6e", x:"#0284c7", q:"#075985", l:"#e0f2fe", p:"#f0f9ff", mid:"#bae6fd" };
 const svcColor = id => ({ chatbot:B.s, webdev:B.m, smm:B.s, seo:B.d, googleads:B.x, growth:B.m, calling:B.q, leadgen:B.x, video:B.s }[id] || B.s);
 
@@ -21,20 +31,17 @@ const GlobalStyles = () => (
     .topbar { background: linear-gradient(90deg,${B.d},${B.s}); text-align:center; padding:8px 16px; font-size:13px; font-weight:500; color:#fff; }
     .topbar a { color:#fff; font-weight:700; text-decoration:underline; }
 
-    /* NAVBAR */
     .navbar { background:#fff; border-bottom:1px solid #e8edf2; padding:8px 20px; display:flex; align-items:center; justify-content:space-between; box-shadow:0 2px 10px rgba(0,0,0,.04); position:sticky; top:0; z-index:200; }
     .navbar-logo { height:56px; object-fit:contain; }
     .navbar-actions { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
     .btn-meeting { background:${B.p}; color:${B.m}; border:1.5px solid ${B.mid}; border-radius:10px; padding:8px 14px; font-weight:700; font-size:13px; text-decoration:none; white-space:nowrap; }
     .btn-wa { background:#25d366; color:#fff; border-radius:10px; padding:9px 16px; font-weight:700; font-size:13px; text-decoration:none; white-space:nowrap; box-shadow:0 4px 14px rgba(37,211,102,.3); }
 
-    /* HERO */
     .hero { text-align:center; padding:clamp(36px,8vw,68px) 20px clamp(24px,5vw,48px); background:linear-gradient(180deg,${B.l} 0%,#f8fafc 100%); }
     .hero h1 { font-size:clamp(22px,5vw,40px); font-weight:900; color:#0f172a; margin-bottom:14px; line-height:1.18; }
     .hero p { color:#64748b; font-size:clamp(14px,2.5vw,16px); max-width:500px; margin:0 auto; line-height:1.8; }
     .badge-pill { display:inline-block; background:linear-gradient(90deg,${B.d},${B.s}); color:#fff; font-size:12px; font-weight:700; padding:5px 20px; border-radius:99px; margin-bottom:20px; letter-spacing:.08em; text-transform:uppercase; box-shadow:0 4px 14px ${B.s}50; }
 
-    /* SERVICE GRID */
     .svc-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(min(170px,100%), 1fr)); gap:12px; }
     .svc-card { background:#fff; border:1.5px solid #e8edf2; border-radius:16px; padding:20px 12px; cursor:pointer; text-align:center; display:flex; flex-direction:column; align-items:center; gap:8px; box-shadow:0 2px 8px rgba(0,0,0,.04); transition:all .25s cubic-bezier(.4,0,.2,1); }
     .svc-card:hover { border-color:${B.s}; transform:translateY(-5px); box-shadow:0 10px 28px ${B.s}22; }
@@ -43,65 +50,52 @@ const GlobalStyles = () => (
     .svc-tagline { font-size:11px; color:#64748b; line-height:1.5; }
     .svc-cta { background:${B.l}; color:${B.m}; font-size:11px; font-weight:700; padding:4px 14px; border-radius:99px; }
 
-    /* PACKAGE CARDS GRID */
     .pkg-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(min(270px,100%), 1fr)); gap:20px; margin-bottom:40px; }
     .pkg-card { background:#fff; border-radius:20px; padding:1.5rem; display:flex; flex-direction:column; position:relative; transition:transform .25s,box-shadow .25s; }
     .pkg-card:hover { transform:translateY(-5px); }
 
-    /* TRUST BAR */
     .trust-bar { display:flex; flex-wrap:wrap; justify-content:center; gap:10px 18px; color:#94a3b8; font-size:12px; margin-bottom:24px; }
 
-    /* CTA BLOCK */
     .cta-block { padding:22px 20px; background:#fff; border:1.5px solid #e8edf2; border-radius:18px; text-align:center; }
     .cta-block p { color:#64748b; font-size:14px; margin-bottom:14px; }
     .cta-btns { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
     .cta-btn-wa { display:inline-block; background:#25d366; color:#fff; border-radius:12px; padding:11px 22px; font-weight:700; font-size:14px; text-decoration:none; box-shadow:0 6px 18px rgba(37,211,102,.3); }
     .cta-btn-cal { display:inline-block; background:linear-gradient(90deg,${B.s},${B.m}); color:#fff; border-radius:12px; padding:11px 22px; font-weight:700; font-size:14px; text-decoration:none; box-shadow:0 6px 18px ${B.s}40; }
 
-    /* SERVICE DETAIL HEADER */
     .detail-nav { background:#fff; border-bottom:1px solid #e8edf2; padding:10px 16px; display:flex; align-items:center; gap:8px; position:sticky; top:0; z-index:100; box-shadow:0 2px 10px rgba(0,0,0,.05); flex-wrap:wrap; }
     .detail-nav-title { font-weight:800; font-size:15px; color:#0f172a; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 
-    /* FOOTER */
     .footer { background:#0c4a6e; color:#fff; padding:28px 20px; text-align:center; }
     .footer-links { display:flex; flex-wrap:wrap; justify-content:center; gap:12px 16px; font-size:12px; color:#7dd3fc; }
     .footer-links a { color:#7dd3fc; text-decoration:none; }
 
-    /* MODAL */
     .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.65); z-index:2000; display:flex; align-items:center; justify-content:center; padding:16px; }
     .modal-box { background:#fff; border-radius:22px; padding:32px 24px; max-width:400px; width:100%; box-shadow:0 24px 70px rgba(0,0,0,.22); position:relative; }
     .modal-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
 
-    /* SMM CUSTOM BUILDER */
     .custom-builder { display:grid; grid-template-columns:1fr min(300px,100%); gap:20px; align-items:start; }
     .summary-sticky { position:sticky; top:80px; }
 
-    /* VIDEO GRID */
     .video-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(min(280px,100%), 1fr)); gap:20px; margin-bottom:24px; }
 
-    /* MOBILE OVERRIDES */
     @media (max-width: 640px) {
       .navbar { padding:8px 12px; }
       .navbar-logo { height:44px; }
       .btn-meeting { display:none; }
       .btn-wa { padding:8px 12px; font-size:12px; }
-
       .svc-grid { grid-template-columns:repeat(2, 1fr); gap:10px; }
       .svc-card { padding:16px 8px; gap:6px; }
       .svc-icon { width:40px; height:40px; font-size:20px; }
       .svc-label { font-size:12px; }
       .svc-tagline { display:none; }
-
       .pkg-grid { grid-template-columns:1fr; }
       .web-cards-grid { grid-template-columns:1fr !important; }
       .modal-grid { grid-template-columns:1fr; }
       .custom-builder { grid-template-columns:1fr; }
       .summary-sticky { position:static; }
       .cta-btn-wa, .cta-btn-cal { font-size:13px; padding:10px 16px; width:100%; text-align:center; }
-
       .detail-nav { gap:6px; }
       .detail-nav-title { font-size:13px; }
-
       .trust-bar { gap:8px 14px; font-size:11px; }
     }
 
@@ -122,13 +116,11 @@ const GlobalStyles = () => (
     .fade-delay-1 { transition-delay:.08s; }
     .fade-delay-2 { transition-delay:.16s; }
 
-    /* WHATSAPP FLOAT */
     .wa-float { position:fixed; bottom:24px; right:20px; z-index:9999; width:60px; height:60px; border-radius:50%; background:#25d366; display:flex; align-items:center; justify-content:center; box-shadow:0 6px 24px rgba(37,211,102,.5); cursor:pointer; text-decoration:none; transition:transform .2s,box-shadow .2s; animation:waPulse 2.5s infinite; }
     .wa-float:hover { transform:scale(1.12); box-shadow:0 10px 32px rgba(37,211,102,.6); }
     .wa-float svg { width:34px; height:34px; fill:#fff; }
     @keyframes waPulse { 0%,100%{box-shadow:0 6px 24px rgba(37,211,102,.5),0 0 0 0 rgba(37,211,102,.4)} 60%{box-shadow:0 6px 24px rgba(37,211,102,.5),0 0 0 14px rgba(37,211,102,0)} }
 
-    /* BUILDER GRIDS — max 4 per row, clean */
     .builder-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; margin-bottom:20px; }
     .builder-grid-2 { display:grid; grid-template-columns:repeat(2, 1fr); gap:16px; margin-bottom:20px; }
     .web-feat-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; }
@@ -149,32 +141,43 @@ function GSModal({ open, onClose, name, price }) {
   const [showInvoiceForm, setShowInvoiceForm] = useState(false);
   const [form, setForm] = useState({ name: "", email: "" });
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   if (!open) return null;
   const msg = name ? `Hi! I'm interested in the *${name}* package${price ? ` (${price})` : ""}. Please share more details.` : "";
 
-  const handleInvoiceRequest = () => {
+  const handleInvoiceRequest = async () => {
     if (!form.name || !form.email) return;
-    // Pending invoice data store karo
-    const requests = JSON.parse(localStorage.getItem("curve_invoice_requests") || "[]");
-    requests.push({
-      id: Date.now().toString(),
-      clientName: form.name,
-      clientEmail: form.email,
-      serviceName: name,
-      price: price,
-      status: "pending",
-      timestamp: new Date().toISOString()
-    });
-    localStorage.setItem("curve_invoice_requests", JSON.stringify(requests));
-    setSubmitted(true);
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/invoice_requests`, {
+        method: "POST",
+        headers: { ...SUPABASE_HEADERS, "Prefer": "return=minimal" },
+        body: JSON.stringify({
+          id: Date.now().toString(),
+          client_name: form.name,
+          client_email: form.email,
+          service_name: name,
+          price: price,
+          status: "pending",
+        })
+      });
+      if (!res.ok) throw new Error("Failed to submit");
+      setSubmitted(true);
+    } catch (e) {
+      setError("Something went wrong. Please try WhatsApp instead.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-box" onClick={e=>e.stopPropagation()}>
         <button onClick={onClose} style={{ position:"absolute", top:14, right:16, background:"#f1f5f9", border:"none", borderRadius:8, width:30, height:30, cursor:"pointer", fontSize:15, color:"#64748b", fontWeight:700 }}>✕</button>
-        
+
         {submitted ? (
           <div style={{ textAlign:"center", padding:"20px 0" }}>
             <div style={{ fontSize:40, marginBottom:12 }}>✅</div>
@@ -185,18 +188,31 @@ function GSModal({ open, onClose, name, price }) {
           <div>
             <h3 style={{ fontSize:17, fontWeight:800, color:"#0f172a", marginBottom:4 }}>Invoice Request</h3>
             <p style={{ fontSize:12, color:B.s, fontWeight:600, marginBottom:16 }}>{name}{price ? ` — ${price}` : ""}</p>
-            <input placeholder="Your Name *" value={form.name}
+            <input
+              placeholder="Your Name *"
+              value={form.name}
               onChange={e=>setForm({...form, name:e.target.value})}
-              style={{ width:"100%", padding:"10px 12px", border:"1.5px solid #e2e8f0", borderRadius:10, fontSize:14, marginBottom:10, fontFamily:"inherit" }} />
-            <input placeholder="Email Address *" type="email" value={form.email}
+              style={{ width:"100%", padding:"10px 12px", border:"1.5px solid #e2e8f0", borderRadius:10, fontSize:14, marginBottom:10, fontFamily:"inherit" }}
+            />
+            <input
+              placeholder="Email Address *"
+              type="email"
+              value={form.email}
               onChange={e=>setForm({...form, email:e.target.value})}
-              style={{ width:"100%", padding:"10px 12px", border:"1.5px solid #e2e8f0", borderRadius:10, fontSize:14, marginBottom:14, fontFamily:"inherit" }} />
-            <button onClick={handleInvoiceRequest}
-              style={{ width:"100%", padding:"11px", background:`linear-gradient(90deg,${B.d},${B.s})`, color:"#fff", border:"none", borderRadius:10, fontWeight:700, fontSize:14, cursor:"pointer" }}>
-              Submit Request →
+              style={{ width:"100%", padding:"10px 12px", border:"1.5px solid #e2e8f0", borderRadius:10, fontSize:14, marginBottom:14, fontFamily:"inherit" }}
+            />
+            {error && <p style={{ fontSize:12, color:"#ef4444", marginBottom:10 }}>{error}</p>}
+            <button
+              onClick={handleInvoiceRequest}
+              disabled={loading}
+              style={{ width:"100%", padding:"11px", background:loading?"#94a3b8":`linear-gradient(90deg,${B.d},${B.s})`, color:"#fff", border:"none", borderRadius:10, fontWeight:700, fontSize:14, cursor:loading?"not-allowed":"pointer" }}
+            >
+              {loading ? "Submitting..." : "Submit Request →"}
             </button>
-            <button onClick={()=>setShowInvoiceForm(false)}
-              style={{ width:"100%", marginTop:8, padding:"8px", background:"transparent", color:"#64748b", border:"1px solid #e2e8f0", borderRadius:10, fontSize:13, cursor:"pointer" }}>
+            <button
+              onClick={()=>setShowInvoiceForm(false)}
+              style={{ width:"100%", marginTop:8, padding:"8px", background:"transparent", color:"#64748b", border:"1px solid #e2e8f0", borderRadius:10, fontSize:13, cursor:"pointer" }}
+            >
               ← Back
             </button>
           </div>
@@ -221,9 +237,10 @@ function GSModal({ open, onClose, name, price }) {
                 <span style={{ fontSize:11, color:"#64748b", textAlign:"center" }}>30-min strategy call</span>
               </a>
             </div>
-            {/* Invoice button — full width below */}
-            <button onClick={()=>setShowInvoiceForm(true)}
-              style={{ marginTop:12, width:"100%", padding:"11px", background:`${B.d}`, color:"#fff", border:"none", borderRadius:12, fontWeight:700, fontSize:14, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}>
+            <button
+              onClick={()=>setShowInvoiceForm(true)}
+              style={{ marginTop:12, width:"100%", padding:"11px", background:B.d, color:"#fff", border:"none", borderRadius:12, fontWeight:700, fontSize:14, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}
+            >
               🧾 Request Invoice
             </button>
           </>
@@ -232,6 +249,7 @@ function GSModal({ open, onClose, name, price }) {
     </div>
   );
 }
+
 // ── Counter ──────────────────────────────────────────────────────
 function Ctr({ v, set, min=0, color=B.s, size=36 }) {
   return (
@@ -304,9 +322,7 @@ function PkgCard({ pkg, color }) {
   );
 }
 
-// ── Web Card ─────────────────────────────────────────────────────
-// ── Web Plan Chooser ──────────────────────────────────────────────
-// ── Web Custom Plan Builder ───────────────────────────────────────
+// ── Web Features ──────────────────────────────────────────────────
 const WEB_FEATURES = {
   service: [
     { key:"pages",      icon:"📄", label:"Number of Pages",        type:"counter", min:1, max:20, default:4, basePrice:800,  unit:"page",  desc:"Each additional page" },
@@ -344,8 +360,6 @@ const BASE_PRICE = { service: 5000, ecom: 7000 };
 function WebPlanChooser({ color }) {
   const [tab, setTab] = useState("service");
   const features = WEB_FEATURES[tab];
-
-  // state: toggles & counters
   const initState = (t) => {
     const s: Record<string,any> = {};
     WEB_FEATURES[t].forEach(f => {
@@ -355,13 +369,9 @@ function WebPlanChooser({ color }) {
     return s;
   };
   const [sel, setSel] = useState<Record<string,any>>(() => initState("service"));
-
   const switchTab = (t) => { setTab(t); setSel(initState(t)); };
-
   const toggle = (key) => setSel(s => ({ ...s, [key]: !s[key] }));
   const counter = (key, delta, min, max) => setSel(s => ({ ...s, [key]: Math.min(max, Math.max(min, (s[key]||0)+delta)) }));
-
-  // price calc
   const total = useMemo(() => {
     let p = BASE_PRICE[tab];
     features.forEach(f => {
@@ -370,10 +380,7 @@ function WebPlanChooser({ color }) {
     });
     return p;
   }, [sel, tab]);
-
   const fmtPrice = (n) => "Rs. " + n.toLocaleString("en-PK");
-
-  // selected features summary
   const picked = features.filter(f => {
     if (f.type === "toggle") return sel[f.key];
     if (f.type === "counter") return sel[f.key] > 0;
@@ -382,7 +389,6 @@ function WebPlanChooser({ color }) {
 
   return (
     <div style={{ marginBottom:40, background:"#fff", borderRadius:24, padding:"20px 18px", boxShadow:"0 4px 32px rgba(0,0,0,.07)", border:"1px solid #f0f4f8" }}>
-      {/* Header */}
       <div style={{ textAlign:"center", marginBottom:16 }}>
         <div style={{ display:"inline-flex", alignItems:"center", gap:8, background:`${color}12`, borderRadius:99, padding:"6px 18px", marginBottom:10 }}>
           <span>✨</span>
@@ -391,8 +397,6 @@ function WebPlanChooser({ color }) {
         <h2 style={{ fontSize:18, fontWeight:900, color:"#0f172a", margin:"0 0 4px" }}>Choose only what you need</h2>
         <p style={{ color:"#94a3b8", fontSize:13, margin:0 }}>Select features below — price updates live · Domain & Hosting not included</p>
       </div>
-
-      {/* Service / Ecom toggle */}
       <div style={{ display:"flex", background:"#f1f5f9", borderRadius:12, padding:4, marginBottom:14, gap:4 }}>
         {["service","ecom"].map(t=>(
           <button key={t} onClick={()=>switchTab(t)} style={{ flex:1, padding:"10px 0", borderRadius:10, border:"none", cursor:"pointer", fontSize:13, fontWeight:700, background:tab===t?color:"transparent", color:tab===t?"#fff":"#64748b", transition:"all .2s" }}>
@@ -400,9 +404,7 @@ function WebPlanChooser({ color }) {
           </button>
         ))}
       </div>
-
       <div style={{ display:"flex", flexDirection:"column", gap:20 }}>
-        {/* TOP: feature picker */}
         <div>
           <div style={{ fontSize:11, fontWeight:700, color:"#94a3b8", textTransform:"uppercase", letterSpacing:".08em", marginBottom:12 }}>Select Features</div>
           <div className="web-feat-grid">
@@ -437,12 +439,9 @@ function WebPlanChooser({ color }) {
             ))}
           </div>
         </div>
-
-        {/* BOTTOM: summary + price */}
         <div style={{ background:`linear-gradient(135deg,${color}10,${color}04)`, border:`2px solid ${color}30`, borderRadius:18, padding:"24px 28px" }}>
           <div style={{ fontSize:11, fontWeight:700, color, textTransform:"uppercase", letterSpacing:".08em", marginBottom:4 }}>Your Custom Plan</div>
           <div style={{ fontSize:11, color:"#ef4444", fontWeight:600, marginBottom:16 }}>❌ Domain & Hosting NOT included</div>
-
           <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(220px,1fr))", gap:"6px 20px", marginBottom:18, minHeight:36 }}>
             {picked.length === 0 && <div style={{ color:"#94a3b8", fontSize:13 }}>No features selected yet</div>}
             {picked.map(f => (
@@ -457,7 +456,6 @@ function WebPlanChooser({ color }) {
               </div>
             ))}
           </div>
-
           <div style={{ borderTop:`1.5px dashed ${color}40`, paddingTop:14, marginBottom:16, display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:12 }}>
             <div style={{ display:"flex", gap:24, flexWrap:"wrap" }}>
               <div>
@@ -474,7 +472,6 @@ function WebPlanChooser({ color }) {
               <div style={{ fontSize:32, fontWeight:900, color, lineHeight:1 }}>{fmtPrice(total)}</div>
             </div>
           </div>
-
           <GSBtn color={color} featured={true} name={"Custom Website"} price={fmtPrice(total)} />
         </div>
       </div>
@@ -482,27 +479,21 @@ function WebPlanChooser({ color }) {
   );
 }
 
-// ── Web Section (toggle: Packages / Build Your Own) ──────────────
 function WebSection({ packages, color }) {
   const [mode, setMode] = useState("packages");
   return (
     <div>
-      {/* Toggle pill — same style as SMM */}
       <div style={{ display:"flex", background:"#f1f5f9", borderRadius:12, padding:4, marginBottom:28, gap:4, maxWidth:360, margin:"0 auto 28px" }}>
         {[{k:"packages",l:"📦 Packages"},{k:"custom",l:"🛠 Build Your Own Plan"}].map(t=>(
           <button key={t.k} onClick={()=>setMode(t.k)} style={{ flex:1, padding:"9px 0", borderRadius:9, border:"none", cursor:"pointer", fontSize:13, fontWeight:700, background:mode===t.k?color:"transparent", color:mode===t.k?"#fff":"#64748b", transition:"all .2s" }}>{t.l}</button>
         ))}
       </div>
-
       {mode==="packages" && (
         <div className="web-cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20, marginBottom:40 }}>
           {packages.map((pkg,i) => <WebCard key={i} pkg={pkg} color={color} />)}
         </div>
       )}
-
-      {mode==="custom" && (
-        <WebPlanChooser color={color} />
-      )}
+      {mode==="custom" && <WebPlanChooser color={color} />}
     </div>
   );
 }
@@ -560,21 +551,14 @@ function VideoService({ color }) {
     { key:"aiyt", label:"AI YouTube Video",         icon:"🤖", badge:"AI + YouTube",          basePrice:8000,
       feats:["AI-generated YouTube video","Script & voiceover AI","Animated visuals & scenes","Background music licensed","Thumbnail auto-generated","HD — channel-ready"] },
   ];
-
   const [counts, setCounts] = useState<Record<string,number>>({ ai:0, reel:0, yt:0, aiyt:0 });
   const [durations, setDurations] = useState<Record<string,number>>({ ai:30, reel:30, yt:30, aiyt:30 });
   const [gsOpen, setGsOpen] = useState(false);
-
   const getPrice = (basePrice, secs) => Math.round(basePrice * Math.pow(1.5, (secs - BASE_SECS) / 30) / 100) * 100;
-  const totalForType = (key) => {
-    const vt = VIDEO_TYPES.find(v=>v.key===key);
-    return counts[key] * getPrice(vt.basePrice, durations[key]);
-  };
+  const totalForType = (key) => { const vt = VIDEO_TYPES.find(v=>v.key===key); return counts[key] * getPrice(vt.basePrice, durations[key]); };
   const total = VIDEO_TYPES.reduce((s,vt) => s + totalForType(vt.key), 0);
   const totalVideos = Object.values(counts).reduce((a,b)=>a+b,0);
-
   const DURATION_OPTIONS = [30, 60, 90, 120];
-
   return (
     <div>
       <GSModal open={gsOpen} onClose={()=>setGsOpen(false)} name={`Video Package (${totalVideos} videos)`} price={total?fmtPKR(total)+"/mo":""} />
@@ -584,9 +568,7 @@ function VideoService({ color }) {
       </div>
       <div className="video-grid">
         {VIDEO_TYPES.map(vt => {
-          const cnt = counts[vt.key];
-          const dur = durations[vt.key];
-          const unitPrice = getPrice(vt.basePrice, dur);
+          const cnt = counts[vt.key]; const dur = durations[vt.key]; const unitPrice = getPrice(vt.basePrice, dur);
           return (
             <div key={vt.key} style={{ background:"#fff", border:`1.5px solid ${cnt>0?color:"#e8edf2"}`, borderRadius:20, padding:"1.5rem", boxShadow:cnt>0?`0 6px 24px ${color}20`:"0 2px 10px rgba(0,0,0,.05)", transition:"all .25s" }}>
               <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:10 }}>
@@ -596,7 +578,6 @@ function VideoService({ color }) {
                   <span style={{ display:"inline-block", background:`${color}15`, color, fontSize:11, fontWeight:700, padding:"2px 10px", borderRadius:99, marginTop:3 }}>{vt.badge}</span>
                 </div>
               </div>
-              {/* Duration selector */}
               <div style={{ marginBottom:10 }}>
                 <div style={{ fontSize:11, fontWeight:700, color:"#94a3b8", textTransform:"uppercase", letterSpacing:".06em", marginBottom:6 }}>Select Duration</div>
                 <div style={{ display:"flex", flexWrap:"wrap", gap:6 }}>
@@ -705,7 +686,6 @@ function SMMService({ color }) {
           <button key={t.k} onClick={()=>setMode(t.k)} style={{ flex:1, padding:"9px 0", borderRadius:9, border:"none", cursor:"pointer", fontSize:13, fontWeight:700, background:mode===t.k?color:"transparent", color:mode===t.k?"#fff":"#64748b", transition:"all .2s" }}>{t.l}</button>
         ))}
       </div>
-
       {mode==="packages" && (
         <div className="pkg-grid">
           {fixedPkgs.map((pkg,i)=>(
@@ -729,10 +709,8 @@ function SMMService({ color }) {
           ))}
         </div>
       )}
-
       {mode==="custom" && (
         <div style={{ display:"flex", flexDirection:"column", gap:20 }}>
-          {/* TOP: all feature selectors — 2 per row = clean layout */}
           <div className="builder-grid-2">
             <div style={{ background:"#fff", border:"1.5px solid #e8edf2", borderRadius:16, padding:"1.2rem" }}>
               <div style={{ fontWeight:700, fontSize:14, color:"#0f172a", marginBottom:4 }}>📱 Platforms <span style={{ fontSize:12, color:"#94a3b8", fontWeight:400 }}>— {fmtPKR(PLAT_P)}/platform/mo</span></div>
@@ -806,8 +784,6 @@ function SMMService({ color }) {
               </div>
             </div>
           </div>
-
-          {/* BOTTOM: price summary */}
           <div style={{ background:`linear-gradient(135deg,${color}10,${color}04)`, border:`2px solid ${color}30`, borderRadius:18, padding:"24px 28px" }}>
             <div style={{ fontSize:11, fontWeight:700, color, textTransform:"uppercase", letterSpacing:".08em", marginBottom:14 }}>💰 Package Summary</div>
             <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))", gap:"6px 20px", marginBottom:18 }}>
@@ -846,8 +822,6 @@ function LeadGenService({ color }) {
   const [mode, setMode] = useState("packages");
   const [gsOpen, setGsOpen] = useState(false);
   const [gsPkg, setGsPkg] = useState(null);
-
-  // Custom plan state
   const [leads, setLeads] = useState(100);
   const [emailSeq, setEmailSeq] = useState(false);
   const [waOutreach, setWaOutreach] = useState(false);
@@ -856,26 +830,13 @@ function LeadGenService({ color }) {
   const [nurturing, setNurturing] = useState(false);
   const [dedicatedStrat, setDedicatedStrat] = useState(false);
 
-  const LEAD_P = 180; // per lead
-  const EMAIL_P = 5000;
-  const WA_P = 6000;
-  const LI_P = 7000;
-  const SCORE_P = 3000;
-  const NURTURE_P = 5000;
-  const STRAT_P = 8000;
-
+  const LEAD_P=180, EMAIL_P=5000, WA_P=6000, LI_P=7000, SCORE_P=3000, NURTURE_P=5000, STRAT_P=8000;
   const customTotal = leads*LEAD_P + (emailSeq?EMAIL_P:0) + (waOutreach?WA_P:0) + (linkedinCamp?LI_P:0) + (leadScore?SCORE_P:0) + (nurturing?NURTURE_P:0) + (dedicatedStrat?STRAT_P:0);
 
   const fixedPkgs = [
-    { name:"Starter Leads", tier:"Basic", price:"Rs. 20,000", per:"/mo", year:"~Rs. 240,000/year", featured:false,
-      features:["100 verified leads/month","Target by industry & location","Name, email, phone included","Google Sheet delivery","Basic email outreach (50/month)","Monthly lead report"],
-      warning:[] },
-    { name:"Growth Leads", tier:"Standard", price:"Rs. 35,000", per:"/mo", year:"~Rs. 420,000/year", featured:true,
-      features:["300 verified leads/month","Cold email sequence (3-step)","WhatsApp outreach automation","LinkedIn connection campaign","Lead scoring & prioritization","Monthly conversion report"],
-      warning:[] },
-    { name:"Enterprise Leads", tier:"Pro", price:"Rs. 60,000", per:"/mo", year:"~Rs. 720,000/year", featured:false,
-      features:["700+ verified leads/month","Multi-channel outreach","WhatsApp + LinkedIn + Cold call","Lead nurturing automation","A/B tested messaging","Dedicated lead strategist"],
-      warning:[] },
+    { name:"Starter Leads", tier:"Basic", price:"Rs. 20,000", per:"/mo", year:"~Rs. 240,000/year", featured:false, features:["100 verified leads/month","Target by industry & location","Name, email, phone included","Google Sheet delivery","Basic email outreach (50/month)","Monthly lead report"], warning:[] },
+    { name:"Growth Leads", tier:"Standard", price:"Rs. 35,000", per:"/mo", year:"~Rs. 420,000/year", featured:true, features:["300 verified leads/month","Cold email sequence (3-step)","WhatsApp outreach automation","LinkedIn connection campaign","Lead scoring & prioritization","Monthly conversion report"], warning:[] },
+    { name:"Enterprise Leads", tier:"Pro", price:"Rs. 60,000", per:"/mo", year:"~Rs. 720,000/year", featured:false, features:["700+ verified leads/month","Multi-channel outreach","WhatsApp + LinkedIn + Cold call","Lead nurturing automation","A/B tested messaging","Dedicated lead strategist"], warning:[] },
   ];
 
   const addons = [
@@ -890,14 +851,11 @@ function LeadGenService({ color }) {
   return (
     <div>
       <GSModal open={gsOpen} onClose={()=>setGsOpen(false)} name={gsPkg?.name || "Custom Lead Gen Plan"} price={gsPkg?.price || fmtPKR(customTotal)+"/mo"} />
-
-      {/* Toggle */}
       <div style={{ display:"flex", background:"#f1f5f9", borderRadius:12, padding:4, marginBottom:28, gap:4, maxWidth:360, margin:"0 auto 28px" }}>
         {[{k:"packages",l:"📦 Packages"},{k:"custom",l:"🛠 Make Custom"}].map(t=>(
           <button key={t.k} onClick={()=>setMode(t.k)} style={{ flex:1, padding:"9px 0", borderRadius:9, border:"none", cursor:"pointer", fontSize:13, fontWeight:700, background:mode===t.k?color:"transparent", color:mode===t.k?"#fff":"#64748b", transition:"all .2s" }}>{t.l}</button>
         ))}
       </div>
-
       {mode==="packages" && (
         <div className="pkg-grid">
           {fixedPkgs.map((pkg,i) => (
@@ -921,11 +879,9 @@ function LeadGenService({ color }) {
           ))}
         </div>
       )}
-
       {mode==="custom" && (
         <div style={{ display:"flex", flexDirection:"column", gap:20 }}>
           <div className="builder-grid-2">
-            {/* Leads slider */}
             <div style={{ background:"#fff", border:"1.5px solid #e8edf2", borderRadius:16, padding:"1.2rem" }}>
               <div style={{ fontWeight:700, fontSize:14, color:"#0f172a", marginBottom:4 }}>🎯 Number of Leads <span style={{ fontSize:12, color:"#94a3b8", fontWeight:400 }}>— {fmtPKR(LEAD_P)}/lead</span></div>
               <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10, marginTop:8 }}>
@@ -943,7 +899,6 @@ function LeadGenService({ color }) {
                 ))}
               </div>
             </div>
-            {/* Add-ons */}
             <div style={{ background:"#fff", border:"1.5px solid #e8edf2", borderRadius:16, padding:"1.2rem" }}>
               <div style={{ fontWeight:700, fontSize:14, color:"#0f172a", marginBottom:12 }}>⚙️ Outreach Add-ons</div>
               <div style={{ display:"flex", flexDirection:"column", gap:9 }}>
@@ -961,8 +916,6 @@ function LeadGenService({ color }) {
               </div>
             </div>
           </div>
-
-          {/* Summary */}
           <div style={{ background:`linear-gradient(135deg,${color}10,${color}04)`, border:`2px solid ${color}30`, borderRadius:18, padding:"24px 28px" }}>
             <div style={{ fontSize:11, fontWeight:700, color, textTransform:"uppercase", letterSpacing:".08em", marginBottom:14 }}>💰 Custom Plan Summary</div>
             <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))", gap:"6px 20px", marginBottom:18 }}>
@@ -991,22 +944,16 @@ const SERVICES = [
     desc:"Turn every WhatsApp message into a qualified lead automatically. Built on n8n + GPT-4o. Handles qualification, hiring, follow-ups, and CRM logging.",
     type:"packages",
     packages:[
-      { name:"Lead Magnet", tier:"Basic", price:"Rs. 12,000", per:"/mo", setup:"Rs. 22,000", setupNote:"One-Time Setup Fee", year:"~Rs. 144,000/year",
-        features:["WhatsApp lead qualification bot","Pakistan vs international detection","Meta developer account setup","VPS server included","2 auto follow-ups (4h + 22h)","Google Sheets lead logging","Gmail notification per lead","1,000 conversations / month","Fallback + escalation logic"] },
-      { name:"Smart Assistant", tier:"Standard", featured:true, price:"Rs. 22,000", per:"/mo", setup:"Rs. 36,000", setupNote:"One-Time Setup Fee", year:"~Rs. 264,000/year",
-        features:["Everything in Basic","Hiring flow (6 role-specific forms)","Voice note transcription (Whisper AI)","2-hour hiring follow-up automation","5,000 conversations / month","VPS server included","Google Sheets + Gmail integration","Multi-language support","Smart fallback & escalation rules"] },
-      { name:"Growth Suite", tier:"Pro", price:"Rs. 35,000", per:"/mo", setup:"Rs. 54,000", setupNote:"One-Time Setup Fee", year:"~Rs. 420,000/year",
-        features:["Everything in Standard","Instagram DM automation","Facebook Messenger integration","Unified multi-platform inbox log","1,000 conv/platform (3,000 total)","AI-powered CV analyzer","Best-match candidate filter","Monthly performance report","Priority support"] },
+      { name:"Lead Magnet", tier:"Basic", price:"Rs. 12,000", per:"/mo", setup:"Rs. 22,000", setupNote:"One-Time Setup Fee", year:"~Rs. 144,000/year", features:["WhatsApp lead qualification bot","Pakistan vs international detection","Meta developer account setup","VPS server included","2 auto follow-ups (4h + 22h)","Google Sheets lead logging","Gmail notification per lead","1,000 conversations / month","Fallback + escalation logic"] },
+      { name:"Smart Assistant", tier:"Standard", featured:true, price:"Rs. 22,000", per:"/mo", setup:"Rs. 36,000", setupNote:"One-Time Setup Fee", year:"~Rs. 264,000/year", features:["Everything in Basic","Hiring flow (6 role-specific forms)","Voice note transcription (Whisper AI)","2-hour hiring follow-up automation","5,000 conversations / month","VPS server included","Google Sheets + Gmail integration","Multi-language support","Smart fallback & escalation rules"] },
+      { name:"Growth Suite", tier:"Pro", price:"Rs. 35,000", per:"/mo", setup:"Rs. 54,000", setupNote:"One-Time Setup Fee", year:"~Rs. 420,000/year", features:["Everything in Standard","Instagram DM automation","Facebook Messenger integration","Unified multi-platform inbox log","1,000 conv/platform (3,000 total)","AI-powered CV analyzer","Best-match candidate filter","Monthly performance report","Priority support"] },
     ]},
   { id:"webdev", icon:"🌐", label:"Website Development", tagline:"Custom websites that convert visitors into clients",
     desc:"Fast, mobile-responsive, SEO-optimized websites. From landing pages to full e-commerce stores.", type:"web",
     packages:[
-      { name:"Starter", tier:"Basic", price:"Rs. 10,000", per:"/project", year:"❌ Domain & Hosting NOT included",
-        service:["4–6 page service-based website","CTA: WhatsApp button only","WhatsApp chatbot included","Query form + Google Map + Reviews"], ecom:["4 pages","10 product listings","WhatsApp button CTA"] },
-      { name:"Standard", tier:"Standard", featured:true, price:"Rs. 28,000", per:"/project", year:"❌ Domain & Hosting NOT included",
-        service:["4–10 page website","Appointment booking system","WhatsApp chatbot included","Google Map & Reviews integration","Mobile responsive"], ecom:["4–10 pages, 20 products, 5 categories","Add-to-cart + Cash on Delivery","Payment Gateway: Optional (+Rs. 5,000)"] },
-      { name:"Premium / Pro", tier:"Pro", price:"Rs. 52,000", per:"/project", year:"❌ Domain & Hosting NOT included",
-        service:["6–15 page fully custom website","Appointment booking + calendar","AI chatbot + Google Sheets CRM","Meta Pixel + Google indexing","Core Web Vitals optimization"], ecom:["6–15 pages, 50 products","Full payment: Stripe, PayPal, QR, Bank","Checkout + inventory + customer accounts"] },
+      { name:"Starter", tier:"Basic", price:"Rs. 10,000", per:"/project", year:"❌ Domain & Hosting NOT included", service:["4–6 page service-based website","CTA: WhatsApp button only","WhatsApp chatbot included","Query form + Google Map + Reviews"], ecom:["4 pages","10 product listings","WhatsApp button CTA"] },
+      { name:"Standard", tier:"Standard", featured:true, price:"Rs. 28,000", per:"/project", year:"❌ Domain & Hosting NOT included", service:["4–10 page website","Appointment booking system","WhatsApp chatbot included","Google Map & Reviews integration","Mobile responsive"], ecom:["4–10 pages, 20 products, 5 categories","Add-to-cart + Cash on Delivery","Payment Gateway: Optional (+Rs. 5,000)"] },
+      { name:"Premium / Pro", tier:"Pro", price:"Rs. 52,000", per:"/project", year:"❌ Domain & Hosting NOT included", service:["6–15 page fully custom website","Appointment booking + calendar","AI chatbot + Google Sheets CRM","Meta Pixel + Google indexing","Core Web Vitals optimization"], ecom:["6–15 pages, 50 products","Full payment: Stripe, PayPal, QR, Bank","Checkout + inventory + customer accounts"] },
     ]},
   { id:"smm", icon:"📱", label:"Social Media Marketing", tagline:"Fixed packages or build your own custom plan", desc:"Choose a ready-made package or customize your own — select platforms, posts, reels, and ad campaigns. Price updates live.", type:"smm" },
   { id:"seo", icon:"🔍", label:"SEO", tagline:"Rank higher on Google and get organic leads daily", desc:"Data-driven SEO — on-page, technical, keywords, backlinks, and monthly reporting.", type:"packages",
@@ -1103,14 +1050,11 @@ function ServiceDetail({ svc, onBack, onOther }) {
           <p style={{ fontSize:15, color, fontWeight:600, marginBottom:10 }}>{svc.tagline}</p>
           <p style={{ fontSize:14, color:"#64748b", maxWidth:540, margin:"0 auto", lineHeight:1.8 }}>{svc.desc}</p>
         </div>
-
         <div style={{ opacity:vis?1:0, transform:vis?"translateY(0)":"translateY(16px)", transition:"all .5s ease .15s" }}>
           {svc.type === "smm" && <SMMService color={color} />}
           {svc.type === "video" && <VideoService color={color} />}
           {svc.type === "leadgen" && <LeadGenService color={color} />}
-          {svc.type === "web" && (
-            <WebSection packages={svc.packages} color={color} />
-          )}
+          {svc.type === "web" && <WebSection packages={svc.packages} color={color} />}
           {svc.type === "packages" && (
             <>
               <div style={{ textAlign:"center", marginBottom:26 }}>
@@ -1123,7 +1067,6 @@ function ServiceDetail({ svc, onBack, onOther }) {
             </>
           )}
         </div>
-
         <div style={{ background:`linear-gradient(135deg,${B.p},#fff)`, border:`1.5px solid ${B.mid}`, borderRadius:20, padding:"28px 20px", textAlign:"center", marginTop:24 }}>
           <h3 style={{ fontSize:18, fontWeight:800, color:"#0f172a", marginBottom:8 }}>Have a question or want something custom?</h3>
           <p style={{ color:"#64748b", fontSize:14, maxWidth:420, margin:"0 auto 20px" }}>Message us on WhatsApp or book a free strategy call.</p>
@@ -1170,7 +1113,6 @@ export default function App() {
           🚀 AI-Powered Digital Services &nbsp;·&nbsp;
           <a href={waLink()} target="_blank" rel="noopener noreferrer">WhatsApp for custom quote →</a>
         </div>
-
         <nav className="navbar">
           <img src="/logo.png" alt="Curve Tech Solution" className="navbar-logo" />
           <div className="navbar-actions">
@@ -1178,7 +1120,6 @@ export default function App() {
             <a href={waLink()} target="_blank" rel="noopener noreferrer" className="btn-wa">💬 WhatsApp</a>
           </div>
         </nav>
-
         <div className={`hero ${vis?"visible":""}`} style={{ opacity:vis?1:0, transform:vis?"translateY(0)":"translateY(20px)", transition:"all .6s ease" }}>
           <div className="badge-pill">All Services</div>
           <h1>
@@ -1187,7 +1128,6 @@ export default function App() {
           </h1>
           <p>Choose a service to view packages and pricing. All customized to your needs.</p>
         </div>
-
         <div style={{ maxWidth:1200, margin:"0 auto", padding:"24px 14px 32px", flex:1, width:"100%" }}>
           <div className="svc-grid">
             {SERVICES.map((svc,idx) => (
