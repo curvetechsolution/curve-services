@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 
 const CALENDLY = "https://calendly.com/curvetechsolution/book-a-meeting";
 const WA_NO = "923316310490";
@@ -93,6 +93,7 @@ const GlobalStyles = () => (
       .svc-tagline { display:none; }
 
       .pkg-grid { grid-template-columns:1fr; }
+      .web-cards-grid { grid-template-columns:1fr !important; }
       .modal-grid { grid-template-columns:1fr; }
       .custom-builder { grid-template-columns:1fr; }
       .summary-sticky { position:static; }
@@ -229,6 +230,183 @@ function PkgCard({ pkg, color }) {
 }
 
 // ── Web Card ─────────────────────────────────────────────────────
+// ── Web Plan Chooser ──────────────────────────────────────────────
+// ── Web Custom Plan Builder ───────────────────────────────────────
+const WEB_FEATURES = {
+  service: [
+    { key:"pages",      icon:"📄", label:"Number of Pages",        type:"counter", min:1, max:20, default:4, basePrice:800,  unit:"page",  desc:"Each additional page" },
+    { key:"whatsapp",   icon:"💬", label:"WhatsApp Button",         type:"toggle",  price:0,     included:true, desc:"CTA button linking to WhatsApp" },
+    { key:"chatbot",    icon:"🤖", label:"WhatsApp Chatbot",         type:"toggle",  price:2500,  desc:"Automated WhatsApp reply bot" },
+    { key:"queryform",  icon:"📋", label:"Query / Contact Form",     type:"toggle",  price:800,   desc:"Lead capture form on your site" },
+    { key:"googlemap",  icon:"📍", label:"Google Map Embed",         type:"toggle",  price:500,   desc:"Show your location on the site" },
+    { key:"reviews",    icon:"⭐", label:"Google Reviews Section",   type:"toggle",  price:700,   desc:"Display your Google reviews" },
+    { key:"booking",    icon:"📅", label:"Appointment Booking",      type:"toggle",  price:4000,  desc:"Online booking / scheduling system" },
+    { key:"calendar",   icon:"🗓️", label:"Booking + Calendar Sync",  type:"toggle",  price:2000,  desc:"Sync bookings with Google Calendar" },
+    { key:"crm",        icon:"📊", label:"Google Sheets CRM",        type:"toggle",  price:3000,  desc:"Auto-log leads into Google Sheets" },
+    { key:"metapixel",  icon:"🎯", label:"Meta Pixel Setup",         type:"toggle",  price:1500,  desc:"Facebook/Instagram ad tracking" },
+    { key:"googleindex",icon:"🔍", label:"Google Indexing",          type:"toggle",  price:1000,  desc:"Submit site to Google Search" },
+    { key:"aichatbot",  icon:"🧠", label:"AI Chatbot",               type:"toggle",  price:5000,  desc:"Smart AI-powered website chatbot" },
+    { key:"mobile",     icon:"📱", label:"Mobile Responsive",        type:"toggle",  price:0,     included:true, desc:"Works on all screen sizes" },
+  ],
+  ecom: [
+    { key:"pages",      icon:"📄", label:"Number of Pages",          type:"counter", min:1, max:20, default:4, basePrice:800,  unit:"page",  desc:"Each page beyond 1st" },
+    { key:"products",   icon:"🛍️", label:"Product Listings",          type:"counter", min:5, max:100, default:10, basePrice:150, unit:"product", desc:"Per product listing" },
+    { key:"categories", icon:"🗂️", label:"Product Categories",        type:"counter", min:1, max:20, default:3, basePrice:400,  unit:"cat",   desc:"Per product category" },
+    { key:"whatsapp",   icon:"💬", label:"WhatsApp Button",           type:"toggle",  price:0,     included:true, desc:"CTA button linking to WhatsApp" },
+    { key:"cart",       icon:"🛒", label:"Add to Cart + COD",         type:"toggle",  price:3000,  desc:"Cart system with cash on delivery" },
+    { key:"payment",    icon:"💳", label:"Payment Gateway",           type:"toggle",  price:5000,  desc:"Online payments (card/bank)" },
+    { key:"checkout",   icon:"✅", label:"Checkout System",           type:"toggle",  price:2000,  desc:"Full checkout + order management" },
+    { key:"inventory",  icon:"📦", label:"Inventory Management",      type:"toggle",  price:3000,  desc:"Track stock levels automatically" },
+    { key:"accounts",   icon:"👤", label:"Customer Accounts",         type:"toggle",  price:2500,  desc:"Login, orders, profile for customers" },
+    { key:"googlemap",  icon:"📍", label:"Google Map Embed",          type:"toggle",  price:500,   desc:"Show your store location" },
+    { key:"metapixel",  icon:"🎯", label:"Meta Pixel Setup",          type:"toggle",  price:1500,  desc:"Facebook/Instagram ad tracking" },
+    { key:"mobile",     icon:"📱", label:"Mobile Responsive",         type:"toggle",  price:0,     included:true, desc:"Works on all screen sizes" },
+  ]
+};
+
+const BASE_PRICE = { service: 5000, ecom: 7000 };
+
+function WebPlanChooser({ color }) {
+  const [tab, setTab] = useState("service");
+  const features = WEB_FEATURES[tab];
+
+  // state: toggles & counters
+  const initState = (t) => {
+    const s: Record<string,any> = {};
+    WEB_FEATURES[t].forEach(f => {
+      if (f.type === "toggle") s[f.key] = !!f.included;
+      if (f.type === "counter") s[f.key] = f.default;
+    });
+    return s;
+  };
+  const [sel, setSel] = useState<Record<string,any>>(() => initState("service"));
+
+  const switchTab = (t) => { setTab(t); setSel(initState(t)); };
+
+  const toggle = (key) => setSel(s => ({ ...s, [key]: !s[key] }));
+  const counter = (key, delta, min, max) => setSel(s => ({ ...s, [key]: Math.min(max, Math.max(min, (s[key]||0)+delta)) }));
+
+  // price calc
+  const total = useMemo(() => {
+    let p = BASE_PRICE[tab];
+    features.forEach(f => {
+      if (f.type === "toggle" && sel[f.key] && !f.included) p += f.price;
+      if (f.type === "counter") p += (sel[f.key] - f.min) * f.basePrice;
+    });
+    return p;
+  }, [sel, tab]);
+
+  const fmtPrice = (n) => "Rs. " + n.toLocaleString("en-PK");
+
+  // selected features summary
+  const picked = features.filter(f => {
+    if (f.type === "toggle") return sel[f.key];
+    if (f.type === "counter") return sel[f.key] > 0;
+    return false;
+  });
+
+  return (
+    <div style={{ marginBottom:40, background:"#fff", borderRadius:24, padding:"28px 24px", boxShadow:"0 4px 32px rgba(0,0,0,.07)", border:"1px solid #f0f4f8" }}>
+      {/* Header */}
+      <div style={{ textAlign:"center", marginBottom:24 }}>
+        <div style={{ display:"inline-flex", alignItems:"center", gap:8, background:`${color}12`, borderRadius:99, padding:"6px 18px", marginBottom:10 }}>
+          <span>✨</span>
+          <span style={{ fontSize:12, fontWeight:700, color, letterSpacing:".06em", textTransform:"uppercase" }}>Build Your Own Plan</span>
+        </div>
+        <h2 style={{ fontSize:22, fontWeight:900, color:"#0f172a", margin:"0 0 4px" }}>Choose only what you need</h2>
+        <p style={{ color:"#94a3b8", fontSize:13, margin:0 }}>Select features below — price updates live · Domain & Hosting not included</p>
+      </div>
+
+      {/* Service / Ecom toggle */}
+      <div style={{ display:"flex", background:"#f1f5f9", borderRadius:12, padding:4, marginBottom:22, gap:4 }}>
+        {["service","ecom"].map(t=>(
+          <button key={t} onClick={()=>switchTab(t)} style={{ flex:1, padding:"10px 0", borderRadius:10, border:"none", cursor:"pointer", fontSize:13, fontWeight:700, background:tab===t?color:"transparent", color:tab===t?"#fff":"#64748b", transition:"all .2s" }}>
+            {t==="service"?"🏢 Service Website":"🛒 E-Commerce"}
+          </button>
+        ))}
+      </div>
+
+      <div style={{ display:"flex", flexDirection:"column", gap:20 }}>
+        {/* TOP: feature picker */}
+        <div>
+          <div style={{ fontSize:11, fontWeight:700, color:"#94a3b8", textTransform:"uppercase", letterSpacing:".08em", marginBottom:12 }}>Select Features</div>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))", gap:8 }}>
+            {features.map(f => (
+              <div key={f.key} style={{ background: (f.type==="toggle"?sel[f.key]:true) ? `${color}08` : "#f8fafc", border:`1.5px solid ${(f.type==="toggle"?sel[f.key]:true)?color+"30":"#e8edf2"}`, borderRadius:12, padding:"10px 12px", transition:"all .2s" }}>
+                <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                  <span style={{ fontSize:16, flexShrink:0 }}>{f.icon}</span>
+                  <div style={{ flex:1 }}>
+                    <div style={{ fontSize:13, fontWeight:700, color:"#0f172a" }}>{f.label}</div>
+                    <div style={{ fontSize:11, color:"#94a3b8" }}>{f.desc}</div>
+                  </div>
+                  {f.type === "toggle" && (
+                    f.included
+                      ? <span style={{ fontSize:11, fontWeight:700, color:"#10b981", background:"#d1fae5", borderRadius:99, padding:"2px 10px" }}>Included</span>
+                      : <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                          <span style={{ fontSize:12, fontWeight:700, color }}>{fmtPrice(f.price)}</span>
+                          <button onClick={()=>toggle(f.key)} style={{ width:40, height:22, borderRadius:11, border:"none", cursor:"pointer", background:sel[f.key]?color:"#cbd5e1", transition:"all .2s", position:"relative", flexShrink:0 }}>
+                            <span style={{ position:"absolute", top:2, left:sel[f.key]?20:2, width:18, height:18, borderRadius:9, background:"#fff", transition:"all .2s", boxShadow:"0 1px 4px rgba(0,0,0,.2)" }} />
+                          </button>
+                        </div>
+                  )}
+                  {f.type === "counter" && (
+                    <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                      <span style={{ fontSize:11, color:"#64748b", marginRight:4 }}>{fmtPrice(f.basePrice)}/{f.unit}</span>
+                      <button onClick={()=>counter(f.key,-1,f.min,f.max)} style={{ width:26, height:26, borderRadius:8, border:`1.5px solid ${color}`, background:"#fff", color, fontWeight:900, fontSize:14, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>−</button>
+                      <span style={{ fontSize:14, fontWeight:800, color:"#0f172a", minWidth:24, textAlign:"center" }}>{sel[f.key]}</span>
+                      <button onClick={()=>counter(f.key,1,f.min,f.max)} style={{ width:26, height:26, borderRadius:8, border:`1.5px solid ${color}`, background:color, color:"#fff", fontWeight:900, fontSize:14, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>+</button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* BOTTOM: summary + price */}
+        <div style={{ background:`linear-gradient(135deg,${color}10,${color}04)`, border:`2px solid ${color}30`, borderRadius:18, padding:"20px 22px" }}>
+          <div style={{ fontSize:11, fontWeight:700, color, textTransform:"uppercase", letterSpacing:".08em", marginBottom:4 }}>Your Custom Plan</div>
+          <div style={{ fontSize:11, color:"#ef4444", fontWeight:600, marginBottom:16 }}>❌ Domain & Hosting NOT included</div>
+
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(220px,1fr))", gap:"6px 20px", marginBottom:18, minHeight:36 }}>
+            {picked.length === 0 && <div style={{ color:"#94a3b8", fontSize:13 }}>No features selected yet</div>}
+            {picked.map(f => (
+              <div key={f.key} style={{ display:"flex", justifyContent:"space-between", alignItems:"center", fontSize:12, color:"#374151", gap:8 }}>
+                <span style={{ display:"flex", gap:6, alignItems:"center" }}>
+                  <span style={{ color, fontWeight:800 }}>✓</span>
+                  <span>{f.icon} {f.label}{f.type==="counter" ? ` × ${sel[f.key]}` : ""}</span>
+                </span>
+                <span style={{ fontWeight:700, color, flexShrink:0, fontSize:11 }}>
+                  {f.included ? "Free" : f.type==="counter" ? fmtPrice((sel[f.key]-f.min)*f.basePrice) : fmtPrice(f.price)}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ borderTop:`1.5px dashed ${color}40`, paddingTop:14, marginBottom:16, display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:12 }}>
+            <div style={{ display:"flex", gap:24, flexWrap:"wrap" }}>
+              <div>
+                <div style={{ fontSize:12, color:"#64748b", fontWeight:600, marginBottom:2 }}>Base Price</div>
+                <div style={{ fontSize:14, fontWeight:700, color:"#0f172a" }}>{fmtPrice(BASE_PRICE[tab])}</div>
+              </div>
+              <div>
+                <div style={{ fontSize:12, color:"#64748b", fontWeight:600, marginBottom:2 }}>Add-ons</div>
+                <div style={{ fontSize:14, fontWeight:700, color:"#0f172a" }}>{fmtPrice(total - BASE_PRICE[tab])}</div>
+              </div>
+            </div>
+            <div style={{ textAlign:"right" }}>
+              <div style={{ fontSize:12, color:"#64748b", marginBottom:2 }}>Total (one-time)</div>
+              <div style={{ fontSize:32, fontWeight:900, color, lineHeight:1 }}>{fmtPrice(total)}</div>
+            </div>
+          </div>
+
+          <GSBtn color={color} featured={true} name={"Custom Website"} price={fmtPrice(total)} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function WebCard({ pkg, color }) {
   const [tab, setTab] = useState("service");
   return (
@@ -519,9 +697,9 @@ const SERVICES = [
       { name:"Starter", tier:"Basic", price:"Rs. 10,000", per:"/project", year:"❌ Domain & Hosting NOT included",
         service:["4–6 page service-based website","CTA: WhatsApp button only","WhatsApp chatbot included","Query form + Google Map + Reviews"], ecom:["4 pages","10 product listings","WhatsApp button CTA"] },
       { name:"Standard", tier:"Standard", featured:true, price:"Rs. 28,000", per:"/project", year:"❌ Domain & Hosting NOT included",
-        service:["4–10 page website","Appointment booking system","WhatsApp chatbot included","Google Map & Reviews integration","Basic SEO + mobile responsive"], ecom:["4–10 pages, 20 products, 5 categories","Add-to-cart + Cash on Delivery","Payment Gateway: Optional (+Rs. 5,000)"] },
+        service:["4–10 page website","Appointment booking system","WhatsApp chatbot included","Google Map & Reviews integration","Mobile responsive"], ecom:["4–10 pages, 20 products, 5 categories","Add-to-cart + Cash on Delivery","Payment Gateway: Optional (+Rs. 5,000)"] },
       { name:"Premium / Pro", tier:"Pro", price:"Rs. 52,000", per:"/project", year:"❌ Domain & Hosting NOT included",
-        service:["6–15 page fully custom website","Appointment booking + calendar","AI chatbot + Google Sheets CRM","Meta Pixel + Google indexing","Advanced SEO + Core Web Vitals"], ecom:["6–15 pages, 50 products","Full payment: Stripe, PayPal, QR, Bank","Checkout + inventory + customer accounts"] },
+        service:["6–15 page fully custom website","Appointment booking + calendar","AI chatbot + Google Sheets CRM","Meta Pixel + Google indexing","Core Web Vitals optimization"], ecom:["6–15 pages, 50 products","Full payment: Stripe, PayPal, QR, Bank","Checkout + inventory + customer accounts"] },
     ]},
   { id:"smm", icon:"📱", label:"Social Media Marketing", tagline:"Fixed packages or build your own custom plan", desc:"Choose a ready-made package or customize your own — select platforms, posts, reels, and ad campaigns. Price updates live.", type:"smm" },
   { id:"seo", icon:"🔍", label:"SEO", tagline:"Rank higher on Google and get organic leads daily", desc:"Data-driven SEO — on-page, technical, keywords, backlinks, and monthly reporting.", type:"packages",
@@ -568,7 +746,7 @@ function Footer() {
           🌐 Visit curvetechsolution.online →
         </a>
         <div className="footer-links">
-          <a href={waLink()} target="_blank" rel="noopener noreferrer">💬 WhatsApp: 033 16310490</a>
+          <a href={waLink()} target="_blank" rel="noopener noreferrer">💬 WhatsApp: 03316310490</a>
           <span>·</span>
           <a href={CALENDLY} target="_blank" rel="noopener noreferrer">📅 Book a Meeting</a>
           <span>·</span>
@@ -624,12 +802,11 @@ function ServiceDetail({ svc, onBack, onOther }) {
           {svc.type === "video" && <VideoService color={color} />}
           {svc.type === "web" && (
             <>
-              <div style={{ textAlign:"center", marginBottom:26 }}>
-                <h2 style={{ fontSize:22, fontWeight:900, color:"#0f172a", marginBottom:6 }}>Choose Your Plan</h2>
-                <p style={{ color:"#94a3b8", fontSize:13 }}>Toggle between Service-based & E-Commerce details</p>
-              </div>
-              <div className="pkg-grid">
+              <div className="web-cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20, marginBottom:40 }}>
                 {svc.packages.map((pkg,i) => <WebCard key={i} pkg={pkg} color={color} />)}
+                <div style={{ gridColumn:"1 / -1" }}>
+                  <WebPlanChooser color={color} />
+                </div>
               </div>
             </>
           )}
@@ -726,7 +903,7 @@ export default function App() {
             <div className="cta-block">
               <p>Want a custom package? Talk to us — we respond fast.</p>
               <div className="cta-btns">
-                <a href={waLink()} target="_blank" rel="noopener noreferrer" className="cta-btn-wa">💬 WhatsApp: 0331 6310490</a>
+                <a href={waLink()} target="_blank" rel="noopener noreferrer" className="cta-btn-wa">💬 WhatsApp: 03316310490 </a>
                 <a href={CALENDLY} target="_blank" rel="noopener noreferrer" className="cta-btn-cal">📅 Book Free Meeting</a>
               </div>
             </div>
