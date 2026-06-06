@@ -121,6 +121,11 @@ const GlobalStyles = () => (
     .fade-in.visible { opacity:1; transform:translateY(0); }
     .fade-delay-1 { transition-delay:.08s; }
     .fade-delay-2 { transition-delay:.16s; }
+
+    /* WHATSAPP FLOAT */
+    .wa-float { position:fixed; bottom:24px; right:20px; z-index:9999; width:58px; height:58px; border-radius:50%; background:#25d366; display:flex; align-items:center; justify-content:center; box-shadow:0 6px 24px rgba(37,211,102,.5); cursor:pointer; text-decoration:none; font-size:28px; transition:transform .2s,box-shadow .2s; animation:waPulse 2.5s infinite; }
+    .wa-float:hover { transform:scale(1.12); box-shadow:0 10px 32px rgba(37,211,102,.6); }
+    @keyframes waPulse { 0%,100%{box-shadow:0 6px 24px rgba(37,211,102,.5),0 0 0 0 rgba(37,211,102,.4)} 60%{box-shadow:0 6px 24px rgba(37,211,102,.5),0 0 0 14px rgba(37,211,102,0)} }
   `}</style>
 );
 
@@ -463,73 +468,103 @@ function WebCard({ pkg, color }) {
 }
 
 // ── Video Service ─────────────────────────────────────────────────
+function DurationBtn({ secs, baseSecs, basePrice, color, selected, onClick }) {
+  const multiplier = Math.pow(1.5, (secs - baseSecs) / 30);
+  const price = Math.round(basePrice * multiplier / 100) * 100;
+  return (
+    <button onClick={onClick} style={{ padding:"6px 12px", borderRadius:10, border:`1.5px solid ${selected?color:"#e2e8f0"}`, background:selected?`${color}15`:"#f8fafc", color:selected?color:"#64748b", fontSize:12, fontWeight:700, cursor:"pointer", transition:"all .2s", whiteSpace:"nowrap" }}>
+      {secs}s — {fmtPKR(price)}
+    </button>
+  );
+}
+
 function VideoService({ color }) {
-  const [aiCount, setAi] = useState(0);
-  const [edCount, setEd] = useState(0);
-  const [gsOpen, setGsOpen] = useState(false);
-  const AP=6000, EP=3500;
-  const total = aiCount*AP + edCount*EP;
-  const pkgs = [
-    { key:"ai", label:"AI Commercial Video", price:AP, icon:"🎨", badge:"No Copyright Claim",
-      feats:["30 second AI-generated video","Background music included","Smooth animations & transitions","Free royalty-free characters","Text overlays & visual effects","HD quality — ready to post"] },
-    { key:"ed", label:"Reel / YouTube Shorts Editing", price:EP, icon:"✂️", badge:"Reels & Shorts",
-      feats:["30 second professionally edited","Your footage or sourced clips","Reels / YouTube Shorts format","Precision cuts & transitions","Captions & text overlays","Music sync included"] },
+  const BASE_SECS = 30;
+  const VIDEO_TYPES = [
+    { key:"ai",   label:"AI Commercial Video",     icon:"🎨", badge:"No Copyright Claim",   basePrice:6000,
+      feats:["AI-generated 30s commercial","Background music included","Smooth animations & transitions","Royalty-free characters","Text overlays & visual effects","HD quality — ready to post"] },
+    { key:"reel", label:"Reel / Short Editing",     icon:"✂️", badge:"Reels & Shorts",        basePrice:3500,
+      feats:["Professionally edited short","Your footage or sourced clips","Reels / Shorts format","Precision cuts & transitions","Captions & text overlays","Music sync included"] },
+    { key:"yt",   label:"YouTube Video",            icon:"▶️", badge:"YouTube Ready",         basePrice:5000,
+      feats:["Full YouTube-format video","Intro & outro included","Chapter markers added","Thumbnail design included","Color grading & audio mix","SEO-optimized title/description"] },
+    { key:"aiyt", label:"AI YouTube Video",         icon:"🤖", badge:"AI + YouTube",          basePrice:8000,
+      feats:["AI-generated YouTube video","Script & voiceover AI","Animated visuals & scenes","Background music licensed","Thumbnail auto-generated","HD — channel-ready"] },
   ];
-  const counts = { ai:aiCount, ed:edCount };
-  const setters = { ai:setAi, ed:setEd };
-  const msgStr = () => {
-    const lines = ["Hi! I want to order videos this month:"];
-    if (aiCount) lines.push(`🎨 AI Videos: ${aiCount} × Rs. 6,000 = ${fmtPKR(aiCount*AP)}`);
-    if (edCount) lines.push(`✂️ Editing Videos: ${edCount} × Rs. 3,500 = ${fmtPKR(edCount*EP)}`);
-    lines.push(`\n💰 Total: ${fmtPKR(total)}/month\nPlease confirm!`);
-    return lines.join("\n");
+
+  const [counts, setCounts] = useState<Record<string,number>>({ ai:0, reel:0, yt:0, aiyt:0 });
+  const [durations, setDurations] = useState<Record<string,number>>({ ai:30, reel:30, yt:30, aiyt:30 });
+  const [gsOpen, setGsOpen] = useState(false);
+
+  const getPrice = (basePrice, secs) => Math.round(basePrice * Math.pow(1.5, (secs - BASE_SECS) / 30) / 100) * 100;
+  const totalForType = (key) => {
+    const vt = VIDEO_TYPES.find(v=>v.key===key);
+    return counts[key] * getPrice(vt.basePrice, durations[key]);
   };
+  const total = VIDEO_TYPES.reduce((s,vt) => s + totalForType(vt.key), 0);
+  const totalVideos = Object.values(counts).reduce((a,b)=>a+b,0);
+
+  const DURATION_OPTIONS = [30, 60, 90, 120];
+
   return (
     <div>
-      <GSModal open={gsOpen} onClose={()=>setGsOpen(false)} name={`Video Package (${aiCount+edCount} videos)`} price={total?fmtPKR(total)+"/mo":""} />
+      <GSModal open={gsOpen} onClose={()=>setGsOpen(false)} name={`Video Package (${totalVideos} videos)`} price={total?fmtPKR(total)+"/mo":""} />
       <div style={{ textAlign:"center", marginBottom:28 }}>
         <h2 style={{ fontSize:22, fontWeight:900, color:"#0f172a", marginBottom:6 }}>Build Your Video Package</h2>
-        <p style={{ color:"#64748b", fontSize:14 }}>Choose AI or editing — or mix both. Price updates instantly.</p>
+        <p style={{ color:"#64748b", fontSize:14 }}>Choose video type, pick duration — price updates instantly. +50% per extra 30 seconds.</p>
       </div>
       <div className="video-grid">
-        {pkgs.map(p=>{
-          const cnt = counts[p.key];
-          const setter = setters[p.key];
+        {VIDEO_TYPES.map(vt => {
+          const cnt = counts[vt.key];
+          const dur = durations[vt.key];
+          const unitPrice = getPrice(vt.basePrice, dur);
           return (
-            <div key={p.key} style={{ background:"#fff", border:`1.5px solid ${cnt>0?color:"#e8edf2"}`, borderRadius:20, padding:"1.5rem", boxShadow:cnt>0?`0 6px 24px ${color}20`:"0 2px 10px rgba(0,0,0,.05)", transition:"all .25s" }}>
-              <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:14 }}>
-                <div style={{ width:44, height:44, borderRadius:14, background:B.l, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22, flexShrink:0 }}>{p.icon}</div>
+            <div key={vt.key} style={{ background:"#fff", border:`1.5px solid ${cnt>0?color:"#e8edf2"}`, borderRadius:20, padding:"1.5rem", boxShadow:cnt>0?`0 6px 24px ${color}20`:"0 2px 10px rgba(0,0,0,.05)", transition:"all .25s" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:10 }}>
+                <div style={{ width:44, height:44, borderRadius:14, background:B.l, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22, flexShrink:0 }}>{vt.icon}</div>
                 <div>
-                  <div style={{ fontSize:15, fontWeight:800, color:"#0f172a" }}>{p.label}</div>
-                  <span style={{ display:"inline-block", background:`${color}15`, color, fontSize:11, fontWeight:700, padding:"2px 10px", borderRadius:99, marginTop:3 }}>{p.badge}</span>
+                  <div style={{ fontSize:15, fontWeight:800, color:"#0f172a" }}>{vt.label}</div>
+                  <span style={{ display:"inline-block", background:`${color}15`, color, fontSize:11, fontWeight:700, padding:"2px 10px", borderRadius:99, marginTop:3 }}>{vt.badge}</span>
                 </div>
               </div>
-              <div style={{ fontSize:26, fontWeight:900, color, marginBottom:14 }}>{fmtPKR(p.price)}<span style={{ fontSize:13, fontWeight:400, color:"#94a3b8" }}> / video</span></div>
-              {p.feats.map((f,i)=>(
-                <div key={i} style={{ display:"flex", gap:8, marginBottom:7, fontSize:13, color:"#374151" }}>
+              {/* Duration selector */}
+              <div style={{ marginBottom:10 }}>
+                <div style={{ fontSize:11, fontWeight:700, color:"#94a3b8", textTransform:"uppercase", letterSpacing:".06em", marginBottom:6 }}>Select Duration</div>
+                <div style={{ display:"flex", flexWrap:"wrap", gap:6 }}>
+                  {DURATION_OPTIONS.map(s => (
+                    <DurationBtn key={s} secs={s} baseSecs={BASE_SECS} basePrice={vt.basePrice} color={color} selected={dur===s} onClick={()=>setDurations(d=>({...d,[vt.key]:s}))} />
+                  ))}
+                </div>
+              </div>
+              <div style={{ fontSize:24, fontWeight:900, color, marginBottom:10 }}>{fmtPKR(unitPrice)}<span style={{ fontSize:12, fontWeight:400, color:"#94a3b8" }}> / video ({dur}s)</span></div>
+              {vt.feats.map((f,i)=>(
+                <div key={i} style={{ display:"flex", gap:8, marginBottom:6, fontSize:13, color:"#374151" }}>
                   <span style={{ color, fontWeight:700, flexShrink:0 }}>✓</span>{f}
                 </div>
               ))}
-              <div style={{ marginTop:16, display:"flex", alignItems:"center", justifyContent:"space-between", gap:8, flexWrap:"wrap" }}>
+              <div style={{ marginTop:14, display:"flex", alignItems:"center", justifyContent:"space-between", gap:8, flexWrap:"wrap" }}>
                 <div style={{ fontSize:13, color:"#64748b", fontWeight:500 }}>Videos this month:</div>
-                <Ctr v={cnt} set={setter} color={color} />
+                <Ctr v={cnt} set={v=>setCounts(c=>({...c,[vt.key]:Math.max(0,v)}))} color={color} />
               </div>
               {cnt>0 && (
                 <div style={{ marginTop:10, padding:"8px 12px", background:`${color}10`, borderRadius:10, display:"flex", justifyContent:"space-between", fontSize:13 }}>
-                  <span style={{ color:"#64748b" }}>{cnt} video{cnt>1?"s":""}</span>
-                  <span style={{ fontWeight:700, color }}>{fmtPKR(cnt*p.price)}</span>
+                  <span style={{ color:"#64748b" }}>{cnt} video{cnt>1?"s":""} × {dur}s</span>
+                  <span style={{ fontWeight:700, color }}>{fmtPKR(cnt*unitPrice)}</span>
                 </div>
               )}
             </div>
           );
         })}
       </div>
-      {(aiCount+edCount)>0 ? (
+      {totalVideos>0 ? (
         <div style={{ background:`linear-gradient(135deg,${B.p},#fff)`, border:`2px solid ${color}44`, borderRadius:20, padding:24, marginBottom:20 }}>
           <div style={{ fontWeight:700, fontSize:15, color:"#0f172a", marginBottom:12 }}>📋 Your Monthly Video Package</div>
           <div style={{ display:"flex", flexDirection:"column", gap:8, marginBottom:16 }}>
-            {aiCount>0 && <div style={{ display:"flex", justifyContent:"space-between", fontSize:14 }}><span style={{ color:"#64748b" }}>🎨 AI Videos ({aiCount})</span><span style={{ fontWeight:700, color }}>{fmtPKR(aiCount*AP)}</span></div>}
-            {edCount>0 && <div style={{ display:"flex", justifyContent:"space-between", fontSize:14 }}><span style={{ color:"#64748b" }}>✂️ Editing Videos ({edCount})</span><span style={{ fontWeight:700, color }}>{fmtPKR(edCount*EP)}</span></div>}
+            {VIDEO_TYPES.map(vt => counts[vt.key]>0 && (
+              <div key={vt.key} style={{ display:"flex", justifyContent:"space-between", fontSize:14 }}>
+                <span style={{ color:"#64748b" }}>{vt.icon} {vt.label} ({counts[vt.key]} × {durations[vt.key]}s)</span>
+                <span style={{ fontWeight:700, color }}>{fmtPKR(totalForType(vt.key))}</span>
+              </div>
+            ))}
             <div style={{ borderTop:"1.5px solid #e8edf2", paddingTop:10, display:"flex", justifyContent:"space-between", fontSize:18, fontWeight:900 }}>
               <span style={{ color:"#0f172a" }}>Total / Month</span>
               <span style={{ color }}>{fmtPKR(total)}</span>
@@ -542,7 +577,7 @@ function VideoService({ color }) {
       ) : (
         <div style={{ background:"#f8fafc", border:"1.5px dashed #e2e8f0", borderRadius:16, padding:28, textAlign:"center" }}>
           <div style={{ fontSize:28, marginBottom:8 }}>👆</div>
-          <div style={{ fontSize:14, color:"#94a3b8" }}>Add videos using the + buttons above to see your package total</div>
+          <div style={{ fontSize:14, color:"#94a3b8" }}>Select a duration and add videos using + buttons above to see your package total</div>
         </div>
       )}
     </div>
@@ -555,7 +590,7 @@ const PLATS_DEF = [
   { id:"ig", label:"Instagram", icon:"📸" },
   { id:"tt", label:"TikTok", icon:"🎵" },
   { id:"li", label:"LinkedIn", icon:"💼" },
-  { id:"yt", label:"YouTube Shorts", icon:"▶️" },
+  { id:"yt", label:"YouTube", icon:"▶️" },
 ];
 
 function SMMService({ color }) {
@@ -567,11 +602,16 @@ function SMMService({ color }) {
   const [fbAds, setFbAds] = useState(0);
   const [ttAds, setTtAds] = useState(0);
   const [liAds, setLiAds] = useState(0);
+  const [ytAds, setYtAds] = useState(0);
+  const [fbBudget, setFbBudget] = useState(5000);
+  const [ttBudget, setTtBudget] = useState(5000);
+  const [liBudget, setLiBudget] = useState(5000);
+  const [ytBudget, setYtBudget] = useState(5000);
   const [gsOpen, setGsOpen] = useState(false);
   const [gsPkg, setGsPkg] = useState(null);
 
-  const PLAT_P=1500, POST_P=700, AIR_P=4000, EDR_P=2500, FB_AD=2000, TT_AD=2500, LI_AD=3000;
-  const customTotal = plats.length*PLAT_P + posts*POST_P + aiReels*AIR_P + edReels*EDR_P + fbAds*FB_AD + ttAds*TT_AD + liAds*LI_AD;
+  const PLAT_P=1500, POST_P=700, AIR_P=4000, EDR_P=2500, FB_AD=2000, TT_AD=2500, LI_AD=3000, YT_AD=5000;
+  const customTotal = plats.length*PLAT_P + posts*POST_P + aiReels*AIR_P + edReels*EDR_P + fbAds*FB_AD + ttAds*TT_AD + liAds*LI_AD + ytAds*YT_AD;
 
   const fixedPkgs = [
     { name:"Starter Presence", tier:"Starter", price:"Rs 9,999", per:"/month", featured:false,
@@ -581,7 +621,7 @@ function SMMService({ color }) {
       features:["Platforms: Facebook + Instagram","One Optional: LinkedIn or TikTok","12 Posts per month","2 Reels (30–45 sec)","Copywriting & caption hooks","Page management","3 Paid Campaigns (Awareness + Engagement + Retargeting)","Monthly growth report"],
       warning:["Boosting Budget: PKR 15,000–20,000 (Client Paid)"] },
     { name:"Brand Authority", tier:"Pro", price:"Rs 34,999", per:"/month", featured:false,
-      features:["Platforms: Facebook, Instagram, LinkedIn, YouTube Shorts","25 Custom Posts per month","4 Reels (30–60 sec with overlays)","Content calendar","Competitor analysis","Bi-weekly growth consultation","4 Campaigns (Includes Conversion + Retargeting)"],
+      features:["Platforms: Facebook, Instagram, LinkedIn, YouTube","25 Custom Posts per month","4 Reels (30–60 sec with overlays)","Content calendar","Competitor analysis","Bi-weekly growth consultation","4 Campaigns (Includes Conversion + Retargeting)"],
       warning:["Boosting Budget: PKR 30,000–50,000 (Client Paid)"] },
   ];
 
@@ -660,13 +700,37 @@ function SMMService({ color }) {
             <div style={{ background:"#fff", border:"1.5px solid #e8edf2", borderRadius:16, padding:"1.2rem" }}>
               <div style={{ fontWeight:700, fontSize:14, color:"#0f172a", marginBottom:12 }}>📢 Paid Ad Campaigns</div>
               <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
-                {[{label:"📘 Facebook Ads", v:fbAds, set:setFbAds, p:FB_AD},{label:"🎵 TikTok Ads", v:ttAds, set:setTtAds, p:TT_AD},{label:"💼 LinkedIn Ads", v:liAds, set:setLiAds, p:LI_AD}].map(a=>(
+                {[{label:"📘 Facebook Ads", v:fbAds, set:setFbAds, p:FB_AD},{label:"🎵 TikTok Ads", v:ttAds, set:setTtAds, p:TT_AD},{label:"💼 LinkedIn Ads", v:liAds, set:setLiAds, p:LI_AD},{label:"▶️ YouTube Ads", v:ytAds, set:setYtAds, p:YT_AD}].map(a=>(
                   <div key={a.label} style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:8, padding:"8px 12px", background:a.v>0?`${color}08`:"#f8fafc", borderRadius:10, border:`1px solid ${a.v>0?color+"44":"#e8edf2"}`, transition:"all .2s", flexWrap:"wrap" }}>
                     <div>
                       <div style={{ fontSize:13, fontWeight:600, color:"#0f172a" }}>{a.label}</div>
                       <div style={{ fontSize:11, color:"#94a3b8" }}>{fmtPKR(a.p)}/campaign</div>
                     </div>
                     <Ctr v={a.v} set={a.set} color={color} size={30} />
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div style={{ background:"#fff", border:"1.5px solid #e8edf2", borderRadius:16, padding:"1.2rem" }}>
+              <div style={{ fontWeight:700, fontSize:14, color:"#0f172a", marginBottom:4 }}>💰 Advertisement Budget <span style={{ fontSize:11, color:"#94a3b8", fontWeight:400 }}>— per platform (client paid)</span></div>
+              <p style={{ fontSize:12, color:"#94a3b8", marginBottom:12 }}>Set how much budget your ads will run on. Min: Rs. 2,000 · Max: Rs. 5,00,000</p>
+              <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+                {[
+                  {label:"📘 Facebook Ads", v:fbBudget, set:setFbBudget},
+                  {label:"🎵 TikTok Ads", v:ttBudget, set:setTtBudget},
+                  {label:"💼 LinkedIn Ads", v:liBudget, set:setLiBudget},
+                  {label:"▶️ YouTube Ads", v:ytBudget, set:setYtBudget},
+                ].map(b=>(
+                  <div key={b.label} style={{ padding:"10px 12px", background:"#f8fafc", borderRadius:10, border:"1px solid #e8edf2" }}>
+                    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
+                      <span style={{ fontSize:13, fontWeight:600, color:"#0f172a" }}>{b.label}</span>
+                      <span style={{ fontSize:14, fontWeight:800, color }}>{fmtPKR(b.v)}</span>
+                    </div>
+                    <input type="range" min={2000} max={500000} step={1000} value={b.v} onChange={e=>b.set(Number(e.target.value))}
+                      style={{ width:"100%", accentColor:color, height:6, borderRadius:3, cursor:"pointer" }} />
+                    <div style={{ display:"flex", justifyContent:"space-between", fontSize:10, color:"#94a3b8", marginTop:4 }}>
+                      <span>Rs. 2,000</span><span>Rs. 5,00,000</span>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -684,6 +748,7 @@ function SMMService({ color }) {
               {fbAds>0 && <div style={{ display:"flex", justifyContent:"space-between", fontSize:13 }}><span style={{ color:"#64748b" }}>📘 FB Ads ({fbAds})</span><span style={{ fontWeight:700 }}>{fmtPKR(fbAds*FB_AD)}</span></div>}
               {ttAds>0 && <div style={{ display:"flex", justifyContent:"space-between", fontSize:13 }}><span style={{ color:"#64748b" }}>🎵 TikTok Ads ({ttAds})</span><span style={{ fontWeight:700 }}>{fmtPKR(ttAds*TT_AD)}</span></div>}
               {liAds>0 && <div style={{ display:"flex", justifyContent:"space-between", fontSize:13 }}><span style={{ color:"#64748b" }}>💼 LinkedIn Ads ({liAds})</span><span style={{ fontWeight:700 }}>{fmtPKR(liAds*LI_AD)}</span></div>}
+              {ytAds>0 && <div style={{ display:"flex", justifyContent:"space-between", fontSize:13 }}><span style={{ color:"#64748b" }}>▶️ YouTube Ads ({ytAds})</span><span style={{ fontWeight:700 }}>{fmtPKR(ytAds*YT_AD)}</span></div>}
             </div>
             <div style={{ borderTop:`1.5px dashed ${color}40`, paddingTop:14, marginBottom:16, display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:12 }}>
               <div>
@@ -699,6 +764,150 @@ function SMMService({ color }) {
               Get Started →
             </button>
             <GSModal open={gsOpen} onClose={()=>setGsOpen(false)} name="Custom Social Media Package" price={fmtPKR(customTotal)+"/mo"} />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Lead Gen Service ──────────────────────────────────────────────
+function LeadGenService({ color }) {
+  const [mode, setMode] = useState("packages");
+  const [gsOpen, setGsOpen] = useState(false);
+  const [gsPkg, setGsPkg] = useState(null);
+
+  // Custom plan state
+  const [leads, setLeads] = useState(100);
+  const [emailSeq, setEmailSeq] = useState(false);
+  const [waOutreach, setWaOutreach] = useState(false);
+  const [linkedinCamp, setLinkedinCamp] = useState(false);
+  const [leadScore, setLeadScore] = useState(false);
+  const [nurturing, setNurturing] = useState(false);
+  const [dedicatedStrat, setDedicatedStrat] = useState(false);
+
+  const LEAD_P = 180; // per lead
+  const EMAIL_P = 5000;
+  const WA_P = 6000;
+  const LI_P = 7000;
+  const SCORE_P = 3000;
+  const NURTURE_P = 5000;
+  const STRAT_P = 8000;
+
+  const customTotal = leads*LEAD_P + (emailSeq?EMAIL_P:0) + (waOutreach?WA_P:0) + (linkedinCamp?LI_P:0) + (leadScore?SCORE_P:0) + (nurturing?NURTURE_P:0) + (dedicatedStrat?STRAT_P:0);
+
+  const fixedPkgs = [
+    { name:"Starter Leads", tier:"Basic", price:"Rs. 20,000", per:"/mo", year:"~Rs. 240,000/year", featured:false,
+      features:["100 verified leads/month","Target by industry & location","Name, email, phone included","Google Sheet delivery","Basic email outreach (50/month)","Monthly lead report"],
+      warning:[] },
+    { name:"Growth Leads", tier:"Standard", price:"Rs. 35,000", per:"/mo", year:"~Rs. 420,000/year", featured:true,
+      features:["300 verified leads/month","Cold email sequence (3-step)","WhatsApp outreach automation","LinkedIn connection campaign","Lead scoring & prioritization","Monthly conversion report"],
+      warning:[] },
+    { name:"Enterprise Leads", tier:"Pro", price:"Rs. 60,000", per:"/mo", year:"~Rs. 720,000/year", featured:false,
+      features:["700+ verified leads/month","Multi-channel outreach","WhatsApp + LinkedIn + Cold call","Lead nurturing automation","A/B tested messaging","Dedicated lead strategist"],
+      warning:[] },
+  ];
+
+  const addons = [
+    { label:"📧 Cold Email Sequence (3-step)", v:emailSeq, set:setEmailSeq, price:EMAIL_P },
+    { label:"💬 WhatsApp Outreach Automation", v:waOutreach, set:setWaOutreach, price:WA_P },
+    { label:"💼 LinkedIn Connection Campaign", v:linkedinCamp, set:setLinkedinCamp, price:LI_P },
+    { label:"🏆 Lead Scoring & Prioritization", v:leadScore, set:setLeadScore, price:SCORE_P },
+    { label:"🔁 Lead Nurturing Automation", v:nurturing, set:setNurturing, price:NURTURE_P },
+    { label:"🧑‍💼 Dedicated Lead Strategist", v:dedicatedStrat, set:setDedicatedStrat, price:STRAT_P },
+  ];
+
+  return (
+    <div>
+      <GSModal open={gsOpen} onClose={()=>setGsOpen(false)} name={gsPkg?.name || "Custom Lead Gen Plan"} price={gsPkg?.price || fmtPKR(customTotal)+"/mo"} />
+
+      {/* Toggle */}
+      <div style={{ display:"flex", background:"#f1f5f9", borderRadius:12, padding:4, marginBottom:28, gap:4, maxWidth:360, margin:"0 auto 28px" }}>
+        {[{k:"packages",l:"📦 Packages"},{k:"custom",l:"🛠 Make Custom"}].map(t=>(
+          <button key={t.k} onClick={()=>setMode(t.k)} style={{ flex:1, padding:"9px 0", borderRadius:9, border:"none", cursor:"pointer", fontSize:13, fontWeight:700, background:mode===t.k?color:"transparent", color:mode===t.k?"#fff":"#64748b", transition:"all .2s" }}>{t.l}</button>
+        ))}
+      </div>
+
+      {mode==="packages" && (
+        <div className="pkg-grid">
+          {fixedPkgs.map((pkg,i) => (
+            <div key={i} style={{ background:"#fff", border:pkg.featured?`2px solid ${color}`:"1.5px solid #e8edf2", borderRadius:20, padding:"1.5rem", display:"flex", flexDirection:"column", position:"relative", boxShadow:pkg.featured?`0 8px 32px ${color}20`:"0 2px 10px rgba(0,0,0,.05)", transition:"transform .25s,box-shadow .25s" }}
+              onMouseEnter={e=>{e.currentTarget.style.transform="translateY(-5px)";e.currentTarget.style.boxShadow=`0 14px 36px ${color}22`;}}
+              onMouseLeave={e=>{e.currentTarget.style.transform="translateY(0)";e.currentTarget.style.boxShadow=pkg.featured?`0 8px 32px ${color}20`:"0 2px 10px rgba(0,0,0,.05)";}}>
+              {pkg.featured && <div style={{ position:"absolute", top:-14, left:"50%", transform:"translateX(-50%)", background:`linear-gradient(90deg,${color},${color}bb)`, color:"#fff", fontSize:11, fontWeight:700, padding:"4px 18px", borderRadius:99, whiteSpace:"nowrap", boxShadow:`0 4px 12px ${color}50` }}>⭐ Most Popular</div>}
+              <div style={{ fontSize:11, fontWeight:700, color, textTransform:"uppercase", letterSpacing:".08em", marginBottom:4 }}>{pkg.tier}</div>
+              <div style={{ fontSize:17, fontWeight:800, color:"#0f172a", marginBottom:6 }}>{pkg.name}</div>
+              <div style={{ fontSize:26, fontWeight:900, color, marginBottom:4 }}>{pkg.price}<span style={{ fontSize:13, fontWeight:400, color:"#94a3b8" }}>{pkg.per}</span></div>
+              <div style={{ fontSize:12, color:"#94a3b8", marginBottom:16 }}>{pkg.year}</div>
+              <div style={{ flex:1, borderTop:"1px solid #f1f5f9", paddingTop:12 }}>
+                {pkg.features.map((f,j)=><div key={j} style={{ display:"flex", gap:8, marginBottom:8, fontSize:13, color:"#374151" }}><span style={{ color, fontWeight:700, flexShrink:0 }}>✓</span>{f}</div>)}
+              </div>
+              <button onClick={()=>{ setGsPkg(pkg); setGsOpen(true); }} style={{ display:"block", width:"100%", marginTop:18, textAlign:"center", padding:"12px 0", background:pkg.featured?`linear-gradient(90deg,${color},${color}cc)`:"transparent", color:pkg.featured?"#fff":color, border:`2px solid ${color}`, borderRadius:12, fontWeight:700, fontSize:14, cursor:"pointer", transition:"all .2s" }}
+                onMouseEnter={e=>{if(!pkg.featured){e.currentTarget.style.background=color;e.currentTarget.style.color="#fff";}}}
+                onMouseLeave={e=>{if(!pkg.featured){e.currentTarget.style.background="transparent";e.currentTarget.style.color=color;}}}>
+                Get Started →
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {mode==="custom" && (
+        <div style={{ display:"flex", flexDirection:"column", gap:20 }}>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))", gap:12 }}>
+            {/* Leads slider */}
+            <div style={{ background:"#fff", border:"1.5px solid #e8edf2", borderRadius:16, padding:"1.2rem" }}>
+              <div style={{ fontWeight:700, fontSize:14, color:"#0f172a", marginBottom:4 }}>🎯 Number of Leads <span style={{ fontSize:12, color:"#94a3b8", fontWeight:400 }}>— {fmtPKR(LEAD_P)}/lead</span></div>
+              <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10, marginTop:8 }}>
+                <span style={{ fontSize:20, fontWeight:900, color }}>{leads} leads</span>
+                <span style={{ fontSize:14, fontWeight:700, color:"#0f172a" }}>{fmtPKR(leads*LEAD_P)}/mo</span>
+              </div>
+              <input type="range" min={50} max={1000} step={50} value={leads} onChange={e=>setLeads(Number(e.target.value))}
+                style={{ width:"100%", accentColor:color, height:6, borderRadius:3, cursor:"pointer" }} />
+              <div style={{ display:"flex", justifyContent:"space-between", fontSize:10, color:"#94a3b8", marginTop:4 }}>
+                <span>50 leads</span><span>1,000 leads</span>
+              </div>
+              <div style={{ display:"flex", gap:8, marginTop:10, flexWrap:"wrap" }}>
+                {[100,300,700].map(n=>(
+                  <button key={n} onClick={()=>setLeads(n)} style={{ padding:"5px 12px", borderRadius:8, border:`1.5px solid ${leads===n?color:"#e2e8f0"}`, background:leads===n?`${color}15`:"#f8fafc", color:leads===n?color:"#64748b", fontSize:12, fontWeight:700, cursor:"pointer" }}>{n}</button>
+                ))}
+              </div>
+            </div>
+            {/* Add-ons */}
+            <div style={{ background:"#fff", border:"1.5px solid #e8edf2", borderRadius:16, padding:"1.2rem" }}>
+              <div style={{ fontWeight:700, fontSize:14, color:"#0f172a", marginBottom:12 }}>⚙️ Outreach Add-ons</div>
+              <div style={{ display:"flex", flexDirection:"column", gap:9 }}>
+                {addons.map(a=>(
+                  <div key={a.label} style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:8, padding:"8px 10px", background:a.v?`${color}08`:"#f8fafc", borderRadius:10, border:`1px solid ${a.v?color+"44":"#e8edf2"}`, transition:"all .2s" }}>
+                    <div>
+                      <div style={{ fontSize:13, fontWeight:600, color:"#0f172a" }}>{a.label}</div>
+                      <div style={{ fontSize:11, color:"#94a3b8" }}>{fmtPKR(a.price)}/mo</div>
+                    </div>
+                    <button onClick={()=>a.set(!a.v)} style={{ width:40, height:22, borderRadius:11, border:"none", cursor:"pointer", background:a.v?color:"#cbd5e1", transition:"all .2s", position:"relative", flexShrink:0 }}>
+                      <span style={{ position:"absolute", top:2, left:a.v?20:2, width:18, height:18, borderRadius:9, background:"#fff", transition:"all .2s", boxShadow:"0 1px 4px rgba(0,0,0,.2)" }} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Summary */}
+          <div style={{ background:`linear-gradient(135deg,${color}10,${color}04)`, border:`2px solid ${color}30`, borderRadius:18, padding:"24px 28px" }}>
+            <div style={{ fontSize:11, fontWeight:700, color, textTransform:"uppercase", letterSpacing:".08em", marginBottom:14 }}>💰 Custom Plan Summary</div>
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))", gap:"6px 20px", marginBottom:18 }}>
+              <div style={{ display:"flex", justifyContent:"space-between", fontSize:13 }}><span style={{ color:"#64748b" }}>🎯 Leads ({leads})</span><span style={{ fontWeight:700 }}>{fmtPKR(leads*LEAD_P)}</span></div>
+              {addons.filter(a=>a.v).map(a=>(
+                <div key={a.label} style={{ display:"flex", justifyContent:"space-between", fontSize:13 }}><span style={{ color:"#64748b" }}>{a.label.split(" ").slice(0,3).join(" ")}</span><span style={{ fontWeight:700 }}>{fmtPKR(a.price)}</span></div>
+              ))}
+            </div>
+            <div style={{ borderTop:`1.5px dashed ${color}40`, paddingTop:14, marginBottom:16, display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:12 }}>
+              <div style={{ fontSize:12, color:"#64748b" }}>Monthly Total</div>
+              <div style={{ fontSize:32, fontWeight:900, color, lineHeight:1 }}>{fmtPKR(customTotal)}</div>
+            </div>
+            <button onClick={()=>{ setGsPkg(null); setGsOpen(true); }} style={{ width:"100%", background:`linear-gradient(90deg,${color},${color}cc)`, color:"#fff", border:"none", borderRadius:12, padding:"13px 0", fontSize:14, fontWeight:700, cursor:"pointer", boxShadow:`0 4px 16px ${color}40` }}>
+              Get Started →
+            </button>
           </div>
         </div>
       )}
@@ -754,7 +963,7 @@ const SERVICES = [
       { name:"Smart Caller", tier:"Standard", featured:true, price:"Rs. 30,000", per:"/mo", setup:"Rs. 35,000", setupNote:"One-Time Setup Fee", year:"~Rs. 360,000/year", features:["Everything in Basic","1,500 calls per month","Inbound + outbound calling","Appointment booking via call","CRM / Sheets integration","Call transcript logging"] },
       { name:"Enterprise Caller", tier:"Pro", price:"Rs. 50,000", per:"/mo", setup:"Rs. 55,000", setupNote:"One-Time Setup Fee", year:"~Rs. 600,000/year", features:["Everything in Standard","Unlimited calls","Multi-language support","WhatsApp + Call combined flow","A/B script testing","Monthly performance report"] },
     ]},
-  { id:"leadgen", icon:"🎯", label:"Lead Generation", tagline:"Targeted lead lists and B2B outreach", desc:"Verified leads via data scraping, LinkedIn outreach, cold email, and WhatsApp campaigns.", type:"packages",
+  { id:"leadgen", icon:"🎯", label:"Lead Generation", tagline:"Targeted lead lists and B2B outreach", desc:"Verified leads via data scraping, LinkedIn outreach, cold email, and WhatsApp campaigns.", type:"leadgen",
     packages:[
       { name:"Starter Leads", tier:"Basic", price:"Rs. 20,000", per:"/mo", year:"~Rs. 240,000/year", features:["100 verified leads/month","Target by industry & location","Name, email, phone included","Google Sheet delivery","Basic email outreach (50/month)","Monthly lead report"] },
       { name:"Growth Leads", tier:"Standard", featured:true, price:"Rs. 35,000", per:"/mo", year:"~Rs. 420,000/year", features:["300 verified leads/month","Cold email sequence (3-step)","WhatsApp outreach automation","LinkedIn connection campaign","Lead scoring & prioritization","Monthly conversion report"] },
@@ -828,6 +1037,7 @@ function ServiceDetail({ svc, onBack, onOther }) {
         <div style={{ opacity:vis?1:0, transform:vis?"translateY(0)":"translateY(16px)", transition:"all .5s ease .15s" }}>
           {svc.type === "smm" && <SMMService color={color} />}
           {svc.type === "video" && <VideoService color={color} />}
+          {svc.type === "leadgen" && <LeadGenService color={color} />}
           {svc.type === "web" && (
             <WebSection packages={svc.packages} color={color} />
           )}
@@ -875,6 +1085,7 @@ export default function App() {
       <>
         <GlobalStyles />
         <ServiceDetail svc={svc} onBack={()=>{ setActive(null); window.location.hash=""; }} onOther={id=>setActive(id)} />
+        <a href={waLink()} target="_blank" rel="noopener noreferrer" className="wa-float" title="Chat on WhatsApp">💬</a>
       </>
     );
   }
@@ -932,6 +1143,7 @@ export default function App() {
         </div>
         <Footer />
       </div>
+      <a href={waLink()} target="_blank" rel="noopener noreferrer" className="wa-float" title="Chat on WhatsApp">💬</a>
     </>
   );
 }
