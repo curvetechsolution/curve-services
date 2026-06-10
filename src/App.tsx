@@ -1017,6 +1017,153 @@ function LeadGenService({ color }) {
   );
 }
 
+// ── Combo Builder ─────────────────────────────────────────────────
+const COMBO_SERVICES = [
+  { id:"chatbot",   icon:"🤖", label:"Chatbot Automation",      tiers:[{ name:"Basic",    price:12000 },{ name:"Standard", price:22000 },{ name:"Pro",      price:35000 }] },
+  { id:"webdev",    icon:"🌐", label:"Website Development",      tiers:[{ name:"Starter",  price:10000 },{ name:"Standard", price:28000 },{ name:"Premium",  price:52000 }] },
+  { id:"smm",       icon:"📱", label:"Social Media Marketing",   tiers:[{ name:"Starter",  price:9999  },{ name:"Standard", price:19999 },{ name:"Pro",      price:34999 }] },
+  { id:"seo",       icon:"🔍", label:"SEO",                       tiers:[{ name:"Local",    price:15000 },{ name:"Growth",   price:28000 },{ name:"Authority",price:50000 }] },
+  { id:"googleads", icon:"📢", label:"Google Ads",               tiers:[{ name:"Launch",   price:15000 },{ name:"Scale",    price:25000 },{ name:"Full Funnel",price:40000}] },
+  { id:"calling",   icon:"📞", label:"Calling Agent",            tiers:[{ name:"Basic",    price:18000 },{ name:"Standard", price:30000 },{ name:"Enterprise",price:50000}] },
+  { id:"leadgen",   icon:"🎯", label:"Lead Generation",          tiers:[{ name:"Starter",  price:20000 },{ name:"Growth",   price:35000 },{ name:"Enterprise",price:60000}] },
+  { id:"video",     icon:"🎬", label:"AI Video Creation",        tiers:[{ name:"3 Videos", price:12000 },{ name:"6 Videos", price:21000 },{ name:"10 Videos", price:32000}] },
+];
+
+const COMBO_DISCOUNTS = [{ min:2, max:2, pct:15, label:"2 services — 15% OFF" }, { min:3, max:99, pct:25, label:"3+ services — 25% OFF" }];
+
+function ComboBuilder({ color }) {
+  const [selected, setSelected] = useState<Record<string,number>>({}); // id -> tier index
+  const [gsOpen, setGsOpen] = useState(false);
+
+  const toggle = (id, tierIdx) => {
+    setSelected(prev => {
+      const next = { ...prev };
+      if (next[id] === tierIdx) { delete next[id]; }
+      else { next[id] = tierIdx; }
+      return next;
+    });
+  };
+
+  const selectedIds = Object.keys(selected);
+  const count = selectedIds.length;
+  const discount = COMBO_DISCOUNTS.find(d => count >= d.min && count <= d.max);
+  const subtotal = selectedIds.reduce((sum, id) => {
+    const svc = COMBO_SERVICES.find(s => s.id === id);
+    return sum + (svc ? svc.tiers[selected[id]].price : 0);
+  }, 0);
+  const savings = discount ? Math.round(subtotal * discount.pct / 100) : 0;
+  const total = subtotal - savings;
+
+  const comboSummary = selectedIds.map(id => {
+    const svc = COMBO_SERVICES.find(s => s.id === id);
+    return `${svc.icon} ${svc.label} (${svc.tiers[selected[id]].name})`;
+  }).join(", ");
+
+  return (
+    <div>
+      <GSModal open={gsOpen} onClose={()=>setGsOpen(false)}
+        name={`Custom Combo: ${comboSummary || "No services selected"}`}
+        price={total ? fmtPKR(total)+"/mo" : ""}
+        serviceId="growth" />
+
+      <div style={{ textAlign:"center", marginBottom:24 }}>
+        <h2 style={{ fontSize:20, fontWeight:900, color:"#0f172a", marginBottom:6 }}>Build Your Own Combo</h2>
+        <p style={{ color:"#64748b", fontSize:13 }}>Select 2 or more services · Pick a tier for each · Price updates live</p>
+        <div style={{ display:"flex", justifyContent:"center", gap:10, marginTop:12, flexWrap:"wrap" }}>
+          {COMBO_DISCOUNTS.map(d => (
+            <div key={d.min} style={{ background: count >= d.min ? `${color}15` : "#f1f5f9", border:`1.5px solid ${count >= d.min ? color : "#e2e8f0"}`, borderRadius:99, padding:"5px 16px", fontSize:12, fontWeight:700, color: count >= d.min ? color : "#94a3b8", transition:"all .3s" }}>
+              🎁 {d.label}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(min(320px,100%), 1fr))", gap:14, marginBottom:24 }}>
+        {COMBO_SERVICES.map(svc => {
+          const isSelected = selected[svc.id] !== undefined;
+          const activeTier = selected[svc.id];
+          return (
+            <div key={svc.id} style={{ background:"#fff", border:`2px solid ${isSelected ? color : "#e8edf2"}`, borderRadius:16, padding:"14px 16px", transition:"all .25s", boxShadow: isSelected ? `0 6px 20px ${color}22` : "0 2px 8px rgba(0,0,0,.04)" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:12 }}>
+                <div style={{ width:40, height:40, borderRadius:12, background:isSelected?`${color}15`:B.l, display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, flexShrink:0, transition:"all .2s" }}>{svc.icon}</div>
+                <div>
+                  <div style={{ fontSize:14, fontWeight:800, color:"#0f172a" }}>{svc.label}</div>
+                  {isSelected && <div style={{ fontSize:11, color, fontWeight:700 }}>✓ Added to combo</div>}
+                </div>
+              </div>
+              <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
+                {svc.tiers.map((tier, idx) => {
+                  const isTierSel = activeTier === idx;
+                  return (
+                    <button key={idx} onClick={()=>toggle(svc.id, idx)}
+                      style={{ flex:"1 1 0", padding:"8px 4px", borderRadius:10, border:`1.5px solid ${isTierSel ? color : "#e2e8f0"}`, background:isTierSel ? `${color}15` : "#f8fafc", cursor:"pointer", transition:"all .2s", textAlign:"center" }}>
+                      <div style={{ fontSize:11, fontWeight:700, color: isTierSel ? color : "#64748b" }}>{tier.name}</div>
+                      <div style={{ fontSize:13, fontWeight:900, color: isTierSel ? color : "#0f172a", marginTop:2 }}>{fmtPKR(tier.price)}</div>
+                      <div style={{ fontSize:10, color:"#94a3b8" }}>/mo</div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Summary */}
+      <div style={{ background: count >= 2 ? `linear-gradient(135deg,${color}10,${color}04)` : "#f8fafc", border:`2px solid ${count >= 2 ? color+"44" : "#e2e8f0"}`, borderRadius:20, padding:"24px 20px", transition:"all .3s" }}>
+        {count === 0 && (
+          <div style={{ textAlign:"center", padding:"12px 0" }}>
+            <div style={{ fontSize:28, marginBottom:8 }}>👆</div>
+            <div style={{ fontSize:14, color:"#94a3b8" }}>Select at least 2 services above to build your combo</div>
+          </div>
+        )}
+        {count === 1 && (
+          <div style={{ textAlign:"center", padding:"12px 0" }}>
+            <div style={{ fontSize:14, color:"#94a3b8" }}>Add 1 more service to unlock <strong style={{ color }}>15% discount</strong> 🎁</div>
+          </div>
+        )}
+        {count >= 2 && (
+          <>
+            <div style={{ fontSize:11, fontWeight:700, color, textTransform:"uppercase", letterSpacing:".08em", marginBottom:14 }}>📋 Your Combo Summary</div>
+            <div style={{ display:"flex", flexDirection:"column", gap:7, marginBottom:16 }}>
+              {selectedIds.map(id => {
+                const svc = COMBO_SERVICES.find(s => s.id === id);
+                const tier = svc.tiers[selected[id]];
+                return (
+                  <div key={id} style={{ display:"flex", justifyContent:"space-between", alignItems:"center", fontSize:13 }}>
+                    <span style={{ color:"#374151" }}>{svc.icon} {svc.label} <span style={{ color:"#94a3b8" }}>({tier.name})</span></span>
+                    <span style={{ fontWeight:700, color:"#0f172a" }}>{fmtPKR(tier.price)}</span>
+                  </div>
+                );
+              })}
+              <div style={{ borderTop:"1.5px dashed #e2e8f0", paddingTop:10, display:"flex", justifyContent:"space-between", fontSize:13 }}>
+                <span style={{ color:"#64748b" }}>Subtotal</span>
+                <span style={{ fontWeight:600 }}>{fmtPKR(subtotal)}</span>
+              </div>
+              {discount && (
+                <div style={{ display:"flex", justifyContent:"space-between", fontSize:13 }}>
+                  <span style={{ color:"#10b981", fontWeight:700 }}>🎁 {discount.pct}% Bundle Discount</span>
+                  <span style={{ fontWeight:700, color:"#10b981" }}>− {fmtPKR(savings)}</span>
+                </div>
+              )}
+            </div>
+            <div style={{ borderTop:`1.5px solid ${color}30`, paddingTop:14, display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:16, flexWrap:"wrap", gap:8 }}>
+              <div>
+                <div style={{ fontSize:12, color:"#64748b" }}>Monthly Total</div>
+                {discount && <div style={{ fontSize:12, color:"#10b981", fontWeight:600 }}>You save {fmtPKR(savings)}/mo</div>}
+              </div>
+              <div style={{ fontSize:34, fontWeight:900, color, lineHeight:1 }}>{fmtPKR(total)}</div>
+            </div>
+            <button onClick={()=>setGsOpen(true)} style={{ width:"100%", background:`linear-gradient(90deg,${color},${color}cc)`, color:"#fff", border:"none", borderRadius:12, padding:"14px 0", fontSize:15, fontWeight:700, cursor:"pointer", boxShadow:`0 6px 18px ${color}40` }}>
+              Get Started →
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ── Services Data ─────────────────────────────────────────────────
 const SERVICES = [
   { id:"chatbot", icon:"🤖", label:"Chatbot Automation", tagline:"AI-powered WhatsApp bot that qualifies leads 24/7",
@@ -1047,12 +1194,7 @@ const SERVICES = [
       { name:"Scale Ads", tier:"Standard", featured:true, price:"Rs. 25,000", per:"/mo", year:"+ your ad budget", features:["Search + Display campaigns","Up to 5 ad campaigns","A/B ad copy testing","Remarketing / retargeting","Bi-weekly optimization","Monthly ROI report"] },
       { name:"Full Funnel Ads", tier:"Pro", price:"Rs. 40,000", per:"/mo", year:"+ your ad budget", features:["Search + Display + Shopping","Unlimited campaigns","YouTube video ads","Smart bidding strategies","Custom reporting dashboard","Dedicated ads manager"] },
     ]},
-  { id:"growth", icon:"🚀", label:"Growth Combo", tagline:"Everything in one complete digital growth bundle", desc:"Website + SEO + Social Media + Google Ads + AI Chatbot — one growth engine, one invoice.", type:"packages",
-    packages:[
-      { name:"Starter Combo", tier:"Basic", price:"Rs. 45,000", per:"/mo", note:"Save 20% vs individual", year:"~Rs. 540,000/year", features:["5-page website","Social media (1 platform, 12 posts)","Basic SEO (10 keywords)","WhatsApp chatbot (Basic plan)","Monthly report"] },
-      { name:"Business Combo", tier:"Standard", featured:true, price:"Rs. 80,000", per:"/mo", note:"Save 25% vs individual", year:"~Rs. 960,000/year", features:["10-page custom website","Social media (2 platforms, 20 posts)","Growth SEO (25 keywords)","Google Ads management","WhatsApp chatbot (Standard plan)","Bi-weekly strategy call"] },
-      { name:"Ultimate Combo", tier:"Pro", price:"Rs. 130,000", per:"/mo", note:"Save 30% vs individual", year:"~Rs. 1,560,000/year", features:["Full custom website","Social media (3 platforms, 30 posts)","Authority SEO (50+ keywords)","Full funnel Google Ads","WhatsApp + Instagram + Facebook bot","Dedicated account manager"] },
-    ]},
+  { id:"growth", icon:"🚀", label:"Growth Combo", tagline:"Pick any 2–3 services and save up to 25%", desc:"Mix and match any services — Website, SEO, Social Media, Chatbot, Ads, Leads and more. Select your tier for each and get an instant bundled price.", type:"combo" },
   { id:"calling", icon:"📞", label:"Calling Agent", tagline:"AI voice calling agent for lead follow-up & outreach", desc:"AI-powered calling — follow-ups, qualifying, confirming appointments — all automated.", type:"packages",
     packages:[
       { name:"Basic Caller", tier:"Basic", price:"Rs. 18,000", per:"/mo", setup:"Rs. 20,000", setupNote:"One-Time Setup Fee", year:"~Rs. 216,000/year", features:["AI outbound calling setup","500 calls per month","Lead follow-up automation","Call outcome logging","Gmail summary per call","n8n workflow included"] },
@@ -1134,6 +1276,7 @@ function ServiceDetail({ svc, onBack, onOther }) {
           {svc.type === "video" && <VideoService color={color} />}
           {svc.type === "leadgen" && <LeadGenService color={color} />}
           {svc.type === "web" && <WebSection packages={svc.packages} color={color} />}
+          {svc.type === "combo" && <ComboBuilder color={color} />}}
           {svc.type === "packages" && (
             <>
               <div style={{ textAlign:"center", marginBottom:26 }}>
