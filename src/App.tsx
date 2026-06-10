@@ -1031,15 +1031,31 @@ const COMBO_SERVICES = [
 
 const COMBO_DISCOUNTS = [{ min:2, max:2, pct:15, label:"2 services — 15% OFF" }, { min:3, max:99, pct:25, label:"3+ services — 25% OFF" }];
 
+const FIXED_COMBOS = [
+  { name:"Starter Combo", tier:"Basic", price:"Rs. 45,000", per:"/mo", featured:false, note:"Save 20% vs individual",
+    year:"~Rs. 540,000/year",
+    features:["🌐 Website — Starter (5 pages)","📱 Social Media — Starter (FB + IG, 6 posts)","🔍 SEO — Local (10 keywords)","🤖 Chatbot — Basic plan","Monthly performance report"],
+    warning:[] },
+  { name:"Business Combo", tier:"Standard", price:"Rs. 80,000", per:"/mo", featured:true, note:"Save 25% vs individual",
+    year:"~Rs. 960,000/year",
+    features:["🌐 Website — Standard (10 pages)","📱 Social Media — Standard (2 platforms, 12 posts)","🔍 SEO — Growth (25 keywords)","📢 Google Ads — Scale","🤖 Chatbot — Standard plan","Bi-weekly strategy call"],
+    warning:[] },
+  { name:"Ultimate Combo", tier:"Pro", price:"Rs. 1,30,000", per:"/mo", featured:false, note:"Save 30% vs individual",
+    year:"~Rs. 1,560,000/year",
+    features:["🌐 Website — Premium (15 pages)","📱 Social Media — Pro (3 platforms, 25 posts)","🔍 SEO — Authority (50+ keywords)","📢 Google Ads — Full Funnel","🤖 Chatbot — Growth Suite","🎯 Lead Gen — Growth plan","Dedicated account manager"],
+    warning:[] },
+];
+
 function ComboBuilder({ color }) {
-  const [selected, setSelected] = useState<Record<string,number>>({}); // id -> tier index
+  const [mode, setMode] = useState("packages");
+  const [selected, setSelected] = useState<Record<string,number>>({});
   const [gsOpen, setGsOpen] = useState(false);
+  const [gsPkg, setGsPkg] = useState(null);
 
   const toggle = (id, tierIdx) => {
     setSelected(prev => {
       const next = { ...prev };
-      if (next[id] === tierIdx) { delete next[id]; }
-      else { next[id] = tierIdx; }
+      if (next[id] === tierIdx) { delete next[id]; } else { next[id] = tierIdx; }
       return next;
     });
   };
@@ -1053,7 +1069,6 @@ function ComboBuilder({ color }) {
   }, 0);
   const savings = discount ? Math.round(subtotal * discount.pct / 100) : 0;
   const total = subtotal - savings;
-
   const comboSummary = selectedIds.map(id => {
     const svc = COMBO_SERVICES.find(s => s.id === id);
     return `${svc.icon} ${svc.label} (${svc.tiers[selected[id]].name})`;
@@ -1062,104 +1077,132 @@ function ComboBuilder({ color }) {
   return (
     <div>
       <GSModal open={gsOpen} onClose={()=>setGsOpen(false)}
-        name={`Custom Combo: ${comboSummary || "No services selected"}`}
-        price={total ? fmtPKR(total)+"/mo" : ""}
+        name={gsPkg ? gsPkg.name : `Custom Combo: ${comboSummary || "No services selected"}`}
+        price={gsPkg ? gsPkg.price+"/mo" : (total ? fmtPKR(total)+"/mo" : "")}
         serviceId="growth" />
 
-      <div style={{ textAlign:"center", marginBottom:24 }}>
-        <h2 style={{ fontSize:20, fontWeight:900, color:"#0f172a", marginBottom:6 }}>Build Your Own Combo</h2>
-        <p style={{ color:"#64748b", fontSize:13 }}>Select 2 or more services · Pick a tier for each · Price updates live</p>
-        <div style={{ display:"flex", justifyContent:"center", gap:10, marginTop:12, flexWrap:"wrap" }}>
-          {COMBO_DISCOUNTS.map(d => (
-            <div key={d.min} style={{ background: count >= d.min ? `${color}15` : "#f1f5f9", border:`1.5px solid ${count >= d.min ? color : "#e2e8f0"}`, borderRadius:99, padding:"5px 16px", fontSize:12, fontWeight:700, color: count >= d.min ? color : "#94a3b8", transition:"all .3s" }}>
-              🎁 {d.label}
+      {/* Tab Switcher */}
+      <div style={{ display:"flex", background:"#f1f5f9", borderRadius:12, padding:4, marginBottom:28, gap:4, maxWidth:360, margin:"0 auto 28px" }}>
+        {[{k:"packages",l:"📦 Packages"},{k:"custom",l:"🛠 Build Your Own"}].map(t=>(
+          <button key={t.k} onClick={()=>setMode(t.k)} style={{ flex:1, padding:"9px 0", borderRadius:9, border:"none", cursor:"pointer", fontSize:13, fontWeight:700, background:mode===t.k?color:"transparent", color:mode===t.k?"#fff":"#64748b", transition:"all .2s" }}>{t.l}</button>
+        ))}
+      </div>
+
+      {/* ── Packages Tab ── */}
+      {mode === "packages" && (
+        <div className="pkg-grid">
+          {FIXED_COMBOS.map((pkg, i) => (
+            <div key={i} style={{ background:"#fff", border:pkg.featured?`2px solid ${color}`:"1.5px solid #e8edf2", borderRadius:20, padding:"1.5rem", display:"flex", flexDirection:"column", position:"relative", boxShadow:pkg.featured?`0 8px 32px ${color}20`:"0 2px 10px rgba(0,0,0,.05)", transition:"transform .25s,box-shadow .25s" }}
+              onMouseEnter={e=>{e.currentTarget.style.transform="translateY(-5px)";e.currentTarget.style.boxShadow=`0 14px 36px ${color}22`;}}
+              onMouseLeave={e=>{e.currentTarget.style.transform="translateY(0)";e.currentTarget.style.boxShadow=pkg.featured?`0 8px 32px ${color}20`:"0 2px 10px rgba(0,0,0,.05)";}}>
+              {pkg.featured && <div style={{ position:"absolute", top:-14, left:"50%", transform:"translateX(-50%)", background:`linear-gradient(90deg,${color},${color}bb)`, color:"#fff", fontSize:11, fontWeight:700, padding:"4px 18px", borderRadius:99, whiteSpace:"nowrap", boxShadow:`0 4px 12px ${color}50` }}>⭐ Most Popular</div>}
+              <div style={{ fontSize:11, fontWeight:700, color, textTransform:"uppercase", letterSpacing:".08em", marginBottom:4 }}>{pkg.tier}</div>
+              <div style={{ fontSize:17, fontWeight:800, color:"#0f172a", marginBottom:4 }}>{pkg.name}</div>
+              {pkg.note && <div style={{ fontSize:12, background:B.p, color:B.d, fontWeight:600, padding:"3px 10px", borderRadius:8, display:"inline-block", marginBottom:8 }}>🎁 {pkg.note}</div>}
+              <div style={{ fontSize:26, fontWeight:900, color, marginBottom:2 }}>{pkg.price}<span style={{ fontSize:13, fontWeight:400, color:"#94a3b8" }}>{pkg.per}</span></div>
+              <div style={{ fontSize:12, color:"#94a3b8", marginBottom:16 }}>{pkg.year}</div>
+              <div style={{ flex:1, borderTop:"1px solid #f1f5f9", paddingTop:12 }}>
+                {pkg.features.map((f,j)=><div key={j} style={{ display:"flex", gap:8, marginBottom:8, fontSize:13, color:"#374151" }}><span style={{ color, fontWeight:700, flexShrink:0 }}>✓</span>{f}</div>)}
+              </div>
+              <button onClick={()=>{ setGsPkg(pkg); setGsOpen(true); }}
+                style={{ display:"block", width:"100%", marginTop:18, textAlign:"center", padding:"12px 0", background:pkg.featured?`linear-gradient(90deg,${color},${color}cc)`:"transparent", color:pkg.featured?"#fff":color, border:`2px solid ${color}`, borderRadius:12, fontWeight:700, fontSize:14, cursor:"pointer", transition:"all .2s" }}
+                onMouseEnter={e=>{if(!pkg.featured){e.currentTarget.style.background=color;e.currentTarget.style.color="#fff";}}}
+                onMouseLeave={e=>{if(!pkg.featured){e.currentTarget.style.background="transparent";e.currentTarget.style.color=color;}}}>
+                Get Started →
+              </button>
             </div>
           ))}
         </div>
-      </div>
+      )}
 
-      <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(min(320px,100%), 1fr))", gap:14, marginBottom:24 }}>
-        {COMBO_SERVICES.map(svc => {
-          const isSelected = selected[svc.id] !== undefined;
-          const activeTier = selected[svc.id];
-          return (
-            <div key={svc.id} style={{ background:"#fff", border:`2px solid ${isSelected ? color : "#e8edf2"}`, borderRadius:16, padding:"14px 16px", transition:"all .25s", boxShadow: isSelected ? `0 6px 20px ${color}22` : "0 2px 8px rgba(0,0,0,.04)" }}>
-              <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:12 }}>
-                <div style={{ width:40, height:40, borderRadius:12, background:isSelected?`${color}15`:B.l, display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, flexShrink:0, transition:"all .2s" }}>{svc.icon}</div>
-                <div>
-                  <div style={{ fontSize:14, fontWeight:800, color:"#0f172a" }}>{svc.label}</div>
-                  {isSelected && <div style={{ fontSize:11, color, fontWeight:700 }}>✓ Added to combo</div>}
+      {/* ── Build Your Own Tab ── */}
+      {mode === "custom" && (
+        <div>
+          <div style={{ textAlign:"center", marginBottom:24 }}>
+            <h2 style={{ fontSize:20, fontWeight:900, color:"#0f172a", marginBottom:6 }}>Build Your Own Combo</h2>
+            <p style={{ color:"#64748b", fontSize:13 }}>Select 2 or more services · Pick a tier for each · Price updates live</p>
+            <div style={{ display:"flex", justifyContent:"center", gap:10, marginTop:12, flexWrap:"wrap" }}>
+              {COMBO_DISCOUNTS.map(d => (
+                <div key={d.min} style={{ background:count>=d.min?`${color}15`:"#f1f5f9", border:`1.5px solid ${count>=d.min?color:"#e2e8f0"}`, borderRadius:99, padding:"5px 16px", fontSize:12, fontWeight:700, color:count>=d.min?color:"#94a3b8", transition:"all .3s" }}>
+                  🎁 {d.label}
                 </div>
-              </div>
-              <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
-                {svc.tiers.map((tier, idx) => {
-                  const isTierSel = activeTier === idx;
-                  return (
-                    <button key={idx} onClick={()=>toggle(svc.id, idx)}
-                      style={{ flex:"1 1 0", padding:"8px 4px", borderRadius:10, border:`1.5px solid ${isTierSel ? color : "#e2e8f0"}`, background:isTierSel ? `${color}15` : "#f8fafc", cursor:"pointer", transition:"all .2s", textAlign:"center" }}>
-                      <div style={{ fontSize:11, fontWeight:700, color: isTierSel ? color : "#64748b" }}>{tier.name}</div>
-                      <div style={{ fontSize:13, fontWeight:900, color: isTierSel ? color : "#0f172a", marginTop:2 }}>{fmtPKR(tier.price)}</div>
-                      <div style={{ fontSize:10, color:"#94a3b8" }}>/mo</div>
-                    </button>
-                  );
-                })}
-              </div>
+              ))}
             </div>
-          );
-        })}
-      </div>
+          </div>
 
-      {/* Summary */}
-      <div style={{ background: count >= 2 ? `linear-gradient(135deg,${color}10,${color}04)` : "#f8fafc", border:`2px solid ${count >= 2 ? color+"44" : "#e2e8f0"}`, borderRadius:20, padding:"24px 20px", transition:"all .3s" }}>
-        {count === 0 && (
-          <div style={{ textAlign:"center", padding:"12px 0" }}>
-            <div style={{ fontSize:28, marginBottom:8 }}>👆</div>
-            <div style={{ fontSize:14, color:"#94a3b8" }}>Select at least 2 services above to build your combo</div>
-          </div>
-        )}
-        {count === 1 && (
-          <div style={{ textAlign:"center", padding:"12px 0" }}>
-            <div style={{ fontSize:14, color:"#94a3b8" }}>Add 1 more service to unlock <strong style={{ color }}>15% discount</strong> 🎁</div>
-          </div>
-        )}
-        {count >= 2 && (
-          <>
-            <div style={{ fontSize:11, fontWeight:700, color, textTransform:"uppercase", letterSpacing:".08em", marginBottom:14 }}>📋 Your Combo Summary</div>
-            <div style={{ display:"flex", flexDirection:"column", gap:7, marginBottom:16 }}>
-              {selectedIds.map(id => {
-                const svc = COMBO_SERVICES.find(s => s.id === id);
-                const tier = svc.tiers[selected[id]];
-                return (
-                  <div key={id} style={{ display:"flex", justifyContent:"space-between", alignItems:"center", fontSize:13 }}>
-                    <span style={{ color:"#374151" }}>{svc.icon} {svc.label} <span style={{ color:"#94a3b8" }}>({tier.name})</span></span>
-                    <span style={{ fontWeight:700, color:"#0f172a" }}>{fmtPKR(tier.price)}</span>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(min(320px,100%), 1fr))", gap:14, marginBottom:24 }}>
+            {COMBO_SERVICES.map(svc => {
+              const isSelected = selected[svc.id] !== undefined;
+              const activeTier = selected[svc.id];
+              return (
+                <div key={svc.id} style={{ background:"#fff", border:`2px solid ${isSelected?color:"#e8edf2"}`, borderRadius:16, padding:"14px 16px", transition:"all .25s", boxShadow:isSelected?`0 6px 20px ${color}22`:"0 2px 8px rgba(0,0,0,.04)" }}>
+                  <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:12 }}>
+                    <div style={{ width:40, height:40, borderRadius:12, background:isSelected?`${color}15`:B.l, display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, flexShrink:0, transition:"all .2s" }}>{svc.icon}</div>
+                    <div>
+                      <div style={{ fontSize:14, fontWeight:800, color:"#0f172a" }}>{svc.label}</div>
+                      {isSelected && <div style={{ fontSize:11, color, fontWeight:700 }}>✓ Added to combo</div>}
+                    </div>
                   </div>
-                );
-              })}
-              <div style={{ borderTop:"1.5px dashed #e2e8f0", paddingTop:10, display:"flex", justifyContent:"space-between", fontSize:13 }}>
-                <span style={{ color:"#64748b" }}>Subtotal</span>
-                <span style={{ fontWeight:600 }}>{fmtPKR(subtotal)}</span>
-              </div>
-              {discount && (
-                <div style={{ display:"flex", justifyContent:"space-between", fontSize:13 }}>
-                  <span style={{ color:"#10b981", fontWeight:700 }}>🎁 {discount.pct}% Bundle Discount</span>
-                  <span style={{ fontWeight:700, color:"#10b981" }}>− {fmtPKR(savings)}</span>
+                  <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
+                    {svc.tiers.map((tier, idx) => {
+                      const isTierSel = activeTier === idx;
+                      return (
+                        <button key={idx} onClick={()=>toggle(svc.id, idx)}
+                          style={{ flex:"1 1 0", padding:"8px 4px", borderRadius:10, border:`1.5px solid ${isTierSel?color:"#e2e8f0"}`, background:isTierSel?`${color}15`:"#f8fafc", cursor:"pointer", transition:"all .2s", textAlign:"center" }}>
+                          <div style={{ fontSize:11, fontWeight:700, color:isTierSel?color:"#64748b" }}>{tier.name}</div>
+                          <div style={{ fontSize:13, fontWeight:900, color:isTierSel?color:"#0f172a", marginTop:2 }}>{fmtPKR(tier.price)}</div>
+                          <div style={{ fontSize:10, color:"#94a3b8" }}>/mo</div>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-              )}
-            </div>
-            <div style={{ borderTop:`1.5px solid ${color}30`, paddingTop:14, display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:16, flexWrap:"wrap", gap:8 }}>
-              <div>
-                <div style={{ fontSize:12, color:"#64748b" }}>Monthly Total</div>
-                {discount && <div style={{ fontSize:12, color:"#10b981", fontWeight:600 }}>You save {fmtPKR(savings)}/mo</div>}
-              </div>
-              <div style={{ fontSize:34, fontWeight:900, color, lineHeight:1 }}>{fmtPKR(total)}</div>
-            </div>
-            <button onClick={()=>setGsOpen(true)} style={{ width:"100%", background:`linear-gradient(90deg,${color},${color}cc)`, color:"#fff", border:"none", borderRadius:12, padding:"14px 0", fontSize:15, fontWeight:700, cursor:"pointer", boxShadow:`0 6px 18px ${color}40` }}>
-              Get Started →
-            </button>
-          </>
-        )}
-      </div>
+              );
+            })}
+          </div>
+
+          <div style={{ background:count>=2?`linear-gradient(135deg,${color}10,${color}04)`:"#f8fafc", border:`2px solid ${count>=2?color+"44":"#e2e8f0"}`, borderRadius:20, padding:"24px 20px", transition:"all .3s" }}>
+            {count === 0 && <div style={{ textAlign:"center", padding:"12px 0" }}><div style={{ fontSize:28, marginBottom:8 }}>👆</div><div style={{ fontSize:14, color:"#94a3b8" }}>Select at least 2 services above to build your combo</div></div>}
+            {count === 1 && <div style={{ textAlign:"center", padding:"12px 0" }}><div style={{ fontSize:14, color:"#94a3b8" }}>Add 1 more service to unlock <strong style={{ color }}>15% discount</strong> 🎁</div></div>}
+            {count >= 2 && (
+              <>
+                <div style={{ fontSize:11, fontWeight:700, color, textTransform:"uppercase", letterSpacing:".08em", marginBottom:14 }}>📋 Your Combo Summary</div>
+                <div style={{ display:"flex", flexDirection:"column", gap:7, marginBottom:16 }}>
+                  {selectedIds.map(id => {
+                    const svc = COMBO_SERVICES.find(s => s.id === id);
+                    const tier = svc.tiers[selected[id]];
+                    return (
+                      <div key={id} style={{ display:"flex", justifyContent:"space-between", alignItems:"center", fontSize:13 }}>
+                        <span style={{ color:"#374151" }}>{svc.icon} {svc.label} <span style={{ color:"#94a3b8" }}>({tier.name})</span></span>
+                        <span style={{ fontWeight:700, color:"#0f172a" }}>{fmtPKR(tier.price)}</span>
+                      </div>
+                    );
+                  })}
+                  <div style={{ borderTop:"1.5px dashed #e2e8f0", paddingTop:10, display:"flex", justifyContent:"space-between", fontSize:13 }}>
+                    <span style={{ color:"#64748b" }}>Subtotal</span><span style={{ fontWeight:600 }}>{fmtPKR(subtotal)}</span>
+                  </div>
+                  {discount && (
+                    <div style={{ display:"flex", justifyContent:"space-between", fontSize:13 }}>
+                      <span style={{ color:"#10b981", fontWeight:700 }}>🎁 {discount.pct}% Bundle Discount</span>
+                      <span style={{ fontWeight:700, color:"#10b981" }}>− {fmtPKR(savings)}</span>
+                    </div>
+                  )}
+                </div>
+                <div style={{ borderTop:`1.5px solid ${color}30`, paddingTop:14, display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:16, flexWrap:"wrap", gap:8 }}>
+                  <div>
+                    <div style={{ fontSize:12, color:"#64748b" }}>Monthly Total</div>
+                    {discount && <div style={{ fontSize:12, color:"#10b981", fontWeight:600 }}>You save {fmtPKR(savings)}/mo</div>}
+                  </div>
+                  <div style={{ fontSize:34, fontWeight:900, color, lineHeight:1 }}>{fmtPKR(total)}</div>
+                </div>
+                <button onClick={()=>{ setGsPkg(null); setGsOpen(true); }} style={{ width:"100%", background:`linear-gradient(90deg,${color},${color}cc)`, color:"#fff", border:"none", borderRadius:12, padding:"14px 0", fontSize:15, fontWeight:700, cursor:"pointer", boxShadow:`0 6px 18px ${color}40` }}>
+                  Get Started →
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
