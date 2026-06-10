@@ -548,11 +548,9 @@ function VideoService({ color }) {
       feats:["Professionally edited short","Your footage or sourced clips","Reels / Shorts format","Precision cuts & transitions","Captions & text overlays","Music sync included"] },
     { key:"yt",   label:"YouTube Video",            icon:"▶️", badge:"YouTube Ready",         basePrice:5000,
       feats:["Full YouTube-format video","Intro & outro included","Chapter markers added","Thumbnail design included","Color grading & audio mix","SEO-optimized title/description"] },
-    { key:"aiyt", label:"AI YouTube Video",         icon:"🤖", badge:"AI + YouTube",          basePrice:8000,
-      feats:["AI-generated YouTube video","Script & voiceover AI","Animated visuals & scenes","Background music licensed","Thumbnail auto-generated","HD — channel-ready"] },
   ];
-  const [counts, setCounts] = useState<Record<string,number>>({ ai:0, reel:0, yt:0, aiyt:0 });
-  const [durations, setDurations] = useState<Record<string,number>>({ ai:30, reel:30, yt:30, aiyt:30 });
+  const [counts, setCounts] = useState<Record<string,number>>({ ai:0, reel:0, yt:0 });
+  const [durations, setDurations] = useState<Record<string,number>>({ ai:30, reel:30, yt:30 });
   const [gsOpen, setGsOpen] = useState(false);
   const getPrice = (basePrice, secs) => Math.round(basePrice * Math.pow(1.5, (secs - BASE_SECS) / 30) / 100) * 100;
   const totalForType = (key) => { const vt = VIDEO_TYPES.find(v=>v.key===key); return counts[key] * getPrice(vt.basePrice, durations[key]); };
@@ -1009,6 +1007,7 @@ const SERVICES = [
       { name:"Growth Leads", tier:"Standard", featured:true, price:"Rs. 35,000", per:"/mo", year:"~Rs. 420,000/year", features:["300 verified leads/month","Cold email sequence (3-step)","WhatsApp outreach automation","LinkedIn connection campaign","Lead scoring & prioritization","Monthly conversion report"] },
       { name:"Enterprise Leads", tier:"Pro", price:"Rs. 60,000", per:"/mo", year:"~Rs. 720,000/year", features:["700+ verified leads/month","Multi-channel outreach","WhatsApp + LinkedIn + Cold call","Lead nurturing automation","A/B tested messaging","Dedicated lead strategist"] },
     ]},
+  { id:"video", icon:"🎬", label:"AI Video Creation", tagline:"AI-generated or edited videos — build your package", desc:"Choose AI commercial videos or reel editing. Mix both and see your monthly price live.", type:"video" },
 ];
 
 // ── Footer ────────────────────────────────────────────────────────
