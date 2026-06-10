@@ -650,6 +650,8 @@ function SMMService({ color }) {
   const [posts, setPosts] = useState(8);
   const [aiReels, setAiReels] = useState(0);
   const [edReels, setEdReels] = useState(0);
+  const [aiReelDur, setAiReelDur] = useState(30);
+  const [edReelDur, setEdReelDur] = useState(30);
   const [fbAds, setFbAds] = useState(0);
   const [ttAds, setTtAds] = useState(0);
   const [liAds, setLiAds] = useState(0);
@@ -661,7 +663,11 @@ function SMMService({ color }) {
   const [gsOpen, setGsOpen] = useState(false);
   const [gsPkg, setGsPkg] = useState(null);
 
-  const PLAT_P=1500, POST_P=700, AIR_P=4000, EDR_P=2500, FB_AD=2000, TT_AD=2500, LI_AD=3000, YT_AD=5000;
+  const PLAT_P=1500, POST_P=700, AIR_BASE=4000, EDR_BASE=2500, FB_AD=2000, TT_AD=2500, LI_AD=3000, YT_AD=5000;
+  const REEL_DURATIONS = [30, 60, 90, 120];
+  const reelPrice = (base, secs) => Math.round(base * Math.pow(1.5, (secs - 30) / 30) / 100) * 100;
+  const AIR_P = reelPrice(AIR_BASE, aiReelDur);
+  const EDR_P = reelPrice(EDR_BASE, edReelDur);
   const customTotal = plats.length*PLAT_P + posts*POST_P + aiReels*AIR_P + edReels*EDR_P + fbAds*FB_AD + ttAds*TT_AD + liAds*LI_AD + ytAds*YT_AD;
 
   const fixedPkgs = [
@@ -732,15 +738,32 @@ function SMMService({ color }) {
             </div>
             <div style={{ background:"#fff", border:"1.5px solid #e8edf2", borderRadius:16, padding:"1.2rem" }}>
               <div style={{ fontWeight:700, fontSize:14, color:"#0f172a", marginBottom:12 }}>🎬 Reels / Short Videos</div>
+              <p style={{ fontSize:12, color:"#94a3b8", marginBottom:12 }}>Base price 30s · +50% per extra 30 seconds</p>
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
                 <div style={{ background:aiReels>0?`${color}08`:"#f8fafc", border:`1.5px solid ${aiReels>0?color:"#e2e8f0"}`, borderRadius:12, padding:"12px", transition:"all .2s" }}>
-                  <div style={{ fontSize:12, fontWeight:700, color:"#0f172a", marginBottom:2 }}>🎨 AI Reel</div>
-                  <div style={{ fontSize:16, fontWeight:800, color, marginBottom:8 }}>{fmtPKR(AIR_P)}</div>
+                  <div style={{ fontSize:12, fontWeight:700, color:"#0f172a", marginBottom:6 }}>🎨 AI Reel</div>
+                  <div style={{ fontSize:11, fontWeight:600, color:"#94a3b8", marginBottom:6 }}>Select Duration</div>
+                  <div style={{ display:"flex", flexWrap:"wrap", gap:5, marginBottom:8 }}>
+                    {REEL_DURATIONS.map(s => (
+                      <button key={s} onClick={()=>setAiReelDur(s)} style={{ padding:"4px 8px", borderRadius:8, border:`1.5px solid ${aiReelDur===s?color:"#e2e8f0"}`, background:aiReelDur===s?`${color}15`:"#fff", color:aiReelDur===s?color:"#64748b", fontSize:11, fontWeight:700, cursor:"pointer", transition:"all .2s" }}>
+                        {s}s
+                      </button>
+                    ))}
+                  </div>
+                  <div style={{ fontSize:15, fontWeight:800, color, marginBottom:8 }}>{fmtPKR(AIR_P)}<span style={{ fontSize:11, fontWeight:400, color:"#94a3b8" }}> / reel</span></div>
                   <Ctr v={aiReels} set={setAiReels} color={color} size={32} />
                 </div>
                 <div style={{ background:edReels>0?`${color}08`:"#f8fafc", border:`1.5px solid ${edReels>0?color:"#e2e8f0"}`, borderRadius:12, padding:"12px", transition:"all .2s" }}>
-                  <div style={{ fontSize:12, fontWeight:700, color:"#0f172a", marginBottom:2 }}>✂️ Editing Reel</div>
-                  <div style={{ fontSize:16, fontWeight:800, color, marginBottom:8 }}>{fmtPKR(EDR_P)}</div>
+                  <div style={{ fontSize:12, fontWeight:700, color:"#0f172a", marginBottom:6 }}>✂️ Editing Reel</div>
+                  <div style={{ fontSize:11, fontWeight:600, color:"#94a3b8", marginBottom:6 }}>Select Duration</div>
+                  <div style={{ display:"flex", flexWrap:"wrap", gap:5, marginBottom:8 }}>
+                    {REEL_DURATIONS.map(s => (
+                      <button key={s} onClick={()=>setEdReelDur(s)} style={{ padding:"4px 8px", borderRadius:8, border:`1.5px solid ${edReelDur===s?color:"#e2e8f0"}`, background:edReelDur===s?`${color}15`:"#fff", color:edReelDur===s?color:"#64748b", fontSize:11, fontWeight:700, cursor:"pointer", transition:"all .2s" }}>
+                        {s}s
+                      </button>
+                    ))}
+                  </div>
+                  <div style={{ fontSize:15, fontWeight:800, color, marginBottom:8 }}>{fmtPKR(EDR_P)}<span style={{ fontSize:11, fontWeight:400, color:"#94a3b8" }}> / reel</span></div>
                   <Ctr v={edReels} set={setEdReels} color={color} size={32} />
                 </div>
               </div>
@@ -789,8 +812,8 @@ function SMMService({ color }) {
             <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))", gap:"6px 20px", marginBottom:18 }}>
               <div style={{ display:"flex", justifyContent:"space-between", fontSize:13 }}><span style={{ color:"#64748b" }}>📱 Platforms ({plats.length})</span><span style={{ fontWeight:700 }}>{fmtPKR(plats.length*PLAT_P)}</span></div>
               <div style={{ display:"flex", justifyContent:"space-between", fontSize:13 }}><span style={{ color:"#64748b" }}>📝 Posts ({posts})</span><span style={{ fontWeight:700 }}>{fmtPKR(posts*POST_P)}</span></div>
-              {aiReels>0 && <div style={{ display:"flex", justifyContent:"space-between", fontSize:13 }}><span style={{ color:"#64748b" }}>🎨 AI Reels ({aiReels})</span><span style={{ fontWeight:700 }}>{fmtPKR(aiReels*AIR_P)}</span></div>}
-              {edReels>0 && <div style={{ display:"flex", justifyContent:"space-between", fontSize:13 }}><span style={{ color:"#64748b" }}>✂️ Edit Reels ({edReels})</span><span style={{ fontWeight:700 }}>{fmtPKR(edReels*EDR_P)}</span></div>}
+              {aiReels>0 && <div style={{ display:"flex", justifyContent:"space-between", fontSize:13 }}><span style={{ color:"#64748b" }}>🎨 AI Reels ({aiReels} × {aiReelDur}s)</span><span style={{ fontWeight:700 }}>{fmtPKR(aiReels*AIR_P)}</span></div>}
+              {edReels>0 && <div style={{ display:"flex", justifyContent:"space-between", fontSize:13 }}><span style={{ color:"#64748b" }}>✂️ Edit Reels ({edReels} × {edReelDur}s)</span><span style={{ fontWeight:700 }}>{fmtPKR(edReels*EDR_P)}</span></div>}
               {fbAds>0 && <div style={{ display:"flex", justifyContent:"space-between", fontSize:13 }}><span style={{ color:"#64748b" }}>📘 FB Ads ({fbAds})</span><span style={{ fontWeight:700 }}>{fmtPKR(fbAds*FB_AD)}</span></div>}
               {ttAds>0 && <div style={{ display:"flex", justifyContent:"space-between", fontSize:13 }}><span style={{ color:"#64748b" }}>🎵 TikTok Ads ({ttAds})</span><span style={{ fontWeight:700 }}>{fmtPKR(ttAds*TT_AD)}</span></div>}
               {liAds>0 && <div style={{ display:"flex", justifyContent:"space-between", fontSize:13 }}><span style={{ color:"#64748b" }}>💼 LinkedIn Ads ({liAds})</span><span style={{ fontWeight:700 }}>{fmtPKR(liAds*LI_AD)}</span></div>}
@@ -986,7 +1009,6 @@ const SERVICES = [
       { name:"Growth Leads", tier:"Standard", featured:true, price:"Rs. 35,000", per:"/mo", year:"~Rs. 420,000/year", features:["300 verified leads/month","Cold email sequence (3-step)","WhatsApp outreach automation","LinkedIn connection campaign","Lead scoring & prioritization","Monthly conversion report"] },
       { name:"Enterprise Leads", tier:"Pro", price:"Rs. 60,000", per:"/mo", year:"~Rs. 720,000/year", features:["700+ verified leads/month","Multi-channel outreach","WhatsApp + LinkedIn + Cold call","Lead nurturing automation","A/B tested messaging","Dedicated lead strategist"] },
     ]},
-  { id:"video", icon:"🎬", label:"AI Video Creation", tagline:"AI-generated or edited videos — build your package", desc:"Choose AI commercial videos or reel editing. Mix both and see your monthly price live.", type:"video" },
 ];
 
 // ── Footer ────────────────────────────────────────────────────────
