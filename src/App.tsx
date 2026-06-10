@@ -159,11 +159,10 @@ function GSModal({ open, onClose, name, price, serviceId = "" }) {
   const [error, setError] = useState("");
   const [duration, setDuration] = useState("");
   const [customDur, setCustomDur] = useState("");
-  const [durStep, setDurStep] = useState(true); // true = show duration picker first
+  const [durStep, setDurStep] = useState(true);
 
   const durOpts = DURATION_OPTS[serviceId] || DURATION_OPTS.default;
 
-  // reset on open
   if (!open) return null;
 
   const selectedDur = duration === "custom" ? (customDur || "Custom") : duration;
@@ -210,7 +209,6 @@ function GSModal({ open, onClose, name, price, serviceId = "" }) {
           </div>
 
         ) : durStep ? (
-          /* ── Step 1: Duration Picker ── */
           <div>
             <div style={{ textAlign:"center", marginBottom:18 }}>
               <div style={{ fontSize:32, marginBottom:8 }}>⏱️</div>
@@ -241,7 +239,6 @@ function GSModal({ open, onClose, name, price, serviceId = "" }) {
           </div>
 
         ) : showInvoiceForm ? (
-          /* ── Step 3: Invoice Form ── */
           <div>
             <h3 style={{ fontSize:17, fontWeight:800, color:"#0f172a", marginBottom:4 }}>Invoice Request</h3>
             <p style={{ fontSize:12, color:B.s, fontWeight:600, marginBottom:4 }}>{name}{price ? ` — ${price}` : ""}</p>
@@ -271,7 +268,6 @@ function GSModal({ open, onClose, name, price, serviceId = "" }) {
           </div>
 
         ) : (
-          /* ── Step 2: Action Picker ── */
           <>
             <div style={{ textAlign:"center", marginBottom:16 }}>
               <div style={{ fontSize:36, marginBottom:8 }}>🚀</div>
@@ -1319,7 +1315,7 @@ function ServiceDetail({ svc, onBack, onOther }) {
           {svc.type === "video" && <VideoService color={color} />}
           {svc.type === "leadgen" && <LeadGenService color={color} />}
           {svc.type === "web" && <WebSection packages={svc.packages} color={color} />}
-          {svc.type === "combo" && <ComboBuilder color={color} />}}
+          {svc.type === "combo" && <ComboBuilder color={color} />}
           {svc.type === "packages" && (
             <>
               <div style={{ textAlign:"center", marginBottom:26 }}>
