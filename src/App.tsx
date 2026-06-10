@@ -136,16 +136,39 @@ const GlobalStyles = () => (
   `}</style>
 );
 
+// ── Delivery Duration Options per service type ────────────────────
+const DURATION_OPTS: Record<string, { label: string; value: string }[]> = {
+  chatbot:   [{ label:"3 Days",  value:"3 days"  }, { label:"5 Days",  value:"5 days"  }, { label:"7 Days",  value:"7 days"  }, { label:"Custom", value:"custom" }],
+  webdev:    [{ label:"5 Days",  value:"5 days"  }, { label:"10 Days", value:"10 days" }, { label:"15 Days", value:"15 days" }, { label:"30 Days", value:"30 days" }, { label:"Custom", value:"custom" }],
+  smm:       [{ label:"1 Month", value:"1 month" }, { label:"3 Months",value:"3 months"}, { label:"6 Months",value:"6 months"}, { label:"1 Year",  value:"1 year"  }],
+  seo:       [{ label:"1 Month", value:"1 month" }, { label:"3 Months",value:"3 months"}, { label:"6 Months",value:"6 months"}, { label:"1 Year",  value:"1 year"  }],
+  googleads: [{ label:"1 Month", value:"1 month" }, { label:"3 Months",value:"3 months"}, { label:"6 Months",value:"6 months"}, { label:"1 Year",  value:"1 year"  }],
+  growth:    [{ label:"1 Month", value:"1 month" }, { label:"3 Months",value:"3 months"}, { label:"6 Months",value:"6 months"}, { label:"1 Year",  value:"1 year"  }],
+  calling:   [{ label:"3 Days",  value:"3 days"  }, { label:"7 Days",  value:"7 days"  }, { label:"1 Month", value:"1 month" }, { label:"Custom", value:"custom" }],
+  leadgen:   [{ label:"1 Month", value:"1 month" }, { label:"3 Months",value:"3 months"}, { label:"6 Months",value:"6 months"}, { label:"1 Year",  value:"1 year"  }],
+  video:     [{ label:"2 Days",  value:"2 days"  }, { label:"3 Days",  value:"3 days"  }, { label:"5 Days",  value:"5 days"  }, { label:"7 Days",  value:"7 days"  }, { label:"Custom", value:"custom" }],
+  default:   [{ label:"3 Days",  value:"3 days"  }, { label:"7 Days",  value:"7 days"  }, { label:"14 Days", value:"14 days" }, { label:"30 Days", value:"30 days" }, { label:"Custom", value:"custom" }],
+};
+
 // ── GetStarted Modal ──────────────────────────────────────────────
-function GSModal({ open, onClose, name, price }) {
+function GSModal({ open, onClose, name, price, serviceId = "" }) {
   const [showInvoiceForm, setShowInvoiceForm] = useState(false);
   const [form, setForm] = useState({ name: "", email: "" });
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [duration, setDuration] = useState("");
+  const [customDur, setCustomDur] = useState("");
+  const [durStep, setDurStep] = useState(true); // true = show duration picker first
 
+  const durOpts = DURATION_OPTS[serviceId] || DURATION_OPTS.default;
+
+  // reset on open
   if (!open) return null;
-  const msg = name ? `Hi! I'm interested in the *${name}* package${price ? ` (${price})` : ""}. Please share more details.` : "";
+
+  const selectedDur = duration === "custom" ? (customDur || "Custom") : duration;
+  const durReady = duration !== "" && (duration !== "custom" || customDur.trim() !== "");
+  const msg = name ? `Hi! I'm interested in the *${name}* package${price ? ` (${price})` : ""}${selectedDur ? ` — Delivery: *${selectedDur}*` : ""}. Please share more details.` : "";
 
   const handleInvoiceRequest = async () => {
     if (!form.name || !form.email) return;
@@ -161,6 +184,7 @@ function GSModal({ open, onClose, name, price }) {
           client_email: form.email,
           service_name: name,
           price: price,
+          delivery_duration: selectedDur,
           status: "pending",
         })
       });
@@ -184,10 +208,44 @@ function GSModal({ open, onClose, name, price }) {
             <h3 style={{ fontSize:18, fontWeight:800, color:"#0f172a" }}>Request Sent!</h3>
             <p style={{ fontSize:13, color:"#64748b", marginTop:8 }}>We'll review and send your invoice shortly.</p>
           </div>
+
+        ) : durStep ? (
+          /* ── Step 1: Duration Picker ── */
+          <div>
+            <div style={{ textAlign:"center", marginBottom:18 }}>
+              <div style={{ fontSize:32, marginBottom:8 }}>⏱️</div>
+              <h3 style={{ fontSize:18, fontWeight:800, color:"#0f172a", marginBottom:4 }}>When do you need it?</h3>
+              {name && <p style={{ fontSize:12, color:B.s, fontWeight:600, margin:0 }}>{name}{price ? ` — ${price}` : ""}</p>}
+            </div>
+            <div style={{ display:"flex", flexWrap:"wrap", gap:8, marginBottom:16 }}>
+              {durOpts.map(opt => (
+                <button key={opt.value} onClick={()=>setDuration(opt.value)}
+                  style={{ flex:"1 1 calc(50% - 4px)", padding:"10px 8px", borderRadius:12, border:`2px solid ${duration===opt.value?B.s:"#e2e8f0"}`, background:duration===opt.value?`${B.s}15`:"#f8fafc", color:duration===opt.value?B.m:"#475569", fontWeight:700, fontSize:13, cursor:"pointer", transition:"all .2s" }}>
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+            {duration === "custom" && (
+              <input
+                placeholder="e.g. 2 weeks, ASAP, 45 days..."
+                value={customDur}
+                onChange={e=>setCustomDur(e.target.value)}
+                style={{ width:"100%", padding:"10px 12px", border:"1.5px solid #e2e8f0", borderRadius:10, fontSize:14, marginBottom:12, fontFamily:"inherit", boxSizing:"border-box" }}
+                autoFocus
+              />
+            )}
+            <button onClick={()=>setDurStep(false)} disabled={!durReady}
+              style={{ width:"100%", padding:"12px", background:durReady?`linear-gradient(90deg,${B.d},${B.s})`:"#cbd5e1", color:"#fff", border:"none", borderRadius:12, fontWeight:700, fontSize:14, cursor:durReady?"pointer":"not-allowed", transition:"all .2s" }}>
+              Continue →
+            </button>
+          </div>
+
         ) : showInvoiceForm ? (
+          /* ── Step 3: Invoice Form ── */
           <div>
             <h3 style={{ fontSize:17, fontWeight:800, color:"#0f172a", marginBottom:4 }}>Invoice Request</h3>
-            <p style={{ fontSize:12, color:B.s, fontWeight:600, marginBottom:16 }}>{name}{price ? ` — ${price}` : ""}</p>
+            <p style={{ fontSize:12, color:B.s, fontWeight:600, marginBottom:4 }}>{name}{price ? ` — ${price}` : ""}</p>
+            <p style={{ fontSize:12, color:"#64748b", marginBottom:14 }}>⏱️ Delivery: <strong>{selectedDur}</strong></p>
             <input
               placeholder="Your Name *"
               value={form.name}
@@ -202,26 +260,28 @@ function GSModal({ open, onClose, name, price }) {
               style={{ width:"100%", padding:"10px 12px", border:"1.5px solid #e2e8f0", borderRadius:10, fontSize:14, marginBottom:14, fontFamily:"inherit" }}
             />
             {error && <p style={{ fontSize:12, color:"#ef4444", marginBottom:10 }}>{error}</p>}
-            <button
-              onClick={handleInvoiceRequest}
-              disabled={loading}
-              style={{ width:"100%", padding:"11px", background:loading?"#94a3b8":`linear-gradient(90deg,${B.d},${B.s})`, color:"#fff", border:"none", borderRadius:10, fontWeight:700, fontSize:14, cursor:loading?"not-allowed":"pointer" }}
-            >
+            <button onClick={handleInvoiceRequest} disabled={loading}
+              style={{ width:"100%", padding:"11px", background:loading?"#94a3b8":`linear-gradient(90deg,${B.d},${B.s})`, color:"#fff", border:"none", borderRadius:10, fontWeight:700, fontSize:14, cursor:loading?"not-allowed":"pointer" }}>
               {loading ? "Submitting..." : "Submit Request →"}
             </button>
-            <button
-              onClick={()=>setShowInvoiceForm(false)}
-              style={{ width:"100%", marginTop:8, padding:"8px", background:"transparent", color:"#64748b", border:"1px solid #e2e8f0", borderRadius:10, fontSize:13, cursor:"pointer" }}
-            >
+            <button onClick={()=>setShowInvoiceForm(false)}
+              style={{ width:"100%", marginTop:8, padding:"8px", background:"transparent", color:"#64748b", border:"1px solid #e2e8f0", borderRadius:10, fontSize:13, cursor:"pointer" }}>
               ← Back
             </button>
           </div>
+
         ) : (
+          /* ── Step 2: Action Picker ── */
           <>
             <div style={{ textAlign:"center", marginBottom:16 }}>
               <div style={{ fontSize:36, marginBottom:8 }}>🚀</div>
               <h3 style={{ fontSize:20, fontWeight:800, color:"#0f172a", marginBottom:6 }}>Let's Get Started</h3>
-              {name && <p style={{ fontSize:13, color:B.s, fontWeight:600, margin:0 }}>{name}{price ? ` — ${price}` : ""}</p>}
+              {name && <p style={{ fontSize:13, color:B.s, fontWeight:600, margin:"0 0 4px" }}>{name}{price ? ` — ${price}` : ""}</p>}
+              <div style={{ display:"inline-flex", alignItems:"center", gap:6, background:B.l, borderRadius:8, padding:"4px 12px" }}>
+                <span style={{ fontSize:12 }}>⏱️</span>
+                <span style={{ fontSize:12, fontWeight:700, color:B.m }}>Delivery: {selectedDur}</span>
+                <button onClick={()=>setDurStep(true)} style={{ fontSize:11, color:B.s, background:"none", border:"none", cursor:"pointer", fontWeight:600, textDecoration:"underline" }}>Change</button>
+              </div>
             </div>
             <div className="modal-grid">
               <a href={waLink(msg)} target="_blank" rel="noopener noreferrer"
@@ -237,10 +297,8 @@ function GSModal({ open, onClose, name, price }) {
                 <span style={{ fontSize:11, color:"#64748b", textAlign:"center" }}>30-min strategy call</span>
               </a>
             </div>
-            <button
-              onClick={()=>setShowInvoiceForm(true)}
-              style={{ marginTop:12, width:"100%", padding:"11px", background:B.d, color:"#fff", border:"none", borderRadius:12, fontWeight:700, fontSize:14, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}
-            >
+            <button onClick={()=>setShowInvoiceForm(true)}
+              style={{ marginTop:12, width:"100%", padding:"11px", background:B.d, color:"#fff", border:"none", borderRadius:12, fontWeight:700, fontSize:14, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}>
               🧾 Request Invoice
             </button>
           </>
@@ -277,11 +335,11 @@ function SetupBadge({ setup, note, color }) {
 }
 
 // ── GSButton ─────────────────────────────────────────────────────
-function GSBtn({ color, featured, name, price }) {
+function GSBtn({ color, featured, name, price, serviceId = "" }) {
   const [open, setOpen] = useState(false);
   return (
     <>
-      <GSModal open={open} onClose={()=>setOpen(false)} name={name} price={price} />
+      <GSModal open={open} onClose={()=>setOpen(false)} name={name} price={price} serviceId={serviceId} />
       <button onClick={()=>setOpen(true)}
         style={{ display:"block", width:"100%", marginTop:18, textAlign:"center", padding:"12px 20px", background:featured?`linear-gradient(90deg,${color},${color}cc)`:"transparent", color:featured?"#fff":color, border:`2px solid ${color}`, borderRadius:12, fontWeight:700, fontSize:14, cursor:"pointer", transition:"all .2s", boxShadow:featured?`0 4px 16px ${color}40`:"none" }}
         onMouseEnter={e=>{if(!featured){e.currentTarget.style.background=color;e.currentTarget.style.color="#fff";}}}
@@ -293,7 +351,7 @@ function GSBtn({ color, featured, name, price }) {
 }
 
 // ── Package Card ─────────────────────────────────────────────────
-function PkgCard({ pkg, color }) {
+function PkgCard({ pkg, color, serviceId = "" }) {
   return (
     <div className="pkg-card" style={{ border:pkg.featured?`2px solid ${color}`:"1.5px solid #e8edf2", boxShadow:pkg.featured?`0 8px 32px ${color}20`:"0 2px 10px rgba(0,0,0,.05)" }}
       onMouseEnter={e=>{e.currentTarget.style.boxShadow=`0 14px 36px ${color}22`;}}
@@ -317,7 +375,7 @@ function PkgCard({ pkg, color }) {
           </div>
         ))}
       </div>
-      <GSBtn color={color} featured={pkg.featured} name={pkg.name} price={pkg.price+"/mo"} />
+      <GSBtn color={color} featured={pkg.featured} name={pkg.name} price={pkg.price+"/mo"} serviceId={serviceId} />
     </div>
   );
 }
@@ -472,7 +530,7 @@ function WebPlanChooser({ color }) {
               <div style={{ fontSize:32, fontWeight:900, color, lineHeight:1 }}>{fmtPrice(total)}</div>
             </div>
           </div>
-          <GSBtn color={color} featured={true} name={"Custom Website"} price={fmtPrice(total)} />
+          <GSBtn color={color} featured={true} name={"Custom Website"} price={fmtPrice(total)} serviceId="webdev" />
         </div>
       </div>
     </div>
@@ -523,7 +581,7 @@ function WebCard({ pkg, color }) {
           </div>
         ))}
       </div>
-      <GSBtn color={color} featured={pkg.featured} name={`${pkg.name} Website`} price={pkg.price} />
+      <GSBtn color={color} featured={pkg.featured} name={`${pkg.name} Website`} price={pkg.price} serviceId="webdev" />
     </div>
   );
 }
@@ -559,7 +617,7 @@ function VideoService({ color }) {
   const DURATION_OPTIONS = [30, 60, 90, 120];
   return (
     <div>
-      <GSModal open={gsOpen} onClose={()=>setGsOpen(false)} name={`Video Package (${totalVideos} videos)`} price={total?fmtPKR(total)+"/mo":""} />
+      <GSModal open={gsOpen} onClose={()=>setGsOpen(false)} name={`Video Package (${totalVideos} videos)`} price={total?fmtPKR(total)+"/mo":""} serviceId="video" />
       <div style={{ textAlign:"center", marginBottom:28 }}>
         <h2 style={{ fontSize:22, fontWeight:900, color:"#0f172a", marginBottom:6 }}>Build Your Video Package</h2>
         <p style={{ color:"#64748b", fontSize:14 }}>Choose video type, pick duration — price updates instantly. +50% per extra 30 seconds.</p>
@@ -684,7 +742,7 @@ function SMMService({ color }) {
 
   return (
     <div>
-      <GSModal open={gsOpen} onClose={()=>setGsOpen(false)} name={gsPkg?.name} price={gsPkg?.price} />
+      <GSModal open={gsOpen} onClose={()=>setGsOpen(false)} name={gsPkg?.name} price={gsPkg?.price} serviceId="smm" />
       <div style={{ display:"flex", background:"#f1f5f9", borderRadius:12, padding:4, marginBottom:28, gap:4, maxWidth:360, margin:"0 auto 28px" }}>
         {[{k:"packages",l:"📦 Packages"},{k:"custom",l:"🛠 Make Custom"}].map(t=>(
           <button key={t.k} onClick={()=>setMode(t.k)} style={{ flex:1, padding:"9px 0", borderRadius:9, border:"none", cursor:"pointer", fontSize:13, fontWeight:700, background:mode===t.k?color:"transparent", color:mode===t.k?"#fff":"#64748b", transition:"all .2s" }}>{t.l}</button>
@@ -830,7 +888,7 @@ function SMMService({ color }) {
             <button onClick={()=>setGsOpen(true)} style={{ width:"100%", background:`linear-gradient(90deg,${color},${color}cc)`, color:"#fff", border:"none", borderRadius:12, padding:"13px 0", fontSize:14, fontWeight:700, cursor:"pointer", boxShadow:`0 4px 16px ${color}40` }}>
               Get Started →
             </button>
-            <GSModal open={gsOpen} onClose={()=>setGsOpen(false)} name="Custom Social Media Package" price={fmtPKR(customTotal)+"/mo"} />
+            <GSModal open={gsOpen} onClose={()=>setGsOpen(false)} name="Custom Social Media Package" price={fmtPKR(customTotal)+"/mo"} serviceId="smm" />
           </div>
         </div>
       )}
@@ -871,7 +929,7 @@ function LeadGenService({ color }) {
 
   return (
     <div>
-      <GSModal open={gsOpen} onClose={()=>setGsOpen(false)} name={gsPkg?.name || "Custom Lead Gen Plan"} price={gsPkg?.price || fmtPKR(customTotal)+"/mo"} />
+      <GSModal open={gsOpen} onClose={()=>setGsOpen(false)} name={gsPkg?.name || "Custom Lead Gen Plan"} price={gsPkg?.price || fmtPKR(customTotal)+"/mo"} serviceId="leadgen" />
       <div style={{ display:"flex", background:"#f1f5f9", borderRadius:12, padding:4, marginBottom:28, gap:4, maxWidth:360, margin:"0 auto 28px" }}>
         {[{k:"packages",l:"📦 Packages"},{k:"custom",l:"🛠 Make Custom"}].map(t=>(
           <button key={t.k} onClick={()=>setMode(t.k)} style={{ flex:1, padding:"9px 0", borderRadius:9, border:"none", cursor:"pointer", fontSize:13, fontWeight:700, background:mode===t.k?color:"transparent", color:mode===t.k?"#fff":"#64748b", transition:"all .2s" }}>{t.l}</button>
@@ -1083,7 +1141,7 @@ function ServiceDetail({ svc, onBack, onOther }) {
                 <p style={{ color:"#94a3b8", fontSize:13 }}>Transparent pricing · No hidden fees · Cancel anytime after 3 months</p>
               </div>
               <div className="pkg-grid">
-                {svc.packages.map((pkg,i) => <PkgCard key={i} pkg={pkg} color={color} />)}
+                {svc.packages.map((pkg,i) => <PkgCard key={i} pkg={pkg} color={color} serviceId={svc.id} />)}
               </div>
             </>
           )}
