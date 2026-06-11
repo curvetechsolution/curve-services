@@ -69,8 +69,8 @@ const GlobalStyles = () => (
     .footer-links { display:flex; flex-wrap:wrap; justify-content:center; gap:12px 16px; font-size:12px; color:#7dd3fc; }
     .footer-links a { color:#7dd3fc; text-decoration:none; }
 
-    .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.65); z-index:2000; display:flex; align-items:center; justify-content:center; padding:16px; }
-    .modal-box { background:#fff; border-radius:22px; padding:32px 24px; max-width:400px; width:100%; box-shadow:0 24px 70px rgba(0,0,0,.22); position:relative; }
+    .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.18); z-index:2000; display:flex; align-items:center; justify-content:center; padding:12px; }
+    .modal-box { background:#fff; border-radius:18px; padding:20px 16px; max-width:400px; width:100%; box-shadow:0 8px 32px rgba(0,0,0,.12); position:relative; }
     .modal-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
 
     .custom-builder { display:grid; grid-template-columns:1fr min(300px,100%); gap:20px; align-items:start; }
