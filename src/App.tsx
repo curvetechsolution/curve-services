@@ -38,9 +38,9 @@ const GlobalStyles = () => (
     .btn-meeting { background:${B.p}; color:${B.m}; border:1.5px solid ${B.mid}; border-radius:10px; padding:8px 14px; font-weight:700; font-size:13px; text-decoration:none; white-space:nowrap; }
     .btn-wa { background:#25d366; color:#fff; border-radius:10px; padding:9px 16px; font-weight:700; font-size:13px; text-decoration:none; white-space:nowrap; box-shadow:0 4px 14px rgba(37,211,102,.3); }
 
-    .hero { text-align:center; padding:24px 20px 12px; background:linear-gradient(180deg,${B.l} 0%,#f8fafc 100%); }
-    .hero h1 { font-size:clamp(13px,2.8vw,24px); font-weight:900; color:#0f172a; margin-bottom:6px; line-height:1.25; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
-    .hero p { color:#64748b; font-size:11px; max-width:600px; margin:0 auto; line-height:1.5; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .hero { text-align:center; padding:14px 20px 12px; background:linear-gradient(180deg,${B.l} 0%,#f8fafc 100%); }
+    .hero h1 { font-size:clamp(16px,2.8vw,24px); font-weight:900; color:#0f172a; margin-bottom:6px; line-height:1.25; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .hero p { color:#64748b; font-size:12px; max-width:500px; margin:0 auto; line-height:1.5; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .badge-pill { display:inline-block; background:linear-gradient(90deg,${B.d},${B.s}); color:#fff; font-size:10px; font-weight:700; padding:3px 12px; border-radius:99px; margin-bottom:8px; letter-spacing:.08em; text-transform:uppercase; box-shadow:0 3px 10px ${B.s}40; }
 
     .svc-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; }
@@ -1493,7 +1493,7 @@ export default function App() {
           </h1>
           <p>Choose a service · View packages & pricing · All customized to your needs</p>
         </div>
-        <div style={{ maxWidth:1400, margin:"0 auto", padding:"16px 12px 16px", flex:1, width:"100%" }}>
+        <div style={{ maxWidth:1400, margin:"0 auto", padding:"10px 12px 16px", flex:1, width:"100%" }}>
           <div className="svc-grid">
             {SERVICES.map((svc,idx) => (
               <button key={svc.id} onClick={()=>setActive(svc.id)} className="svc-card"
