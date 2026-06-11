@@ -69,7 +69,7 @@ const GlobalStyles = () => (
     .footer-links { display:flex; flex-wrap:wrap; justify-content:center; gap:12px 16px; font-size:12px; color:#7dd3fc; }
     .footer-links a { color:#7dd3fc; text-decoration:none; }
 
-    .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.18); z-index:2000; display:flex; align-items:center; justify-content:center; padding:12px; }
+    .modal-overlay { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,.18); z-index:9999; display:flex; align-items:center; justify-content:center; padding:12px; }
     .modal-box { background:#fff; border-radius:18px; padding:20px 16px; max-width:400px; width:100%; box-shadow:0 8px 32px rgba(0,0,0,.12); position:relative; }
     .modal-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
 
