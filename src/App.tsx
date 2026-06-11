@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { createPortal } from "react-dom";
 
 const CALENDLY = "https://calendly.com/curvetechsolution/book-a-meeting";
 const WA_NO = "923316310490";
@@ -69,8 +70,8 @@ const GlobalStyles = () => (
     .footer-links { display:flex; flex-wrap:wrap; justify-content:center; gap:12px 16px; font-size:12px; color:#7dd3fc; }
     .footer-links a { color:#7dd3fc; text-decoration:none; }
 
-    .modal-overlay { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,.18); z-index:9999; display:flex; align-items:center; justify-content:center; padding:12px; }
-    .modal-box { background:#fff; border-radius:18px; padding:20px 16px; max-width:400px; width:100%; box-shadow:0 8px 32px rgba(0,0,0,.12); position:relative; }
+    .modal-overlay { position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,.18); z-index:9999; display:flex; align-items:center; justify-content:center; padding:12px; overflow:hidden; }
+    .modal-box { background:#fff; border-radius:18px; padding:20px 16px; max-width:400px; width:100%; box-shadow:0 8px 32px rgba(0,0,0,.12); position:relative; max-height:90vh; overflow-y:auto; }
     .modal-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
 
     .custom-builder { display:grid; grid-template-columns:1fr min(300px,100%); gap:20px; align-items:start; }
@@ -196,7 +197,7 @@ function GSModal({ open, onClose, name, price, serviceId = "" }) {
     }
   };
 
-  return (
+  return createPortal(
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-box" onClick={e=>e.stopPropagation()}>
         <button onClick={onClose} style={{ position:"absolute", top:14, right:16, background:"#f1f5f9", border:"none", borderRadius:8, width:30, height:30, cursor:"pointer", fontSize:15, color:"#64748b", fontWeight:700 }}>✕</button>
@@ -300,7 +301,8 @@ function GSModal({ open, onClose, name, price, serviceId = "" }) {
           </>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
