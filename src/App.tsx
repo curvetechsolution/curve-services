@@ -43,13 +43,13 @@ const GlobalStyles = () => (
     .hero p { color:#64748b; font-size:clamp(12px,2vw,14px); max-width:440px; margin:0 auto; line-height:1.6; }
     .badge-pill { display:inline-block; background:linear-gradient(90deg,${B.d},${B.s}); color:#fff; font-size:11px; font-weight:700; padding:4px 14px; border-radius:99px; margin-bottom:10px; letter-spacing:.08em; text-transform:uppercase; box-shadow:0 3px 10px ${B.s}40; }
 
-    .svc-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(min(150px,100%), 1fr)); gap:10px; }
-    .svc-card { background:#fff; border:1.5px solid #e8edf2; border-radius:14px; padding:14px 10px; cursor:pointer; text-align:center; display:flex; flex-direction:column; align-items:center; gap:6px; box-shadow:0 2px 6px rgba(0,0,0,.04); transition:all .25s cubic-bezier(.4,0,.2,1); }
-    .svc-card:hover { border-color:${B.s}; transform:translateY(-4px); box-shadow:0 8px 22px ${B.s}22; }
-    .svc-icon { width:40px; height:40px; border-radius:12px; background:${B.l}; display:flex; align-items:center; justify-content:center; font-size:20px; margin:0 auto; }
-    .svc-label { font-weight:800; font-size:12px; color:#0f172a; line-height:1.3; }
-    .svc-tagline { font-size:10px; color:#64748b; line-height:1.4; }
-    .svc-cta { background:${B.l}; color:${B.m}; font-size:10px; font-weight:700; padding:3px 10px; border-radius:99px; }
+    .svc-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; }
+    .svc-card { background:#fff; border:1.5px solid #e8edf2; border-radius:16px; padding:22px 16px 18px; cursor:pointer; text-align:center; display:flex; flex-direction:column; align-items:center; gap:8px; box-shadow:0 2px 8px rgba(0,0,0,.04); transition:all .25s cubic-bezier(.4,0,.2,1); height:100%; }
+    .svc-card:hover { border-color:${B.s}; transform:translateY(-4px); box-shadow:0 10px 28px ${B.s}22; }
+    .svc-icon { width:52px; height:52px; border-radius:14px; background:${B.l}; display:flex; align-items:center; justify-content:center; font-size:24px; margin:0 auto; }
+    .svc-label { font-weight:800; font-size:14px; color:#0f172a; line-height:1.3; }
+    .svc-tagline { font-size:12px; color:#64748b; line-height:1.5; flex:1; }
+    .svc-cta { background:${B.l}; color:${B.m}; font-size:11px; font-weight:700; padding:5px 16px; border-radius:99px; margin-top:auto; }
 
     .pkg-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:28px; }
     .pkg-card { background:#fff; border-radius:16px; padding:1.1rem 1rem; display:flex; flex-direction:column; position:relative; transition:transform .25s,box-shadow .25s; }
@@ -103,7 +103,7 @@ const GlobalStyles = () => (
     }
 
     @media (min-width: 641px) and (max-width: 900px) {
-      .svc-grid { grid-template-columns:repeat(3, 1fr); }
+      .svc-grid { grid-template-columns:repeat(3, 1fr); gap:8px; }
       .pkg-grid { grid-template-columns:repeat(2,1fr); gap:12px; }
       .web-cards-grid { grid-template-columns:repeat(2,1fr) !important; }
       .custom-builder { grid-template-columns:1fr; }
