@@ -38,22 +38,22 @@ const GlobalStyles = () => (
     .btn-meeting { background:${B.p}; color:${B.m}; border:1.5px solid ${B.mid}; border-radius:10px; padding:8px 14px; font-weight:700; font-size:13px; text-decoration:none; white-space:nowrap; }
     .btn-wa { background:#25d366; color:#fff; border-radius:10px; padding:9px 16px; font-weight:700; font-size:13px; text-decoration:none; white-space:nowrap; box-shadow:0 4px 14px rgba(37,211,102,.3); }
 
-    .hero { text-align:center; padding:clamp(36px,8vw,68px) 20px clamp(24px,5vw,48px); background:linear-gradient(180deg,${B.l} 0%,#f8fafc 100%); }
-    .hero h1 { font-size:clamp(22px,5vw,40px); font-weight:900; color:#0f172a; margin-bottom:14px; line-height:1.18; }
-    .hero p { color:#64748b; font-size:clamp(14px,2.5vw,16px); max-width:500px; margin:0 auto; line-height:1.8; }
-    .badge-pill { display:inline-block; background:linear-gradient(90deg,${B.d},${B.s}); color:#fff; font-size:12px; font-weight:700; padding:5px 20px; border-radius:99px; margin-bottom:20px; letter-spacing:.08em; text-transform:uppercase; box-shadow:0 4px 14px ${B.s}50; }
+    .hero { text-align:center; padding:20px 20px 16px; background:linear-gradient(180deg,${B.l} 0%,#f8fafc 100%); }
+    .hero h1 { font-size:clamp(18px,3.5vw,28px); font-weight:900; color:#0f172a; margin-bottom:8px; line-height:1.2; }
+    .hero p { color:#64748b; font-size:clamp(12px,2vw,14px); max-width:440px; margin:0 auto; line-height:1.6; }
+    .badge-pill { display:inline-block; background:linear-gradient(90deg,${B.d},${B.s}); color:#fff; font-size:11px; font-weight:700; padding:4px 14px; border-radius:99px; margin-bottom:10px; letter-spacing:.08em; text-transform:uppercase; box-shadow:0 3px 10px ${B.s}40; }
 
-    .svc-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(min(170px,100%), 1fr)); gap:12px; }
-    .svc-card { background:#fff; border:1.5px solid #e8edf2; border-radius:16px; padding:20px 12px; cursor:pointer; text-align:center; display:flex; flex-direction:column; align-items:center; gap:8px; box-shadow:0 2px 8px rgba(0,0,0,.04); transition:all .25s cubic-bezier(.4,0,.2,1); }
-    .svc-card:hover { border-color:${B.s}; transform:translateY(-5px); box-shadow:0 10px 28px ${B.s}22; }
-    .svc-icon { width:48px; height:48px; border-radius:14px; background:${B.l}; display:flex; align-items:center; justify-content:center; font-size:22px; margin:0 auto; }
-    .svc-label { font-weight:800; font-size:13px; color:#0f172a; line-height:1.3; }
-    .svc-tagline { font-size:11px; color:#64748b; line-height:1.5; }
-    .svc-cta { background:${B.l}; color:${B.m}; font-size:11px; font-weight:700; padding:4px 14px; border-radius:99px; }
+    .svc-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(min(150px,100%), 1fr)); gap:10px; }
+    .svc-card { background:#fff; border:1.5px solid #e8edf2; border-radius:14px; padding:14px 10px; cursor:pointer; text-align:center; display:flex; flex-direction:column; align-items:center; gap:6px; box-shadow:0 2px 6px rgba(0,0,0,.04); transition:all .25s cubic-bezier(.4,0,.2,1); }
+    .svc-card:hover { border-color:${B.s}; transform:translateY(-4px); box-shadow:0 8px 22px ${B.s}22; }
+    .svc-icon { width:40px; height:40px; border-radius:12px; background:${B.l}; display:flex; align-items:center; justify-content:center; font-size:20px; margin:0 auto; }
+    .svc-label { font-weight:800; font-size:12px; color:#0f172a; line-height:1.3; }
+    .svc-tagline { font-size:10px; color:#64748b; line-height:1.4; }
+    .svc-cta { background:${B.l}; color:${B.m}; font-size:10px; font-weight:700; padding:3px 10px; border-radius:99px; }
 
-    .pkg-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(min(270px,100%), 1fr)); gap:20px; margin-bottom:40px; }
-    .pkg-card { background:#fff; border-radius:20px; padding:1.5rem; display:flex; flex-direction:column; position:relative; transition:transform .25s,box-shadow .25s; }
-    .pkg-card:hover { transform:translateY(-5px); }
+    .pkg-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:28px; }
+    .pkg-card { background:#fff; border-radius:16px; padding:1.1rem 1rem; display:flex; flex-direction:column; position:relative; transition:transform .25s,box-shadow .25s; }
+    .pkg-card:hover { transform:translateY(-3px); }
 
     .trust-bar { display:flex; flex-wrap:wrap; justify-content:center; gap:10px 18px; color:#94a3b8; font-size:12px; margin-bottom:24px; }
 
@@ -87,7 +87,7 @@ const GlobalStyles = () => (
       .svc-icon { width:40px; height:40px; font-size:20px; }
       .svc-label { font-size:12px; }
       .svc-tagline { display:none; }
-      .pkg-grid { grid-template-columns:1fr; }
+      .pkg-grid { grid-template-columns:1fr; gap:10px; }
       .web-cards-grid { grid-template-columns:1fr !important; }
       .custom-builder { grid-template-columns:1fr; }
       .summary-sticky { position:static; }
@@ -104,9 +104,14 @@ const GlobalStyles = () => (
 
     @media (min-width: 641px) and (max-width: 900px) {
       .svc-grid { grid-template-columns:repeat(3, 1fr); }
-      .pkg-grid { grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); }
+      .pkg-grid { grid-template-columns:repeat(2,1fr); gap:12px; }
+      .web-cards-grid { grid-template-columns:repeat(2,1fr) !important; }
       .custom-builder { grid-template-columns:1fr; }
       .summary-sticky { position:static; }
+    }
+    @media (min-width: 901px) {
+      .pkg-grid { grid-template-columns:repeat(3,1fr); }
+      .web-cards-grid { grid-template-columns:repeat(3,1fr) !important; }
     }
 
     .fade-in { opacity:0; transform:translateY(20px); transition:all .6s ease; }
@@ -414,13 +419,13 @@ function Ctr({ v, set, min=0, color=B.s, size=36 }) {
 function SetupBadge({ setup, note, color }) {
   if (!setup) return null;
   return (
-    <div style={{ background:`${color}10`, border:`1.5px solid ${color}35`, borderRadius:12, padding:"10px 14px", marginBottom:16, display:"flex", alignItems:"center", gap:10 }}>
-      <div style={{ width:34, height:34, borderRadius:9, background:`${color}20`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:15, flexShrink:0 }}>🔑</div>
+    <div style={{ background:`${color}10`, border:`1px solid ${color}30`, borderRadius:9, padding:"7px 10px", marginBottom:10, display:"flex", alignItems:"center", gap:8 }}>
+      <div style={{ width:26, height:26, borderRadius:7, background:`${color}20`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, flexShrink:0 }}>🔑</div>
       <div style={{ flex:1, minWidth:0 }}>
-        <div style={{ fontSize:10, fontWeight:700, color:`${color}bb`, textTransform:"uppercase", letterSpacing:".06em" }}>{note}</div>
-        <div style={{ fontSize:16, fontWeight:900, color }}>{setup}</div>
+        <div style={{ fontSize:9, fontWeight:700, color:`${color}bb`, textTransform:"uppercase", letterSpacing:".06em" }}>{note}</div>
+        <div style={{ fontSize:13, fontWeight:900, color }}>{setup}</div>
       </div>
-      <div style={{ background:color, color:"#fff", fontSize:10, fontWeight:700, padding:"3px 9px", borderRadius:6, flexShrink:0, whiteSpace:"nowrap" }}>1× Only</div>
+      <div style={{ background:color, color:"#fff", fontSize:9, fontWeight:700, padding:"2px 7px", borderRadius:5, flexShrink:0, whiteSpace:"nowrap" }}>1× Only</div>
     </div>
   );
 }
@@ -432,7 +437,7 @@ function GSBtn({ color, featured, name, price, serviceId = "" }) {
     <>
       <GSModal open={open} onClose={()=>setOpen(false)} name={name} price={price} serviceId={serviceId} />
       <button onClick={()=>setOpen(true)}
-        style={{ display:"block", width:"100%", marginTop:18, textAlign:"center", padding:"12px 20px", background:featured?`linear-gradient(90deg,${color},${color}cc)`:"transparent", color:featured?"#fff":color, border:`2px solid ${color}`, borderRadius:12, fontWeight:700, fontSize:14, cursor:"pointer", transition:"all .2s", boxShadow:featured?`0 4px 16px ${color}40`:"none" }}
+        style={{ display:"block", width:"100%", marginTop:10, textAlign:"center", padding:"9px 14px", background:featured?`linear-gradient(90deg,${color},${color}cc)`:"transparent", color:featured?"#fff":color, border:`2px solid ${color}`, borderRadius:10, fontWeight:700, fontSize:13, cursor:"pointer", transition:"all .2s", boxShadow:featured?`0 3px 12px ${color}40`:"none" }}
         onMouseEnter={e=>{if(!featured){e.currentTarget.style.background=color;e.currentTarget.style.color="#fff";}}}
         onMouseLeave={e=>{if(!featured){e.currentTarget.style.background="transparent";e.currentTarget.style.color=color;}}}>
         Get Started →
@@ -444,24 +449,24 @@ function GSBtn({ color, featured, name, price, serviceId = "" }) {
 // ── Package Card ─────────────────────────────────────────────────
 function PkgCard({ pkg, color, serviceId = "" }) {
   return (
-    <div className="pkg-card" style={{ border:pkg.featured?`2px solid ${color}`:"1.5px solid #e8edf2", boxShadow:pkg.featured?`0 8px 32px ${color}20`:"0 2px 10px rgba(0,0,0,.05)" }}
-      onMouseEnter={e=>{e.currentTarget.style.boxShadow=`0 14px 36px ${color}22`;}}
-      onMouseLeave={e=>{e.currentTarget.style.boxShadow=pkg.featured?`0 8px 32px ${color}20`:"0 2px 10px rgba(0,0,0,.05)";}}>
-      {pkg.featured && <div style={{ position:"absolute", top:-14, left:"50%", transform:"translateX(-50%)", background:`linear-gradient(90deg,${color},${color}bb)`, color:"#fff", fontSize:11, fontWeight:700, padding:"4px 18px", borderRadius:99, whiteSpace:"nowrap", boxShadow:`0 4px 12px ${color}50` }}>⭐ Most Popular</div>}
-      <div style={{ fontSize:11, fontWeight:700, color, textTransform:"uppercase", letterSpacing:".08em", marginBottom:5 }}>{pkg.tier}</div>
-      <div style={{ fontSize:18, fontWeight:800, color:"#0f172a", marginBottom:4 }}>{pkg.name}</div>
-      {pkg.note && <div style={{ fontSize:12, background:B.p, color:B.d, fontWeight:600, padding:"3px 10px", borderRadius:8, display:"inline-block", marginBottom:8 }}>{pkg.note}</div>}
-      <div style={{ fontSize:pkg.customPrice?"22px":"26px", fontWeight:900, color, marginBottom:2 }}>{pkg.price}<span style={{ fontSize:13, fontWeight:400, color:"#94a3b8" }}>{pkg.per}</span></div>
-      <div style={{ fontSize:12, color:"#94a3b8", marginBottom:pkg.setup?12:18 }}>{pkg.year}</div>
+    <div className="pkg-card" style={{ border:pkg.featured?`2px solid ${color}`:"1.5px solid #e8edf2", boxShadow:pkg.featured?`0 6px 24px ${color}20`:"0 2px 8px rgba(0,0,0,.05)" }}
+      onMouseEnter={e=>{e.currentTarget.style.boxShadow=`0 10px 28px ${color}22`;}}
+      onMouseLeave={e=>{e.currentTarget.style.boxShadow=pkg.featured?`0 6px 24px ${color}20`:"0 2px 8px rgba(0,0,0,.05)";}}>
+      {pkg.featured && <div style={{ position:"absolute", top:-12, left:"50%", transform:"translateX(-50%)", background:`linear-gradient(90deg,${color},${color}bb)`, color:"#fff", fontSize:10, fontWeight:700, padding:"3px 14px", borderRadius:99, whiteSpace:"nowrap", boxShadow:`0 3px 10px ${color}50` }}>⭐ Most Popular</div>}
+      <div style={{ fontSize:10, fontWeight:700, color, textTransform:"uppercase", letterSpacing:".08em", marginBottom:3 }}>{pkg.tier}</div>
+      <div style={{ fontSize:15, fontWeight:800, color:"#0f172a", marginBottom:3 }}>{pkg.name}</div>
+      {pkg.note && <div style={{ fontSize:11, background:B.p, color:B.d, fontWeight:600, padding:"2px 8px", borderRadius:6, display:"inline-block", marginBottom:6 }}>{pkg.note}</div>}
+      <div style={{ fontSize:pkg.customPrice?"18px":"22px", fontWeight:900, color, marginBottom:1 }}>{pkg.price}<span style={{ fontSize:11, fontWeight:400, color:"#94a3b8" }}>{pkg.per}</span></div>
+      <div style={{ fontSize:11, color:"#94a3b8", marginBottom:pkg.setup?8:12 }}>{pkg.year}</div>
       <SetupBadge setup={pkg.setup} note={pkg.setupNote} color={color} />
-      <div style={{ flex:1, borderTop:"1px solid #f1f5f9", paddingTop:12 }}>
+      <div style={{ flex:1, borderTop:"1px solid #f1f5f9", paddingTop:8 }}>
         {(pkg.features||[]).map((f,i)=>(
-          <div key={i} style={{ display:"flex", alignItems:"flex-start", gap:8, marginBottom:8, fontSize:13, color:"#374151" }}>
-            <span style={{ color, fontWeight:700, flexShrink:0 }}>✓</span>{f}
+          <div key={i} style={{ display:"flex", alignItems:"flex-start", gap:6, marginBottom:5, fontSize:12, color:"#374151", lineHeight:1.4 }}>
+            <span style={{ color, fontWeight:700, flexShrink:0, fontSize:11 }}>✓</span>{f}
           </div>
         ))}
         {(pkg.warning||[]).map((w,i)=>(
-          <div key={i} style={{ display:"flex", gap:7, marginTop:10, marginBottom:5, fontSize:12, color:"#d97706", fontWeight:600 }}>
+          <div key={i} style={{ display:"flex", gap:6, marginTop:6, marginBottom:3, fontSize:11, color:"#d97706", fontWeight:600 }}>
             <span>⚠</span>{w}
           </div>
         ))}
@@ -1397,13 +1402,14 @@ function ServiceDetail({ svc, onBack, onOther }) {
           </div>
         </div>
       )}
-      <div style={{ maxWidth:1200, margin:"0 auto", padding:"clamp(24px,5vw,40px) 24px", flex:1, width:"100%" }}>
-        <div style={{ textAlign:"center", marginBottom:36, opacity:vis?1:0, transform:vis?"translateY(0)":"translateY(20px)", transition:"all .5s ease" }}>
-          <div style={{ width:60, height:60, borderRadius:18, background:B.l, display:"flex", alignItems:"center", justifyContent:"center", fontSize:28, margin:"0 auto 14px" }}>{svc.icon}</div>
-          <div style={{ display:"inline-block", background:B.l, color:B.m, fontSize:11, fontWeight:700, padding:"5px 18px", borderRadius:99, marginBottom:14, textTransform:"uppercase", letterSpacing:".08em" }}>Service Overview</div>
-          <h1 style={{ fontSize:"clamp(20px,4vw,32px)", fontWeight:900, color:"#0f172a", marginBottom:10, lineHeight:1.2 }}>{svc.label}</h1>
-          <p style={{ fontSize:15, color, fontWeight:600, marginBottom:10 }}>{svc.tagline}</p>
-          <p style={{ fontSize:14, color:"#64748b", maxWidth:540, margin:"0 auto", lineHeight:1.8 }}>{svc.desc}</p>
+      <div style={{ maxWidth:1200, margin:"0 auto", padding:"16px 16px 24px", flex:1, width:"100%" }}>
+        <div style={{ textAlign:"center", marginBottom:20, opacity:vis?1:0, transform:vis?"translateY(0)":"translateY(20px)", transition:"all .5s ease" }}>
+          <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8, marginBottom:6 }}>
+            <span style={{ fontSize:20 }}>{svc.icon}</span>
+            <h1 style={{ fontSize:"clamp(16px,3vw,22px)", fontWeight:900, color:"#0f172a", margin:0, lineHeight:1.2 }}>{svc.label}</h1>
+          </div>
+          <p style={{ fontSize:13, color, fontWeight:600, marginBottom:4, margin:"0 auto 4px" }}>{svc.tagline}</p>
+          <p style={{ fontSize:12, color:"#64748b", maxWidth:500, margin:"0 auto", lineHeight:1.6 }}>{svc.desc}</p>
         </div>
         <div style={{ opacity:vis?1:0, transform:vis?"translateY(0)":"translateY(16px)", transition:"all .5s ease .15s" }}>
           {svc.type === "smm" && <SMMService color={color} />}
@@ -1413,9 +1419,9 @@ function ServiceDetail({ svc, onBack, onOther }) {
           {svc.type === "combo" && <ComboBuilder color={color} />}
           {svc.type === "packages" && (
             <>
-              <div style={{ textAlign:"center", marginBottom:26 }}>
-                <h2 style={{ fontSize:22, fontWeight:900, color:"#0f172a", marginBottom:6 }}>Choose Your Plan</h2>
-                <p style={{ color:"#94a3b8", fontSize:13 }}>Transparent pricing · No hidden fees · Cancel anytime after 3 months</p>
+              <div style={{ textAlign:"center", marginBottom:16 }}>
+                <h2 style={{ fontSize:17, fontWeight:800, color:"#0f172a", marginBottom:4 }}>Choose Your Plan</h2>
+                <p style={{ color:"#94a3b8", fontSize:12 }}>Transparent pricing · No hidden fees · Cancel anytime after 3 months</p>
               </div>
               <div className="pkg-grid">
                 {svc.packages.map((pkg,i) => <PkgCard key={i} pkg={pkg} color={color} serviceId={svc.id} />)}
@@ -1447,13 +1453,17 @@ export default function App() {
     if (hash && SERVICES.find(s => s.id===hash)) setActive(hash);
   }, []);
 
+  useEffect(() => {
+    if (active) window.scrollTo({ top: 0, behavior: "instant" });
+  }, [active]);
+
   if (active) {
     const svc = SERVICES.find(s => s.id===active);
     if (!svc) { setActive(null); return null; }
     return (
       <>
         <GlobalStyles />
-        <ServiceDetail svc={svc} onBack={()=>{ setActive(null); window.location.hash=""; }} onOther={id=>setActive(id)} />
+        <ServiceDetail svc={svc} onBack={()=>{ setActive(null); window.location.hash=""; window.scrollTo({ top:0, behavior:"instant" }); }} onOther={id=>{ window.scrollTo({ top:0, behavior:"instant" }); setActive(id); }} />
         <a href={waLink()} target="_blank" rel="noopener noreferrer" className="wa-float" title="Chat on WhatsApp">
           <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
         </a>
@@ -1484,7 +1494,7 @@ export default function App() {
           </h1>
           <p>Choose a service to view packages and pricing. All customized to your needs.</p>
         </div>
-        <div style={{ maxWidth:1200, margin:"0 auto", padding:"24px 14px 32px", flex:1, width:"100%" }}>
+        <div style={{ maxWidth:1200, margin:"0 auto", padding:"16px 12px 24px", flex:1, width:"100%" }}>
           <div className="svc-grid">
             {SERVICES.map((svc,idx) => (
               <button key={svc.id} onClick={()=>setActive(svc.id)} className="svc-card"
