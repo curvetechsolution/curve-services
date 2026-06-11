@@ -70,8 +70,6 @@ const GlobalStyles = () => (
     .footer-links { display:flex; flex-wrap:wrap; justify-content:center; gap:12px 16px; font-size:12px; color:#7dd3fc; }
     .footer-links a { color:#7dd3fc; text-decoration:none; }
 
-    .modal-overlay { position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,.18); z-index:9999; display:flex; align-items:center; justify-content:center; padding:12px; overflow:hidden; }
-    .modal-box { background:#fff; border-radius:18px; padding:20px 16px; max-width:400px; width:100%; box-shadow:0 8px 32px rgba(0,0,0,.12); position:relative; max-height:90vh; overflow-y:auto; }
     .modal-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
 
     .custom-builder { display:grid; grid-template-columns:1fr min(300px,100%); gap:20px; align-items:start; }
@@ -91,7 +89,6 @@ const GlobalStyles = () => (
       .svc-tagline { display:none; }
       .pkg-grid { grid-template-columns:1fr; }
       .web-cards-grid { grid-template-columns:1fr !important; }
-      .modal-grid { grid-template-columns:1fr; }
       .custom-builder { grid-template-columns:1fr; }
       .summary-sticky { position:static; }
       .cta-btn-wa, .cta-btn-cal { font-size:13px; padding:10px 16px; width:100%; text-align:center; }
@@ -197,109 +194,205 @@ function GSModal({ open, onClose, name, price, serviceId = "" }) {
     }
   };
 
+  const overlayStyle: React.CSSProperties = {
+    position:"fixed", top:0, left:0, width:"100vw", height:"100vh",
+    background:"rgba(15,23,42,0.45)", zIndex:9999,
+    display:"flex", alignItems:"center", justifyContent:"center",
+    padding:"16px", backdropFilter:"blur(2px)",
+  };
+  const boxStyle: React.CSSProperties = {
+    background:"#ffffff", borderRadius:20, width:"100%", maxWidth:420,
+    maxHeight:"90vh", overflowY:"auto", position:"relative",
+    boxShadow:"0 20px 60px rgba(0,0,0,0.15), 0 4px 16px rgba(0,0,0,0.08)",
+  };
+  const headerStyle: React.CSSProperties = {
+    background:`linear-gradient(135deg,${B.d} 0%,${B.s} 100%)`,
+    borderRadius:"20px 20px 0 0", padding:"20px 20px 18px",
+    position:"relative",
+  };
+  const bodyStyle: React.CSSProperties = { padding:"20px" };
+
+  const inputStyle: React.CSSProperties = {
+    width:"100%", padding:"11px 14px",
+    border:"1.5px solid #e2e8f0", borderRadius:10, fontSize:14,
+    fontFamily:"inherit", boxSizing:"border-box" as const,
+    outline:"none", transition:"border .2s",
+    marginBottom:10,
+  };
+
+  const primaryBtn: React.CSSProperties = {
+    width:"100%", padding:"13px",
+    background:`linear-gradient(90deg,${B.d},${B.s})`,
+    color:"#fff", border:"none", borderRadius:12,
+    fontWeight:700, fontSize:14, cursor:"pointer",
+    letterSpacing:".02em", transition:"opacity .2s",
+  };
+
+  const closeBtn: React.CSSProperties = {
+    position:"absolute", top:14, right:14,
+    background:"rgba(255,255,255,0.18)", border:"none",
+    borderRadius:8, width:30, height:30,
+    cursor:"pointer", fontSize:16, color:"#fff",
+    display:"flex", alignItems:"center", justifyContent:"center",
+    fontWeight:700, lineHeight:1,
+  };
+
   return createPortal(
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-box" onClick={e=>e.stopPropagation()}>
-        <button onClick={onClose} style={{ position:"absolute", top:14, right:16, background:"#f1f5f9", border:"none", borderRadius:8, width:30, height:30, cursor:"pointer", fontSize:15, color:"#64748b", fontWeight:700 }}>✕</button>
+    <div style={overlayStyle} onClick={onClose}>
+      <div style={boxStyle} onClick={e=>e.stopPropagation()}>
 
-        {submitted ? (
-          <div style={{ textAlign:"center", padding:"20px 0" }}>
-            <div style={{ fontSize:40, marginBottom:12 }}>✅</div>
-            <h3 style={{ fontSize:18, fontWeight:800, color:"#0f172a" }}>Request Sent!</h3>
-            <p style={{ fontSize:13, color:"#64748b", marginTop:8 }}>We'll review and send your invoice shortly.</p>
-          </div>
-
-        ) : durStep ? (
-          <div>
-            <div style={{ textAlign:"center", marginBottom:18 }}>
-              <div style={{ fontSize:32, marginBottom:8 }}>⏱️</div>
-              <h3 style={{ fontSize:18, fontWeight:800, color:"#0f172a", marginBottom:4 }}>When do you need it?</h3>
-              {name && <p style={{ fontSize:12, color:B.s, fontWeight:600, margin:0 }}>{name}{price ? ` — ${price}` : ""}</p>}
+        {/* ── Header ── */}
+        <div style={headerStyle}>
+          <button onClick={onClose} style={closeBtn}>✕</button>
+          {submitted ? (
+            <div style={{ textAlign:"center", paddingBottom:2 }}>
+              <div style={{ fontSize:36, marginBottom:6 }}>✅</div>
+              <div style={{ fontSize:17, fontWeight:800, color:"#fff" }}>Request Sent!</div>
             </div>
-            <div style={{ display:"flex", flexWrap:"wrap", gap:8, marginBottom:16 }}>
-              {durOpts.map(opt => (
-                <button key={opt.value} onClick={()=>setDuration(opt.value)}
-                  style={{ flex:"1 1 calc(50% - 4px)", padding:"10px 8px", borderRadius:12, border:`2px solid ${duration===opt.value?B.s:"#e2e8f0"}`, background:duration===opt.value?`${B.s}15`:"#f8fafc", color:duration===opt.value?B.m:"#475569", fontWeight:700, fontSize:13, cursor:"pointer", transition:"all .2s" }}>
-                  {opt.label}
-                </button>
-              ))}
+          ) : durStep ? (
+            <div>
+              <div style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,.65)", textTransform:"uppercase", letterSpacing:".1em", marginBottom:4 }}>Step 1 of 2</div>
+              <div style={{ fontSize:18, fontWeight:800, color:"#fff", marginBottom:2 }}>When do you need it?</div>
+              {name && <div style={{ fontSize:12, color:"rgba(255,255,255,.75)", fontWeight:500 }}>{name}{price ? ` · ${price}` : ""}</div>}
             </div>
-            {duration === "custom" && (
-              <input
-                placeholder="e.g. 2 weeks, ASAP, 45 days..."
-                value={customDur}
-                onChange={e=>setCustomDur(e.target.value)}
-                style={{ width:"100%", padding:"10px 12px", border:"1.5px solid #e2e8f0", borderRadius:10, fontSize:14, marginBottom:12, fontFamily:"inherit", boxSizing:"border-box" }}
-                autoFocus
-              />
-            )}
-            <button onClick={()=>setDurStep(false)} disabled={!durReady}
-              style={{ width:"100%", padding:"12px", background:durReady?`linear-gradient(90deg,${B.d},${B.s})`:"#cbd5e1", color:"#fff", border:"none", borderRadius:12, fontWeight:700, fontSize:14, cursor:durReady?"pointer":"not-allowed", transition:"all .2s" }}>
-              Continue →
-            </button>
-          </div>
+          ) : showInvoiceForm ? (
+            <div>
+              <div style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,.65)", textTransform:"uppercase", letterSpacing:".1em", marginBottom:4 }}>Invoice Request</div>
+              <div style={{ fontSize:18, fontWeight:800, color:"#fff", marginBottom:2 }}>{name || "Your Package"}</div>
+              {price && <div style={{ fontSize:12, color:"rgba(255,255,255,.75)" }}>{price}{selectedDur ? ` · ${selectedDur}` : ""}</div>}
+            </div>
+          ) : (
+            <div>
+              <div style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,.65)", textTransform:"uppercase", letterSpacing:".1em", marginBottom:4 }}>Step 2 of 2</div>
+              <div style={{ fontSize:18, fontWeight:800, color:"#fff", marginBottom:2 }}>Let's Get Started 🚀</div>
+              {name && <div style={{ fontSize:12, color:"rgba(255,255,255,.75)" }}>{name}{price ? ` · ${price}` : ""}</div>}
+            </div>
+          )}
+        </div>
 
-        ) : showInvoiceForm ? (
-          <div>
-            <h3 style={{ fontSize:17, fontWeight:800, color:"#0f172a", marginBottom:4 }}>Invoice Request</h3>
-            <p style={{ fontSize:12, color:B.s, fontWeight:600, marginBottom:4 }}>{name}{price ? ` — ${price}` : ""}</p>
-            <p style={{ fontSize:12, color:"#64748b", marginBottom:14 }}>⏱️ Delivery: <strong>{selectedDur}</strong></p>
-            <input
-              placeholder="Your Name *"
-              value={form.name}
-              onChange={e=>setForm({...form, name:e.target.value})}
-              style={{ width:"100%", padding:"10px 12px", border:"1.5px solid #e2e8f0", borderRadius:10, fontSize:14, marginBottom:10, fontFamily:"inherit" }}
-            />
-            <input
-              placeholder="Email Address *"
-              type="email"
-              value={form.email}
-              onChange={e=>setForm({...form, email:e.target.value})}
-              style={{ width:"100%", padding:"10px 12px", border:"1.5px solid #e2e8f0", borderRadius:10, fontSize:14, marginBottom:14, fontFamily:"inherit" }}
-            />
-            {error && <p style={{ fontSize:12, color:"#ef4444", marginBottom:10 }}>{error}</p>}
-            <button onClick={handleInvoiceRequest} disabled={loading}
-              style={{ width:"100%", padding:"11px", background:loading?"#94a3b8":`linear-gradient(90deg,${B.d},${B.s})`, color:"#fff", border:"none", borderRadius:10, fontWeight:700, fontSize:14, cursor:loading?"not-allowed":"pointer" }}>
-              {loading ? "Submitting..." : "Submit Request →"}
-            </button>
-            <button onClick={()=>setShowInvoiceForm(false)}
-              style={{ width:"100%", marginTop:8, padding:"8px", background:"transparent", color:"#64748b", border:"1px solid #e2e8f0", borderRadius:10, fontSize:13, cursor:"pointer" }}>
-              ← Back
-            </button>
-          </div>
+        {/* ── Body ── */}
+        <div style={bodyStyle}>
+          {submitted ? (
+            <div style={{ textAlign:"center", padding:"8px 0 4px" }}>
+              <p style={{ fontSize:14, color:"#64748b", lineHeight:1.7 }}>We'll review your request and send the invoice to your email shortly.</p>
+            </div>
 
-        ) : (
-          <>
-            <div style={{ textAlign:"center", marginBottom:16 }}>
-              <div style={{ fontSize:36, marginBottom:8 }}>🚀</div>
-              <h3 style={{ fontSize:20, fontWeight:800, color:"#0f172a", marginBottom:6 }}>Let's Get Started</h3>
-              {name && <p style={{ fontSize:13, color:B.s, fontWeight:600, margin:"0 0 4px" }}>{name}{price ? ` — ${price}` : ""}</p>}
-              <div style={{ display:"inline-flex", alignItems:"center", gap:6, background:B.l, borderRadius:8, padding:"4px 12px" }}>
-                <span style={{ fontSize:12 }}>⏱️</span>
-                <span style={{ fontSize:12, fontWeight:700, color:B.m }}>Delivery: {selectedDur}</span>
-                <button onClick={()=>setDurStep(true)} style={{ fontSize:11, color:B.s, background:"none", border:"none", cursor:"pointer", fontWeight:600, textDecoration:"underline" }}>Change</button>
+          ) : durStep ? (
+            <div>
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8, marginBottom:14 }}>
+                {durOpts.map(opt => (
+                  <button key={opt.value} onClick={()=>setDuration(opt.value)}
+                    style={{
+                      padding:"11px 8px", borderRadius:10,
+                      border:`2px solid ${duration===opt.value ? B.s : "#e8edf2"}`,
+                      background:duration===opt.value ? `${B.s}12` : "#f8fafc",
+                      color:duration===opt.value ? B.m : "#475569",
+                      fontWeight:700, fontSize:13, cursor:"pointer",
+                      transition:"all .18s", textAlign:"center",
+                    }}>
+                    {opt.label}
+                  </button>
+                ))}
               </div>
+              {duration === "custom" && (
+                <input
+                  placeholder="e.g. 2 weeks, ASAP, 45 days..."
+                  value={customDur}
+                  onChange={e=>setCustomDur(e.target.value)}
+                  style={{ ...inputStyle, marginBottom:14 }}
+                  autoFocus
+                />
+              )}
+              <button onClick={()=>setDurStep(false)} disabled={!durReady}
+                style={{ ...primaryBtn, opacity:durReady?1:0.45, cursor:durReady?"pointer":"not-allowed" }}>
+                Continue →
+              </button>
             </div>
-            <div className="modal-grid">
-              <a href={waLink(msg)} target="_blank" rel="noopener noreferrer"
-                style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:8, padding:"16px 10px", background:"#f0fdf4", border:"1.5px solid #86efac", borderRadius:16, textDecoration:"none" }}>
-                <span style={{ fontSize:26 }}>💬</span>
-                <span style={{ fontSize:14, fontWeight:700, color:"#166534" }}>WhatsApp Us</span>
-                <span style={{ fontSize:11, color:"#64748b", textAlign:"center" }}>Instant reply</span>
-              </a>
-              <a href={CALENDLY} target="_blank" rel="noopener noreferrer"
-                style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:8, padding:"16px 10px", background:B.p, border:`1.5px solid ${B.mid}`, borderRadius:16, textDecoration:"none" }}>
-                <span style={{ fontSize:26 }}>📅</span>
-                <span style={{ fontSize:14, fontWeight:700, color:B.d }}>Book Meeting</span>
-                <span style={{ fontSize:11, color:"#64748b", textAlign:"center" }}>30-min strategy call</span>
-              </a>
+
+          ) : showInvoiceForm ? (
+            <div>
+              <div style={{ background:`${B.l}`, border:`1px solid ${B.mid}`, borderRadius:10, padding:"10px 14px", marginBottom:14, display:"flex", alignItems:"center", gap:8 }}>
+                <span style={{ fontSize:14 }}>⏱️</span>
+                <span style={{ fontSize:13, color:B.m, fontWeight:600 }}>Delivery: {selectedDur}</span>
+              </div>
+              <input
+                placeholder="Your Full Name *"
+                value={form.name}
+                onChange={e=>setForm({...form, name:e.target.value})}
+                style={inputStyle}
+              />
+              <input
+                placeholder="Email Address *"
+                type="email"
+                value={form.email}
+                onChange={e=>setForm({...form, email:e.target.value})}
+                style={{ ...inputStyle, marginBottom:14 }}
+              />
+              {error && (
+                <div style={{ background:"#fef2f2", border:"1px solid #fecaca", borderRadius:8, padding:"8px 12px", marginBottom:12, fontSize:13, color:"#dc2626" }}>
+                  ⚠ {error}
+                </div>
+              )}
+              <button onClick={handleInvoiceRequest} disabled={loading}
+                style={{ ...primaryBtn, opacity:loading?0.65:1, cursor:loading?"not-allowed":"pointer", marginBottom:8 }}>
+                {loading ? "Submitting..." : "Submit Request →"}
+              </button>
+              <button onClick={()=>setShowInvoiceForm(false)}
+                style={{ width:"100%", padding:"10px", background:"transparent", color:"#64748b", border:"1.5px solid #e2e8f0", borderRadius:10, fontSize:13, cursor:"pointer", fontWeight:600 }}>
+                ← Back
+              </button>
             </div>
-            <button onClick={()=>setShowInvoiceForm(true)}
-              style={{ marginTop:12, width:"100%", padding:"11px", background:B.d, color:"#fff", border:"none", borderRadius:12, fontWeight:700, fontSize:14, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}>
-              🧾 Request Invoice
-            </button>
-          </>
-        )}
+
+          ) : (
+            <div>
+              <div style={{ background:`${B.l}`, border:`1px solid ${B.mid}`, borderRadius:10, padding:"10px 14px", marginBottom:16, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+                <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                  <span style={{ fontSize:14 }}>⏱️</span>
+                  <span style={{ fontSize:13, color:B.m, fontWeight:600 }}>Delivery: {selectedDur}</span>
+                </div>
+                <button onClick={()=>setDurStep(true)} style={{ fontSize:12, color:B.s, background:"none", border:"none", cursor:"pointer", fontWeight:700, padding:0 }}>
+                  Change
+                </button>
+              </div>
+
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:12 }}>
+                <a href={waLink(msg)} target="_blank" rel="noopener noreferrer"
+                  style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:10, padding:"18px 12px", background:"#f0fdf4", border:"1.5px solid #86efac", borderRadius:14, textDecoration:"none", transition:"transform .15s" }}
+                  onMouseEnter={e=>(e.currentTarget.style.transform="translateY(-2px)")}
+                  onMouseLeave={e=>(e.currentTarget.style.transform="translateY(0)")}>
+                  <div style={{ width:44, height:44, borderRadius:12, background:"#dcfce7", display:"flex", alignItems:"center", justifyContent:"center", fontSize:22 }}>💬</div>
+                  <div style={{ textAlign:"center" }}>
+                    <div style={{ fontSize:14, fontWeight:700, color:"#166534", marginBottom:2 }}>WhatsApp</div>
+                    <div style={{ fontSize:11, color:"#4ade80", fontWeight:600 }}>● Online now</div>
+                  </div>
+                </a>
+                <a href={CALENDLY} target="_blank" rel="noopener noreferrer"
+                  style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:10, padding:"18px 12px", background:B.p, border:`1.5px solid ${B.mid}`, borderRadius:14, textDecoration:"none", transition:"transform .15s" }}
+                  onMouseEnter={e=>(e.currentTarget.style.transform="translateY(-2px)")}
+                  onMouseLeave={e=>(e.currentTarget.style.transform="translateY(0)")}>
+                  <div style={{ width:44, height:44, borderRadius:12, background:`${B.l}`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22 }}>📅</div>
+                  <div style={{ textAlign:"center" }}>
+                    <div style={{ fontSize:14, fontWeight:700, color:B.d, marginBottom:2 }}>Book Meeting</div>
+                    <div style={{ fontSize:11, color:B.s, fontWeight:600 }}>Free 30-min call</div>
+                  </div>
+                </a>
+              </div>
+
+              <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:12 }}>
+                <div style={{ flex:1, height:"1px", background:"#e8edf2" }} />
+                <span style={{ fontSize:11, color:"#94a3b8", fontWeight:600 }}>OR</span>
+                <div style={{ flex:1, height:"1px", background:"#e8edf2" }} />
+              </div>
+
+              <button onClick={()=>setShowInvoiceForm(true)}
+                style={{ width:"100%", padding:"12px", background:"transparent", color:B.d, border:`2px solid ${B.d}`, borderRadius:12, fontWeight:700, fontSize:14, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:8, transition:"all .2s" }}
+                onMouseEnter={e=>{ e.currentTarget.style.background=B.d; e.currentTarget.style.color="#fff"; }}
+                onMouseLeave={e=>{ e.currentTarget.style.background="transparent"; e.currentTarget.style.color=B.d; }}>
+                🧾 Request Invoice
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>,
     document.body
