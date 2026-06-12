@@ -181,12 +181,10 @@ function GSModal({ open, onClose, name, price, serviceId = "" }) {
         method: "POST",
         headers: { ...SUPABASE_HEADERS, "Prefer": "return=minimal" },
         body: JSON.stringify({
-          id: Date.now().toString(),
           client_name: form.name,
           client_email: form.email,
           service_name: name,
-          price: price,
-          delivery_duration: selectedDur,
+          price: selectedDur ? `${price} · Delivery: ${selectedDur}` : price,
           status: "pending",
         })
       });
