@@ -177,26 +177,36 @@ function GSModal({ open, onClose, name, price, serviceId = "" }) {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("https://invoice.curvetechsolution.online/api/invoice-requests", {
+      const SURL = "https://dbyrmttpkeftcgcdneas.supabase.co";
+      const SKEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRieXJtdHRwa2VmdGNnY2RuZWFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3NTY1NzcsImV4cCI6MjA5NjMzMjU3N30.ipTjwyyRakLK8Ac9n7TXh-5bQp3tXlOsktcs6bE5mxI";
+      const payload = {
+        client_name: form.name,
+        client_email: form.email,
+        service_name: name || "Unknown Service",
+        price: selectedDur ? String(price) + " · " + selectedDur : String(price || ""),
+        status: "pending",
+      };
+      console.log("Sending payload:", JSON.stringify(payload));
+      const res = await fetch(SURL + "/rest/v1/invoice_requests", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          clientName:  form.name,
-          clientEmail: form.email,
-          serviceName: name,
-          price: selectedDur ? `${price} · ${selectedDur}` : price,
-          message: selectedDur ? `Delivery: ${selectedDur}` : "",
-        })
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": SKEY,
+          "Authorization": "Bearer " + SKEY,
+          "Prefer": "return=minimal",
+        },
+        body: JSON.stringify(payload),
       });
+      console.log("Response status:", res.status);
       if (!res.ok) {
         const errText = await res.text();
-        console.error("API error:", res.status, errText);
-        throw new Error(errText);
+        console.error("Supabase error:", res.status, errText);
+        throw new Error("Status " + res.status + ": " + errText);
       }
       setSubmitted(true);
     } catch (e: any) {
-      console.error("Invoice request error:", e);
-      setError("Something went wrong. Please try WhatsApp instead.");
+      console.error("Invoice request failed:", e?.message || e);
+      setError("Error: " + (e?.message || "Unknown. Check console."));
     } finally {
       setLoading(false);
     }
