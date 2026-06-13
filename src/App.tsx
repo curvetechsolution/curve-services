@@ -177,20 +177,25 @@ function GSModal({ open, onClose, name, price, serviceId = "" }) {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/invoice_requests`, {
+      const res = await fetch("https://invoice.curvetechsolution.online/api/invoice-requests", {
         method: "POST",
-        headers: { ...SUPABASE_HEADERS, "Prefer": "return=minimal" },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          client_name: form.name,
-          client_email: form.email,
-          service_name: name,
+          clientName:  form.name,
+          clientEmail: form.email,
+          serviceName: name,
           price: selectedDur ? `${price} · ${selectedDur}` : price,
-          status: "pending",
+          message: selectedDur ? `Delivery: ${selectedDur}` : "",
         })
       });
-      if (!res.ok) throw new Error("Failed to submit");
+      if (!res.ok) {
+        const errText = await res.text();
+        console.error("API error:", res.status, errText);
+        throw new Error(errText);
+      }
       setSubmitted(true);
-    } catch (e) {
+    } catch (e: any) {
+      console.error("Invoice request error:", e);
       setError("Something went wrong. Please try WhatsApp instead.");
     } finally {
       setLoading(false);
