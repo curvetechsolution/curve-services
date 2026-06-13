@@ -143,18 +143,17 @@ const GlobalStyles = () => (
 const DURATION_OPTS: Record<string, { label: string; value: string }[]> = {
   chatbot:   [{ label:"3 Days",  value:"3 days"  }, { label:"5 Days",  value:"5 days"  }, { label:"7 Days",  value:"7 days"  }, { label:"Custom", value:"custom" }],
   webdev:    [{ label:"5 Days",  value:"5 days"  }, { label:"10 Days", value:"10 days" }, { label:"15 Days", value:"15 days" }, { label:"30 Days", value:"30 days" }, { label:"Custom", value:"custom" }],
-  smm:       [{ label:"1 Month", value:"1 month" }, { label:"3 Months",value:"3 months"}, { label:"6 Months",value:"6 months"}, { label:"1 Year",  value:"1 year"  }],
-  seo:       [{ label:"1 Month", value:"1 month" }, { label:"3 Months",value:"3 months"}, { label:"6 Months",value:"6 months"}, { label:"1 Year",  value:"1 year"  }],
-  googleads: [{ label:"1 Month", value:"1 month" }, { label:"3 Months",value:"3 months"}, { label:"6 Months",value:"6 months"}, { label:"1 Year",  value:"1 year"  }],
-  growth:    [{ label:"1 Month", value:"1 month" }, { label:"3 Months",value:"3 months"}, { label:"6 Months",value:"6 months"}, { label:"1 Year",  value:"1 year"  }],
   calling:   [{ label:"3 Days",  value:"3 days"  }, { label:"7 Days",  value:"7 days"  }, { label:"1 Month", value:"1 month" }, { label:"Custom", value:"custom" }],
-  leadgen:   [{ label:"1 Month", value:"1 month" }, { label:"3 Months",value:"3 months"}, { label:"6 Months",value:"6 months"}, { label:"1 Year",  value:"1 year"  }],
   video:     [{ label:"2 Days",  value:"2 days"  }, { label:"3 Days",  value:"3 days"  }, { label:"5 Days",  value:"5 days"  }, { label:"7 Days",  value:"7 days"  }, { label:"Custom", value:"custom" }],
   default:   [{ label:"3 Days",  value:"3 days"  }, { label:"7 Days",  value:"7 days"  }, { label:"14 Days", value:"14 days" }, { label:"30 Days", value:"30 days" }, { label:"Custom", value:"custom" }],
 };
 
+// Services jinki duration fixed hoti hai (monthly billing) — skip duration step
+const SKIP_DURATION_SERVICES = ["smm", "seo", "googleads", "leadgen", "growth"];
+
 // ── GetStarted Modal ──────────────────────────────────────────────
-function GSModal({ open, onClose, name, price, serviceId = "" }) {
+function GSModal({ open, onClose, name, price, serviceId = "", skipDuration = false }) {
+  const shouldSkip = skipDuration || SKIP_DURATION_SERVICES.includes(serviceId);
   const [showInvoiceForm, setShowInvoiceForm] = useState(false);
   const [form, setForm] = useState({ name: "", email: "" });
   const [submitted, setSubmitted] = useState(false);
@@ -162,7 +161,20 @@ function GSModal({ open, onClose, name, price, serviceId = "" }) {
   const [error, setError] = useState("");
   const [duration, setDuration] = useState("");
   const [customDur, setCustomDur] = useState("");
-  const [durStep, setDurStep] = useState(true);
+  const [durStep, setDurStep] = useState(!shouldSkip);
+
+  // Reset state when modal opens/closes
+  useEffect(() => {
+    if (open) {
+      setDurStep(!shouldSkip);
+      setDuration("");
+      setCustomDur("");
+      setShowInvoiceForm(false);
+      setSubmitted(false);
+      setForm({ name: "", email: "" });
+      setError("");
+    }
+  }, [open, shouldSkip]);
 
   const durOpts = DURATION_OPTS[serviceId] || DURATION_OPTS.default;
 
@@ -270,7 +282,7 @@ function GSModal({ open, onClose, name, price, serviceId = "" }) {
             </div>
           ) : (
             <div>
-              <div style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,.65)", textTransform:"uppercase", letterSpacing:".1em", marginBottom:4 }}>Step 2 of 2</div>
+              {!shouldSkip && <div style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,.65)", textTransform:"uppercase", letterSpacing:".1em", marginBottom:4 }}>Step 2 of 2</div>}
               <div style={{ fontSize:18, fontWeight:800, color:"#fff", marginBottom:2 }}>Let's Get Started 🚀</div>
               {name && <div style={{ fontSize:12, color:"rgba(255,255,255,.75)" }}>{name}{price ? ` · ${price}` : ""}</div>}
             </div>
@@ -318,10 +330,12 @@ function GSModal({ open, onClose, name, price, serviceId = "" }) {
 
           ) : showInvoiceForm ? (
             <div>
-              <div style={{ background:`${B.l}`, border:`1px solid ${B.mid}`, borderRadius:10, padding:"10px 14px", marginBottom:14, display:"flex", alignItems:"center", gap:8 }}>
-                <span style={{ fontSize:14 }}>⏱️</span>
-                <span style={{ fontSize:13, color:B.m, fontWeight:600 }}>Delivery: {selectedDur}</span>
-              </div>
+              {!shouldSkip && selectedDur && (
+                <div style={{ background:`${B.l}`, border:`1px solid ${B.mid}`, borderRadius:10, padding:"10px 14px", marginBottom:14, display:"flex", alignItems:"center", gap:8 }}>
+                  <span style={{ fontSize:14 }}>⏱️</span>
+                  <span style={{ fontSize:13, color:B.m, fontWeight:600 }}>Delivery: {selectedDur}</span>
+                </div>
+              )}
               <input
                 placeholder="Your Full Name *"
                 value={form.name}
@@ -352,15 +366,18 @@ function GSModal({ open, onClose, name, price, serviceId = "" }) {
 
           ) : (
             <div>
-              <div style={{ background:`${B.l}`, border:`1px solid ${B.mid}`, borderRadius:10, padding:"10px 14px", marginBottom:16, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-                <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-                  <span style={{ fontSize:14 }}>⏱️</span>
-                  <span style={{ fontSize:13, color:B.m, fontWeight:600 }}>Delivery: {selectedDur}</span>
+              {/* Show delivery badge only if duration was selected (non-skipped services) */}
+              {!shouldSkip && selectedDur && (
+                <div style={{ background:`${B.l}`, border:`1px solid ${B.mid}`, borderRadius:10, padding:"10px 14px", marginBottom:16, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+                  <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                    <span style={{ fontSize:14 }}>⏱️</span>
+                    <span style={{ fontSize:13, color:B.m, fontWeight:600 }}>Delivery: {selectedDur}</span>
+                  </div>
+                  <button onClick={()=>setDurStep(true)} style={{ fontSize:12, color:B.s, background:"none", border:"none", cursor:"pointer", fontWeight:700, padding:0 }}>
+                    Change
+                  </button>
                 </div>
-                <button onClick={()=>setDurStep(true)} style={{ fontSize:12, color:B.s, background:"none", border:"none", cursor:"pointer", fontWeight:700, padding:0 }}>
-                  Change
-                </button>
-              </div>
+              )}
 
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:12 }}>
                 <a href={waLink(msg)} target="_blank" rel="noopener noreferrer"
@@ -862,7 +879,11 @@ function SMMService({ color }) {
 
   return (
     <div>
-      <GSModal open={gsOpen} onClose={()=>setGsOpen(false)} name={gsPkg?.name} price={gsPkg?.price} serviceId="smm" />
+      {/* Fixed packages GSModal — skipDuration=true kyunki monthly billing fixed hai */}
+      <GSModal open={gsOpen && !!gsPkg} onClose={()=>{ setGsOpen(false); setGsPkg(null); }} name={gsPkg?.name} price={gsPkg?.price} serviceId="smm" skipDuration={true} />
+      {/* Custom builder GSModal — skipDuration=true kyunki monthly custom bhi fixed cycle hai */}
+      <GSModal open={gsOpen && !gsPkg} onClose={()=>setGsOpen(false)} name="Custom Social Media Package" price={fmtPKR(customTotal)+"/mo"} serviceId="smm" skipDuration={true} />
+
       <div style={{ display:"flex", background:"#f1f5f9", borderRadius:12, padding:4, marginBottom:28, gap:4, maxWidth:360, margin:"0 auto 28px" }}>
         {[{k:"packages",l:"📦 Packages"},{k:"custom",l:"🛠 Make Custom"}].map(t=>(
           <button key={t.k} onClick={()=>setMode(t.k)} style={{ flex:1, padding:"9px 0", borderRadius:9, border:"none", cursor:"pointer", fontSize:13, fontWeight:700, background:mode===t.k?color:"transparent", color:mode===t.k?"#fff":"#64748b", transition:"all .2s" }}>{t.l}</button>
@@ -1005,10 +1026,9 @@ function SMMService({ color }) {
                 <div style={{ fontSize:32, fontWeight:900, color, lineHeight:1 }}>{fmtPKR(customTotal)}</div>
               </div>
             </div>
-            <button onClick={()=>setGsOpen(true)} style={{ width:"100%", background:`linear-gradient(90deg,${color},${color}cc)`, color:"#fff", border:"none", borderRadius:12, padding:"13px 0", fontSize:14, fontWeight:700, cursor:"pointer", boxShadow:`0 4px 16px ${color}40` }}>
+            <button onClick={()=>{ setGsPkg(null); setGsOpen(true); }} style={{ width:"100%", background:`linear-gradient(90deg,${color},${color}cc)`, color:"#fff", border:"none", borderRadius:12, padding:"13px 0", fontSize:14, fontWeight:700, cursor:"pointer", boxShadow:`0 4px 16px ${color}40` }}>
               Get Started →
             </button>
-            <GSModal open={gsOpen} onClose={()=>setGsOpen(false)} name="Custom Social Media Package" price={fmtPKR(customTotal)+"/mo"} serviceId="smm" />
           </div>
         </div>
       )}
@@ -1049,7 +1069,11 @@ function LeadGenService({ color }) {
 
   return (
     <div>
-      <GSModal open={gsOpen} onClose={()=>setGsOpen(false)} name={gsPkg?.name || "Custom Lead Gen Plan"} price={gsPkg?.price || fmtPKR(customTotal)+"/mo"} serviceId="leadgen" />
+      {/* Fixed packages — skipDuration=true */}
+      <GSModal open={gsOpen && !!gsPkg} onClose={()=>{ setGsOpen(false); setGsPkg(null); }} name={gsPkg?.name} price={gsPkg?.price} serviceId="leadgen" skipDuration={true} />
+      {/* Custom builder — skipDuration=true */}
+      <GSModal open={gsOpen && !gsPkg} onClose={()=>setGsOpen(false)} name="Custom Lead Gen Plan" price={fmtPKR(customTotal)+"/mo"} serviceId="leadgen" skipDuration={true} />
+
       <div style={{ display:"flex", background:"#f1f5f9", borderRadius:12, padding:4, marginBottom:28, gap:4, maxWidth:360, margin:"0 auto 28px" }}>
         {[{k:"packages",l:"📦 Packages"},{k:"custom",l:"🛠 Make Custom"}].map(t=>(
           <button key={t.k} onClick={()=>setMode(t.k)} style={{ flex:1, padding:"9px 0", borderRadius:9, border:"none", cursor:"pointer", fontSize:13, fontWeight:700, background:mode===t.k?color:"transparent", color:mode===t.k?"#fff":"#64748b", transition:"all .2s" }}>{t.l}</button>
@@ -1196,10 +1220,18 @@ function ComboBuilder({ color }) {
 
   return (
     <div>
-      <GSModal open={gsOpen} onClose={()=>setGsOpen(false)}
-        name={gsPkg ? gsPkg.name : `Custom Combo: ${comboSummary || "No services selected"}`}
-        price={gsPkg ? gsPkg.price+"/mo" : (total ? fmtPKR(total)+"/mo" : "")}
-        serviceId="growth" />
+      {/* Fixed combo packages — skipDuration=true */}
+      <GSModal open={gsOpen && !!gsPkg} onClose={()=>{ setGsOpen(false); setGsPkg(null); }}
+        name={gsPkg?.name}
+        price={gsPkg?.price+"/mo"}
+        serviceId="growth"
+        skipDuration={true} />
+      {/* Custom combo builder — skipDuration=true */}
+      <GSModal open={gsOpen && !gsPkg} onClose={()=>setGsOpen(false)}
+        name={`Custom Combo: ${comboSummary || "No services selected"}`}
+        price={total ? fmtPKR(total)+"/mo" : ""}
+        serviceId="growth"
+        skipDuration={true} />
 
       {/* Tab Switcher */}
       <div style={{ display:"flex", background:"#f1f5f9", borderRadius:12, padding:4, marginBottom:28, gap:4, maxWidth:360, margin:"0 auto 28px" }}>
