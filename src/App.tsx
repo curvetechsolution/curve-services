@@ -184,7 +184,7 @@ function GSModal({ open, onClose, name, price, serviceId = "" }) {
           client_name: form.name,
           client_email: form.email,
           service_name: name,
-          price: selectedDur ? `${price} · Delivery: ${selectedDur}` : price,
+          price: selectedDur ? `${price} · ${selectedDur}` : price,
           status: "pending",
         })
       });
