@@ -180,6 +180,7 @@ function GSModal({ open, onClose, name, price, serviceId = "" }) {
       const SURL = "https://dbyrmttpkeftcgcdneas.supabase.co";
       const SKEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRieXJtdHRwa2VmdGNnY2RuZWFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3NTY1NzcsImV4cCI6MjA5NjMzMjU3N30.ipTjwyyRakLK8Ac9n7TXh-5bQp3tXlOsktcs6bE5mxI";
       const payload = {
+        id: crypto.randomUUID(),
         client_name: form.name,
         client_email: form.email,
         service_name: name || "Unknown Service",
