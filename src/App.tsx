@@ -177,31 +177,19 @@ function GSModal({ open, onClose, name, price, serviceId = "" }) {
     setLoading(true);
     setError("");
     try {
-      const SURL = "https://dbyrmttpkeftcgcdneas.supabase.co";
-      const SKEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRieXJtdHRwa2VmdGNnY2RuZWFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3NTY1NzcsImV4cCI6MjA5NjMzMjU3N30.ipTjwyyRakLK8Ac9n7TXh-5bQp3tXlOsktcs6bE5mxI";
       const payload = {
-        id: crypto.randomUUID(),
-        client_name: form.name,
-        client_email: form.email,
-        service_name: name || "Unknown Service",
+        clientName:  form.name,
+        clientEmail: form.email,
+        serviceName: name || "Unknown Service",
         price: selectedDur ? String(price) + " · " + selectedDur : String(price || ""),
-        status: "pending",
       };
-      console.log("Sending payload:", JSON.stringify(payload));
-      const res = await fetch(SURL + "/rest/v1/invoice_requests", {
+      const res = await fetch("https://invoice.curvetechsolution.online/api/invoice-requests", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "apikey": SKEY,
-          "Authorization": "Bearer " + SKEY,
-          "Prefer": "return=minimal",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      console.log("Response status:", res.status);
       if (!res.ok) {
         const errText = await res.text();
-        console.error("Supabase error:", res.status, errText);
         throw new Error("Status " + res.status + ": " + errText);
       }
       setSubmitted(true);
