@@ -483,6 +483,7 @@ const WEB_FEATURES = {
   service: [
     { key:"pages",      icon:"📄", label:"Number of Pages",        type:"counter", min:1, max:20, default:4, basePrice:800,  unit:"page",  desc:"Each additional page" },
     { key:"whatsapp",   icon:"💬", label:"WhatsApp Button",         type:"toggle",  price:0,     included:true, desc:"CTA button linking to WhatsApp" },
+    { key:"domainhosting", icon:"🌐", label:"Domain & Hosting (1 Year)", type:"toggle", price:10000, desc:"Custom domain + hosting setup, 1 year" },
     { key:"chatbot",    icon:"🤖", label:"WhatsApp Chatbot",         type:"toggle",  price:2500,  desc:"Automated WhatsApp reply bot" },
     { key:"queryform",  icon:"📋", label:"Query / Contact Form",     type:"toggle",  price:800,   desc:"Lead capture form on your site" },
     { key:"googlemap",  icon:"📍", label:"Google Map Embed",         type:"toggle",  price:500,   desc:"Show your location on the site" },
@@ -500,6 +501,7 @@ const WEB_FEATURES = {
     { key:"products",   icon:"🛍️", label:"Product Listings",          type:"counter", min:5, max:100, default:10, basePrice:150, unit:"product", desc:"Per product listing" },
     { key:"categories", icon:"🗂️", label:"Product Categories",        type:"counter", min:1, max:20, default:3, basePrice:400,  unit:"cat",   desc:"Per product category" },
     { key:"whatsapp",   icon:"💬", label:"WhatsApp Button",           type:"toggle",  price:0,     included:true, desc:"CTA button linking to WhatsApp" },
+    { key:"domainhosting", icon:"🌐", label:"Domain & Hosting (1 Year)", type:"toggle", price:10000, desc:"Custom domain + hosting setup, 1 year" },
     { key:"cart",       icon:"🛒", label:"Add to Cart + COD",         type:"toggle",  price:3000,  desc:"Cart system with cash on delivery" },
     { key:"payment",    icon:"💳", label:"Payment Gateway",           type:"toggle",  price:5000,  desc:"Online payments (card/bank)" },
     { key:"checkout",   icon:"✅", label:"Checkout System",           type:"toggle",  price:2000,  desc:"Full checkout + order management" },
@@ -551,7 +553,7 @@ function WebPlanChooser({ color }) {
           <span style={{ fontSize:12, fontWeight:700, color, letterSpacing:".06em", textTransform:"uppercase" }}>Build Your Own Plan</span>
         </div>
         <h2 style={{ fontSize:18, fontWeight:900, color:"#0f172a", margin:"0 0 4px" }}>Choose only what you need</h2>
-        <p style={{ color:"#94a3b8", fontSize:13, margin:0 }}>Select features below — price updates live · Domain & Hosting not included</p>
+        <p style={{ color:"#94a3b8", fontSize:13, margin:0 }}>Select features below — price updates live · Domain & Hosting available as optional add-on</p>
       </div>
       <div style={{ display:"flex", background:"#f1f5f9", borderRadius:12, padding:4, marginBottom:14, gap:4 }}>
         {["service","ecom"].map(t=>(
@@ -597,7 +599,7 @@ function WebPlanChooser({ color }) {
         </div>
         <div style={{ background:`linear-gradient(135deg,${color}10,${color}04)`, border:`2px solid ${color}30`, borderRadius:18, padding:"24px 28px" }}>
           <div style={{ fontSize:11, fontWeight:700, color, textTransform:"uppercase", letterSpacing:".08em", marginBottom:4 }}>Your Custom Plan</div>
-          <div style={{ fontSize:11, color:"#ef4444", fontWeight:600, marginBottom:16 }}>❌ Domain & Hosting NOT included</div>
+          <div style={{ fontSize:11, color:"#ef4444", fontWeight:600, marginBottom:16 }}>❌ Domain & Hosting NOT included by default — toggle add-on above (+Rs. 10,000)</div>
           <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(220px,1fr))", gap:"6px 20px", marginBottom:18, minHeight:36 }}>
             {picked.length === 0 && <div style={{ color:"#94a3b8", fontSize:13 }}>No features selected yet</div>}
             {picked.map(f => (
@@ -656,6 +658,9 @@ function WebSection({ packages, color }) {
 
 function WebCard({ pkg, color }) {
   const [tab, setTab] = useState("service");
+  const [domainAddon, setDomainAddon] = useState(false);
+  const basePrice = parseInt(pkg.price.replace(/[^0-9]/g, ""), 10) || 0;
+  const displayPrice = "Rs. " + (basePrice + (domainAddon ? 10000 : 0)).toLocaleString();
   return (
     <div className="pkg-card" style={{ border:pkg.featured?`2px solid ${color}`:"1.5px solid #e8edf2", boxShadow:pkg.featured?`0 8px 32px ${color}20`:"0 2px 10px rgba(0,0,0,.05)" }}
       onMouseEnter={e=>{e.currentTarget.style.boxShadow=`0 14px 36px ${color}22`;}}
@@ -663,8 +668,20 @@ function WebCard({ pkg, color }) {
       {pkg.featured && <div style={{ position:"absolute", top:-14, left:"50%", transform:"translateX(-50%)", background:`linear-gradient(90deg,${color},${color}bb)`, color:"#fff", fontSize:11, fontWeight:700, padding:"4px 18px", borderRadius:99, whiteSpace:"nowrap", boxShadow:`0 4px 12px ${color}50` }}>⭐ Most Popular</div>}
       <div style={{ fontSize:11, fontWeight:700, color, textTransform:"uppercase", letterSpacing:".08em", marginBottom:5 }}>{pkg.tier}</div>
       <div style={{ fontSize:18, fontWeight:800, color:"#0f172a", marginBottom:6 }}>{pkg.name}</div>
-      <div style={{ fontSize:26, fontWeight:900, color, marginBottom:2 }}>{pkg.price}<span style={{ fontSize:13, fontWeight:400, color:"#94a3b8" }}>{pkg.per}</span></div>
-      <div style={{ fontSize:12, color:"#ef4444", fontWeight:600, marginBottom:16 }}>{pkg.year}</div>
+      <div style={{ fontSize:26, fontWeight:900, color, marginBottom:2 }}>{displayPrice}<span style={{ fontSize:13, fontWeight:400, color:"#94a3b8" }}>{pkg.per}</span></div>
+      <div style={{ fontSize:12, color:"#ef4444", fontWeight:600, marginBottom:10 }}>{pkg.year}</div>
+
+      {/* Domain & Hosting Add-on toggle */}
+      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:8, background:domainAddon?`${color}10`:"#f8fafc", border:`1.5px solid ${domainAddon?color:"#e8edf2"}`, borderRadius:10, padding:"8px 10px", marginBottom:14, transition:"all .2s" }}>
+        <div>
+          <div style={{ fontSize:12, fontWeight:700, color:"#0f172a" }}>🌐 Domain & Hosting (1 Yr)</div>
+          <div style={{ fontSize:11, color:"#94a3b8" }}>Optional add-on: +Rs. 10,000</div>
+        </div>
+        <button onClick={()=>setDomainAddon(d=>!d)} style={{ width:40, height:22, borderRadius:11, border:"none", cursor:"pointer", background:domainAddon?color:"#cbd5e1", transition:"all .2s", position:"relative", flexShrink:0 }}>
+          <span style={{ position:"absolute", top:2, left:domainAddon?20:2, width:18, height:18, borderRadius:9, background:"#fff", transition:"all .2s", boxShadow:"0 1px 4px rgba(0,0,0,.2)" }} />
+        </button>
+      </div>
+
       <div style={{ display:"flex", background:"#f1f5f9", borderRadius:10, padding:4, marginBottom:14, gap:4 }}>
         {["service","ecom"].map(t=>(
           <button key={t} onClick={()=>setTab(t)} style={{ flex:1, padding:"7px 0", borderRadius:8, border:"none", cursor:"pointer", fontSize:12, fontWeight:600, background:tab===t?color:"transparent", color:tab===t?"#fff":"#64748b", transition:"all .2s" }}>
@@ -678,8 +695,13 @@ function WebCard({ pkg, color }) {
             <span style={{ color, fontWeight:700, flexShrink:0 }}>✓</span>{f}
           </div>
         ))}
+        {domainAddon && (
+          <div style={{ display:"flex", gap:8, marginBottom:8, fontSize:13, color:"#374151" }}>
+            <span style={{ color, fontWeight:700, flexShrink:0 }}>✓</span>🌐 Domain & Hosting (1 Year) included
+          </div>
+        )}
       </div>
-      <GSBtn color={color} featured={pkg.featured} name={`${pkg.name} Website`} price={pkg.price} serviceId="webdev" />
+      <GSBtn color={color} featured={pkg.featured} name={`${pkg.name} Website${domainAddon ? " + Domain & Hosting" : ""}`} price={displayPrice} serviceId="webdev" />
     </div>
   );
 }
@@ -1318,9 +1340,9 @@ const SERVICES = [
   { id:"webdev", icon:"🌐", label:"Website Development", tagline:"Custom websites that convert visitors into clients",
     desc:"Fast, mobile-responsive, SEO-optimized websites. From landing pages to full e-commerce stores.", type:"web",
     packages:[
-      { name:"Starter", tier:"Basic", price:"Rs. 10,000", per:"/project", year:"❌ Domain & Hosting NOT included", service:["4–6 page service-based website","CTA: WhatsApp button only","WhatsApp chatbot included","Query form + Google Map + Reviews"], ecom:["4 pages","10 product listings","WhatsApp button CTA"] },
-      { name:"Standard", tier:"Standard", featured:true, price:"Rs. 28,000", per:"/project", year:"❌ Domain & Hosting NOT included", service:["4–10 page website","Appointment booking system","WhatsApp chatbot included","Google Map & Reviews integration","Mobile responsive"], ecom:["4–10 pages, 20 products, 5 categories","Add-to-cart + Cash on Delivery","Payment Gateway: Optional (+Rs. 5,000)"] },
-      { name:"Premium / Pro", tier:"Pro", price:"Rs. 52,000", per:"/project", year:"❌ Domain & Hosting NOT included", service:["6–15 page fully custom website","Appointment booking + calendar","AI chatbot + Google Sheets CRM","Meta Pixel + Google indexing","Core Web Vitals optimization"], ecom:["6–15 pages, 50 products","Full payment: Stripe, PayPal, QR, Bank","Checkout + inventory + customer accounts"] },
+      { name:"Starter", tier:"Basic", price:"Rs. 10,000", per:"/project", year:"❌ Domain & Hosting NOT included · ➕ Optional Add-on: +Rs. 10,000", service:["4–6 page service-based website","CTA: WhatsApp button only","WhatsApp chatbot included","Query form + Google Map + Reviews"], ecom:["4 pages","10 product listings","WhatsApp button CTA"] },
+      { name:"Standard", tier:"Standard", featured:true, price:"Rs. 28,000", per:"/project", year:"❌ Domain & Hosting NOT included · ➕ Optional Add-on: +Rs. 10,000", service:["4–10 page website","Appointment booking system","WhatsApp chatbot included","Google Map & Reviews integration","Mobile responsive"], ecom:["4–10 pages, 20 products, 5 categories","Add-to-cart + Cash on Delivery","Payment Gateway: Optional (+Rs. 5,000)"] },
+      { name:"Premium / Pro", tier:"Pro", price:"Rs. 52,000", per:"/project", year:"❌ Domain & Hosting NOT included · ➕ Optional Add-on: +Rs. 10,000", service:["6–15 page fully custom website","Appointment booking + calendar","AI chatbot + Google Sheets CRM","Meta Pixel + Google indexing","Core Web Vitals optimization"], ecom:["6–15 pages, 50 products","Full payment: Stripe, PayPal, QR, Bank","Checkout + inventory + customer accounts"] },
     ]},
   { id:"smm", icon:"📱", label:"Social Media Marketing", tagline:"Fixed packages or build your own custom plan", desc:"Choose a ready-made package or customize your own — select platforms, posts, reels, and ad campaigns. Price updates live.", type:"smm" },
   { id:"seo", icon:"🔍", label:"SEO", tagline:"Rank higher on Google and get organic leads daily", desc:"Data-driven SEO — on-page, technical, keywords, backlinks, and monthly reporting.", type:"packages",
