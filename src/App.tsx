@@ -192,10 +192,8 @@ function GSModal({ open, onClose, name, price, serviceId = "", skipDuration = fa
       const payload = {
         client_name:  form.name,
         client_email: form.email,
-        client_phone: "",
         service_name: name || "Unknown Service",
         price: selectedDur ? String(price) + " · " + selectedDur : String(price || ""),
-        message: "",
         status: "pending",
       };
       const res = await fetch(`${SUPABASE_URL}/rest/v1/invoice_requests`, {
