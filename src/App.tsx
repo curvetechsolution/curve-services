@@ -190,14 +190,17 @@ function GSModal({ open, onClose, name, price, serviceId = "", skipDuration = fa
     setError("");
     try {
       const payload = {
-        clientName:  form.name,
-        clientEmail: form.email,
-        serviceName: name || "Unknown Service",
+        client_name:  form.name,
+        client_email: form.email,
+        client_phone: "",
+        service_name: name || "Unknown Service",
         price: selectedDur ? String(price) + " · " + selectedDur : String(price || ""),
+        message: "",
+        status: "pending",
       };
-      const res = await fetch("https://invoice.curvetechsolution.online/api/invoice-requests", {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/invoice_requests`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { ...SUPABASE_HEADERS, "Prefer": "return=minimal" },
         body: JSON.stringify(payload),
       });
       if (!res.ok) {
