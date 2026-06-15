@@ -189,18 +189,32 @@ function GSModal({ open, onClose, name, price, serviceId = "", skipDuration = fa
     setLoading(true);
     setError("");
     try {
+      // Generate unique ID (timestamp-based like existing rows)
+      const uniqueId = String(Date.now());
+
       const payload = {
+        id:           uniqueId,
         client_name:  form.name,
         client_email: form.email,
         service_name: name || "Unknown Service",
-        price: selectedDur ? String(price) + " · " + selectedDur : String(price || ""),
-        status: "pending",
+        price:        selectedDur ? String(price) + " · " + selectedDur : String(price || ""),
+        status:       "pending",
+        created_at:   new Date().toISOString(),
       };
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/invoice_requests`, {
-        method: "POST",
-        headers: { ...SUPABASE_HEADERS, "Prefer": "return=minimal" },
-        body: JSON.stringify(payload),
-      });
+
+      const res = await fetch(
+        "https://dbyrmttpkeftcgcdneas.supabase.co/rest/v1/invoice_requests",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRieXJtdHRwa2VmdGNnY2RuZWFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3NTY1NzcsImV4cCI6MjA5NjMzMjU3N30.ipTjwyyRakLK8Ac9n7TXh-5bQp3tXlOsktcs6bE5mxI",
+            "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRieXJtdHRwa2VmdGNnY2RuZWFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3NTY1NzcsImV4cCI6MjA5NjMzMjU3N30.ipTjwyyRakLK8Ac9n7TXh-5bQp3tXlOsktcs6bE5mxI",
+            "Prefer": "return=minimal",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
       if (!res.ok) {
         const errText = await res.text();
         throw new Error("Status " + res.status + ": " + errText);
