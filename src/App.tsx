@@ -196,8 +196,8 @@ function GSModal({ open, onClose, name, price, serviceId = "", skipDuration = fa
         id:           uniqueId,
         client_name:  form.name,
         client_email: form.email,
-        service_name: name || "Unknown Service",
-        price:        selectedDur ? String(price) + " · " + selectedDur : String(price || ""),
+        service_name: selectedDur ? (name || "Unknown Service") + " · " + selectedDur : (name || "Unknown Service"),
+        price:        String(price || "").replace(/[^0-9.]/g, "") || "0",
         status:       "pending",
         created_at:   new Date().toISOString(),
       };
