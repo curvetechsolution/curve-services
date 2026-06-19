@@ -155,7 +155,7 @@ const SKIP_DURATION_SERVICES = ["smm", "seo", "googleads", "leadgen", "growth"];
 function GSModal({ open, onClose, name, price, serviceId = "", skipDuration = false }) {
   const shouldSkip = skipDuration || SKIP_DURATION_SERVICES.includes(serviceId);
   const [showInvoiceForm, setShowInvoiceForm] = useState(false);
-  const [form, setForm] = useState({ name: "", email: "" });
+  const [form, setForm] = useState({ name: "", email: "", phone: "" });
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -171,7 +171,7 @@ function GSModal({ open, onClose, name, price, serviceId = "", skipDuration = fa
       setCustomDur("");
       setShowInvoiceForm(false);
       setSubmitted(false);
-      setForm({ name: "", email: "" });
+      setForm({ name: "", email: "", phone: "" });
       setError("");
     }
   }, [open, shouldSkip]);
@@ -185,7 +185,7 @@ function GSModal({ open, onClose, name, price, serviceId = "", skipDuration = fa
   const msg = name ? `Hi! I'm interested in the *${name}* package${price ? ` (${price})` : ""}${selectedDur ? ` — Delivery: *${selectedDur}*` : ""}. Please share more details.` : "";
 
   const handleInvoiceRequest = async () => {
-    if (!form.name || !form.email) return;
+    if (!form.name || !form.email || !form.phone) return;
     setLoading(true);
     setError("");
     try {
@@ -196,6 +196,7 @@ function GSModal({ open, onClose, name, price, serviceId = "", skipDuration = fa
         id:           uniqueId,
         client_name:  form.name,
         client_email: form.email,
+        client_phone: form.phone,
         service_name: selectedDur ? (name || "Unknown Service") + " · " + selectedDur : (name || "Unknown Service"),
         price:        String(price || ""),
         status:       "pending",
@@ -362,6 +363,13 @@ function GSModal({ open, onClose, name, price, serviceId = "", skipDuration = fa
                 type="email"
                 value={form.email}
                 onChange={e=>setForm({...form, email:e.target.value})}
+                style={inputStyle}
+              />
+              <input
+                placeholder="Phone Number *"
+                type="tel"
+                value={form.phone}
+                onChange={e=>setForm({...form, phone:e.target.value})}
                 style={{ ...inputStyle, marginBottom:14 }}
               />
               {error && (
