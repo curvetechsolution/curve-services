@@ -152,7 +152,7 @@ const DURATION_OPTS: Record<string, { label: string; value: string }[]> = {
 const SKIP_DURATION_SERVICES = ["smm", "seo", "googleads", "leadgen", "growth"];
 
 // ── GetStarted Modal ──────────────────────────────────────────────
-function GSModal({ open, onClose, name, price, serviceId = "", skipDuration = false }) {
+function GSModal({ open, onClose, name, price, serviceId = "", skipDuration = false, description = "" }) {
   const shouldSkip = skipDuration || SKIP_DURATION_SERVICES.includes(serviceId);
   const [showInvoiceForm, setShowInvoiceForm] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", phone: "" });
@@ -199,6 +199,7 @@ function GSModal({ open, onClose, name, price, serviceId = "", skipDuration = fa
         client_phone: form.phone,
         service_name: selectedDur ? (name || "Unknown Service") + " · " + selectedDur : (name || "Unknown Service"),
         price:        String(price || ""),
+        message:      description || "",
         status:       "pending",
         created_at:   new Date().toISOString(),
       };
@@ -473,11 +474,11 @@ function SetupBadge({ setup, note, color }) {
 }
 
 // ── GSButton ─────────────────────────────────────────────────────
-function GSBtn({ color, featured, name, price, serviceId = "" }) {
+function GSBtn({ color, featured, name, price, serviceId = "", description = "" }) {
   const [open, setOpen] = useState(false);
   return (
     <>
-      <GSModal open={open} onClose={()=>setOpen(false)} name={name} price={price} serviceId={serviceId} />
+      <GSModal open={open} onClose={()=>setOpen(false)} name={name} price={price} serviceId={serviceId} description={description} />
       <button onClick={()=>setOpen(true)}
         style={{ display:"block", width:"100%", marginTop:10, textAlign:"center", padding:"9px 14px", background:featured?`linear-gradient(90deg,${color},${color}cc)`:"transparent", color:featured?"#fff":color, border:`2px solid ${color}`, borderRadius:10, fontWeight:700, fontSize:13, cursor:"pointer", transition:"all .2s", boxShadow:featured?`0 3px 12px ${color}40`:"none" }}
         onMouseEnter={e=>{if(!featured){e.currentTarget.style.background=color;e.currentTarget.style.color="#fff";}}}
@@ -513,7 +514,7 @@ function PkgCard({ pkg, color, serviceId = "" }) {
           </div>
         ))}
       </div>
-      <GSBtn color={color} featured={pkg.featured} name={pkg.name} price={pkg.price+"/mo"} serviceId={serviceId} />
+      <GSBtn color={color} featured={pkg.featured} name={pkg.name} price={pkg.price+"/mo"} serviceId={serviceId} description={(pkg.features||[]).join("\n")} />
     </div>
   );
 }
@@ -670,7 +671,7 @@ function WebPlanChooser({ color }) {
               <div style={{ fontSize:32, fontWeight:900, color, lineHeight:1 }}>{fmtPrice(total)}</div>
             </div>
           </div>
-          <GSBtn color={color} featured={true} name={"Custom Website"} price={fmtPrice(total)} serviceId="webdev" />
+          <GSBtn color={color} featured={true} name={"Custom Website"} price={fmtPrice(total)} serviceId="webdev" description={picked.map(f => f.type==="counter" ? `${f.label} × ${sel[f.key]}` : f.label).join("\n")} />
         </div>
       </div>
     </div>
@@ -741,7 +742,7 @@ function WebCard({ pkg, color }) {
           </div>
         )}
       </div>
-      <GSBtn color={color} featured={pkg.featured} name={`${pkg.name} Website${domainAddon ? " + Domain & Hosting" : ""}`} price={displayPrice} serviceId="webdev" />
+      <GSBtn color={color} featured={pkg.featured} name={`${pkg.name} Website${domainAddon ? " + Domain & Hosting" : ""}`} price={displayPrice} serviceId="webdev" description={[...(tab==="service"?pkg.service:pkg.ecom), ...(domainAddon ? ["Domain & Hosting (1 Year) included"] : [])].join("\n")} />
     </div>
   );
 }
@@ -777,7 +778,7 @@ function VideoService({ color }) {
   const DURATION_OPTIONS = [30, 60, 90, 120];
   return (
     <div>
-      <GSModal open={gsOpen} onClose={()=>setGsOpen(false)} name={`Video Package (${totalVideos} videos)`} price={total?fmtPKR(total)+"/mo":""} serviceId="video" />
+      <GSModal open={gsOpen} onClose={()=>setGsOpen(false)} name={`Video Package (${totalVideos} videos)`} price={total?fmtPKR(total)+"/mo":""} serviceId="video" description={VIDEO_TYPES.filter(vt=>counts[vt.key]>0).map(vt=>`${vt.label}: ${counts[vt.key]} × ${durations[vt.key]}s`).join("\n")} />
       <div style={{ textAlign:"center", marginBottom:28 }}>
         <h2 style={{ fontSize:22, fontWeight:900, color:"#0f172a", marginBottom:6 }}>Build Your Video Package</h2>
         <p style={{ color:"#64748b", fontSize:14 }}>Choose video type, pick duration — price updates instantly. +50% per extra 30 seconds.</p>
@@ -903,9 +904,9 @@ function SMMService({ color }) {
   return (
     <div>
       {/* Fixed packages GSModal — skipDuration=true kyunki monthly billing fixed hai */}
-      <GSModal open={gsOpen && !!gsPkg} onClose={()=>{ setGsOpen(false); setGsPkg(null); }} name={gsPkg?.name} price={gsPkg?.price} serviceId="smm" skipDuration={true} />
+      <GSModal open={gsOpen && !!gsPkg} onClose={()=>{ setGsOpen(false); setGsPkg(null); }} name={gsPkg?.name} price={gsPkg?.price} serviceId="smm" skipDuration={true} description={gsPkg?.features ? gsPkg.features.join("\n") : ""} />
       {/* Custom builder GSModal — skipDuration=true kyunki monthly custom bhi fixed cycle hai */}
-      <GSModal open={gsOpen && !gsPkg} onClose={()=>setGsOpen(false)} name="Custom Social Media Package" price={fmtPKR(customTotal)+"/mo"} serviceId="smm" skipDuration={true} />
+      <GSModal open={gsOpen && !gsPkg} onClose={()=>setGsOpen(false)} name="Custom Social Media Package" price={fmtPKR(customTotal)+"/mo"} serviceId="smm" skipDuration={true} description={`Platforms: ${plats.join(", ").toUpperCase()}\n${posts} Posts per month${aiReels>0?`\n${aiReels} AI Reels (${aiReelDur}s)`:""}${edReels>0?`\n${edReels} Edited Reels (${edReelDur}s)`:""}${fbAds>0?`\n${fbAds} Facebook Ad Campaign(s)`:""}${ttAds>0?`\n${ttAds} TikTok Ad Campaign(s)`:""}${liAds>0?`\n${liAds} LinkedIn Ad Campaign(s)`:""}${ytAds>0?`\n${ytAds} YouTube Ad Campaign(s)`:""}`} />
 
       <div style={{ display:"flex", background:"#f1f5f9", borderRadius:12, padding:4, marginBottom:28, gap:4, maxWidth:360, margin:"0 auto 28px" }}>
         {[{k:"packages",l:"📦 Packages"},{k:"custom",l:"🛠 Make Custom"}].map(t=>(
@@ -1093,9 +1094,9 @@ function LeadGenService({ color }) {
   return (
     <div>
       {/* Fixed packages — skipDuration=true */}
-      <GSModal open={gsOpen && !!gsPkg} onClose={()=>{ setGsOpen(false); setGsPkg(null); }} name={gsPkg?.name} price={gsPkg?.price} serviceId="leadgen" skipDuration={true} />
+      <GSModal open={gsOpen && !!gsPkg} onClose={()=>{ setGsOpen(false); setGsPkg(null); }} name={gsPkg?.name} price={gsPkg?.price} serviceId="leadgen" skipDuration={true} description={gsPkg?.features ? gsPkg.features.join("\n") : ""} />
       {/* Custom builder — skipDuration=true */}
-      <GSModal open={gsOpen && !gsPkg} onClose={()=>setGsOpen(false)} name="Custom Lead Gen Plan" price={fmtPKR(customTotal)+"/mo"} serviceId="leadgen" skipDuration={true} />
+      <GSModal open={gsOpen && !gsPkg} onClose={()=>setGsOpen(false)} name="Custom Lead Gen Plan" price={fmtPKR(customTotal)+"/mo"} serviceId="leadgen" skipDuration={true} description={[`${leads} verified leads/month`, ...addons.filter(a=>a.v).map(a=>a.label.replace(/^[^\s]+\s/,""))].join("\n")} />
 
       <div style={{ display:"flex", background:"#f1f5f9", borderRadius:12, padding:4, marginBottom:28, gap:4, maxWidth:360, margin:"0 auto 28px" }}>
         {[{k:"packages",l:"📦 Packages"},{k:"custom",l:"🛠 Make Custom"}].map(t=>(
@@ -1248,13 +1249,15 @@ function ComboBuilder({ color }) {
         name={gsPkg?.name}
         price={gsPkg?.price+"/mo"}
         serviceId="growth"
-        skipDuration={true} />
+        skipDuration={true}
+        description={gsPkg?.features ? gsPkg.features.join("\n") : ""} />
       {/* Custom combo builder — skipDuration=true */}
       <GSModal open={gsOpen && !gsPkg} onClose={()=>setGsOpen(false)}
         name={`Custom Combo: ${comboSummary || "No services selected"}`}
         price={total ? fmtPKR(total)+"/mo" : ""}
         serviceId="growth"
-        skipDuration={true} />
+        skipDuration={true}
+        description={selectedIds.map(id => { const svc = COMBO_SERVICES.find(s => s.id === id); return `${svc.label} — ${svc.tiers[selected[id]].name}`; }).join("\n")} />
 
       {/* Tab Switcher */}
       <div style={{ display:"flex", background:"#f1f5f9", borderRadius:12, padding:4, marginBottom:28, gap:4, maxWidth:360, margin:"0 auto 28px" }}>
