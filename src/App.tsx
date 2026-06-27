@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
 
 const CALENDLY = "https://calendly.com/curvetechsolution/book-a-meeting";
@@ -491,13 +491,23 @@ function GSBtn({ color, featured, name, price, serviceId = "", description = "" 
 
 
 // ── Collapsible Feature List ──────────────────────────────────────
+// Shared desktop sync context
+const FeatureOpenCtx = React.createContext<{ open: boolean; setOpen: (v: boolean) => void } | null>(null);
+
 function FeatureList({ features = [], warnings = [], color, defaultOpen = false }) {
-  const [open, setOpen] = useState(defaultOpen);
+  const isDesktop = typeof window !== "undefined" && window.matchMedia("(min-width: 641px)").matches;
+  const ctx = React.useContext(FeatureOpenCtx);
+  const [localOpen, setLocalOpen] = useState(defaultOpen);
+
+  // Desktop: use shared ctx; Mobile: use local state
+  const open = isDesktop && ctx ? ctx.open : localOpen;
+  const setOpen = isDesktop && ctx ? ctx.setOpen : setLocalOpen;
+
   if (!features.length && !warnings.length) return null;
   return (
     <div style={{ flex:1, borderTop:"1px solid #f1f5f9", paddingTop:8 }}>
       <button
-        onClick={()=>setOpen(o=>!o)}
+        onClick={()=>setOpen(!open)}
         style={{ display:"flex", alignItems:"center", justifyContent:"space-between", width:"100%", background:"none", border:"none", cursor:"pointer", padding:"4px 0 6px", marginBottom:open?6:0 }}>
         <span style={{ fontSize:12, fontWeight:700, color, display:"flex", alignItems:"center", gap:6 }}>
           <span style={{ width:18, height:18, borderRadius:6, background:`${color}15`, display:"inline-flex", alignItems:"center", justifyContent:"center", fontSize:10, transition:"transform .25s", transform:open?"rotate(90deg)":"rotate(0deg)" }}>▶</span>
@@ -518,6 +528,18 @@ function FeatureList({ features = [], warnings = [], color, defaultOpen = false 
         ))}
       </div>
     </div>
+  );
+}
+
+// Wrapper: desktop mein shared state provide karta hai, mobile mein sirf children render
+function SyncedFeatureGroup({ children, color }) {
+  const [open, setOpen] = useState(false);
+  const isDesktop = typeof window !== "undefined" && window.matchMedia("(min-width: 641px)").matches;
+  if (!isDesktop) return <>{children}</>;
+  return (
+    <FeatureOpenCtx.Provider value={{ open, setOpen }}>
+      {children}
+    </FeatureOpenCtx.Provider>
   );
 }
 
@@ -709,9 +731,11 @@ function WebSection({ packages, color }) {
         ))}
       </div>
       {mode==="packages" && (
-        <div className="web-cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20, marginBottom:40 }}>
-          {packages.map((pkg,i) => <WebCard key={i} pkg={pkg} color={color} />)}
-        </div>
+        <SyncedFeatureGroup color={color}>
+          <div className="web-cards-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20, marginBottom:40 }}>
+            {packages.map((pkg,i) => <WebCard key={i} pkg={pkg} color={color} />)}
+          </div>
+        </SyncedFeatureGroup>
       )}
       {mode==="custom" && <WebPlanChooser color={color} />}
     </div>
@@ -798,6 +822,7 @@ function VideoService({ color }) {
         <h2 style={{ fontSize:22, fontWeight:900, color:"#0f172a", marginBottom:6 }}>Build Your Video Package</h2>
         <p style={{ color:"#64748b", fontSize:14 }}>Choose video type, pick duration — price updates instantly. +50% per extra 30 seconds.</p>
       </div>
+      <SyncedFeatureGroup color={color}>
       <div className="video-grid">
         {VIDEO_TYPES.map(vt => {
           const cnt = counts[vt.key]; const dur = durations[vt.key]; const unitPrice = getPrice(vt.basePrice, dur);
@@ -834,6 +859,7 @@ function VideoService({ color }) {
           );
         })}
       </div>
+      </SyncedFeatureGroup>
       {totalVideos>0 ? (
         <div style={{ background:`linear-gradient(135deg,${B.p},#fff)`, border:`2px solid ${color}44`, borderRadius:20, padding:24, marginBottom:20 }}>
           <div style={{ fontWeight:700, fontSize:15, color:"#0f172a", marginBottom:12 }}>📋 Your Monthly Video Package</div>
@@ -925,6 +951,7 @@ function SMMService({ color }) {
         ))}
       </div>
       {mode==="packages" && (
+        <SyncedFeatureGroup color={color}>
         <div className="pkg-grid">
           {fixedPkgs.map((pkg,i)=>(
             <div key={i} style={{ background:"#fff", border:pkg.featured?`2px solid ${color}`:"1.5px solid #e8edf2", borderRadius:20, padding:"1.5rem", display:"flex", flexDirection:"column", position:"relative", boxShadow:pkg.featured?`0 8px 32px ${color}20`:"0 2px 10px rgba(0,0,0,.05)", transition:"transform .25s,box-shadow .25s" }}
@@ -1114,6 +1141,7 @@ function LeadGenService({ color }) {
         ))}
       </div>
       {mode==="packages" && (
+        <SyncedFeatureGroup color={color}>
         <div className="pkg-grid">
           {fixedPkgs.map((pkg,i) => (
             <div key={i} style={{ background:"#fff", border:pkg.featured?`2px solid ${color}`:"1.5px solid #e8edf2", borderRadius:20, padding:"1.5rem", display:"flex", flexDirection:"column", position:"relative", boxShadow:pkg.featured?`0 8px 32px ${color}20`:"0 2px 10px rgba(0,0,0,.05)", transition:"transform .25s,box-shadow .25s" }}
@@ -1135,6 +1163,7 @@ function LeadGenService({ color }) {
             </div>
           ))}
         </div>
+        </SyncedFeatureGroup>
       )}
       {mode==="custom" && (
         <div style={{ display:"flex", flexDirection:"column", gap:20 }}>
@@ -1278,6 +1307,7 @@ function ComboBuilder({ color }) {
 
       {/* ── Packages Tab ── */}
       {mode === "packages" && (
+        <SyncedFeatureGroup color={color}>
         <div className="pkg-grid">
           {FIXED_COMBOS.map((pkg, i) => (
             <div key={i} style={{ background:"#fff", border:pkg.featured?`2px solid ${color}`:"1.5px solid #e8edf2", borderRadius:20, padding:"1.5rem", display:"flex", flexDirection:"column", position:"relative", boxShadow:pkg.featured?`0 8px 32px ${color}20`:"0 2px 10px rgba(0,0,0,.05)", transition:"transform .25s,box-shadow .25s" }}
@@ -1301,6 +1331,7 @@ function ComboBuilder({ color }) {
             </div>
           ))}
         </div>
+        </SyncedFeatureGroup>
       )}
 
       {/* ── Build Your Own Tab ── */}
@@ -1515,9 +1546,11 @@ function ServiceDetail({ svc, onBack, onOther }) {
                 <h2 style={{ fontSize:17, fontWeight:800, color:"#0f172a", marginBottom:4 }}>Choose Your Plan</h2>
                 <p style={{ color:"#94a3b8", fontSize:12 }}>Transparent pricing · No hidden fees · Cancel anytime after 3 months</p>
               </div>
-              <div className="pkg-grid">
-                {svc.packages.map((pkg,i) => <PkgCard key={i} pkg={pkg} color={color} serviceId={svc.id} />)}
-              </div>
+              <SyncedFeatureGroup color={color}>
+                <div className="pkg-grid">
+                  {svc.packages.map((pkg,i) => <PkgCard key={i} pkg={pkg} color={color} serviceId={svc.id} />)}
+                </div>
+              </SyncedFeatureGroup>
             </>
           )}
         </div>
