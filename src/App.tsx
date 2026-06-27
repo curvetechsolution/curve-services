@@ -1526,13 +1526,11 @@ function ServiceDetail({ svc, onBack, onOther }) {
         </div>
       )}
       <div style={{ maxWidth:1200, margin:"0 auto", padding:"16px 16px 24px", flex:1, width:"100%" }}>
-        <div style={{ textAlign:"center", marginBottom:20, opacity:vis?1:0, transform:vis?"translateY(0)":"translateY(20px)", transition:"all .5s ease" }}>
-          <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8, marginBottom:6 }}>
+        <div style={{ textAlign:"center", marginBottom:16, opacity:vis?1:0, transform:vis?"translateY(0)":"translateY(20px)", transition:"all .5s ease" }}>
+          <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}>
             <span style={{ fontSize:20 }}>{svc.icon}</span>
             <h1 style={{ fontSize:"clamp(16px,3vw,22px)", fontWeight:900, color:"#0f172a", margin:0, lineHeight:1.2 }}>{svc.label}</h1>
           </div>
-          <p style={{ fontSize:13, color, fontWeight:600, marginBottom:4, margin:"0 auto 4px" }}>{svc.tagline}</p>
-          <p style={{ fontSize:12, color:"#64748b", maxWidth:500, margin:"0 auto", lineHeight:1.6 }}>{svc.desc}</p>
         </div>
         <div style={{ opacity:vis?1:0, transform:vis?"translateY(0)":"translateY(16px)", transition:"all .5s ease .15s" }}>
           {svc.type === "smm" && <SMMService color={color} />}
