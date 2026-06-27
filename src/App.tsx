@@ -489,6 +489,38 @@ function GSBtn({ color, featured, name, price, serviceId = "", description = "" 
   );
 }
 
+
+// ── Collapsible Feature List ──────────────────────────────────────
+function FeatureList({ features = [], warnings = [], color, defaultOpen = false }) {
+  const [open, setOpen] = useState(defaultOpen);
+  if (!features.length && !warnings.length) return null;
+  return (
+    <div style={{ flex:1, borderTop:"1px solid #f1f5f9", paddingTop:8 }}>
+      <button
+        onClick={()=>setOpen(o=>!o)}
+        style={{ display:"flex", alignItems:"center", justifyContent:"space-between", width:"100%", background:"none", border:"none", cursor:"pointer", padding:"4px 0 6px", marginBottom:open?6:0 }}>
+        <span style={{ fontSize:12, fontWeight:700, color, display:"flex", alignItems:"center", gap:6 }}>
+          <span style={{ width:18, height:18, borderRadius:6, background:`${color}15`, display:"inline-flex", alignItems:"center", justifyContent:"center", fontSize:10, transition:"transform .25s", transform:open?"rotate(90deg)":"rotate(0deg)" }}>▶</span>
+          {open ? "Hide Details" : `Show ${features.length} Features`}
+        </span>
+        <span style={{ fontSize:10, color:"#94a3b8", fontWeight:600 }}>{open?"▲":"▼"}</span>
+      </button>
+      <div style={{ overflow:"hidden", maxHeight:open?"600px":"0", transition:"max-height .35s ease", opacity:open?1:0, transitionProperty:"max-height, opacity" }}>
+        {features.map((f,i)=>(
+          <div key={i} style={{ display:"flex", alignItems:"flex-start", gap:6, marginBottom:5, fontSize:12, color:"#374151", lineHeight:1.4 }}>
+            <span style={{ color, fontWeight:700, flexShrink:0, fontSize:11 }}>✓</span>{f}
+          </div>
+        ))}
+        {warnings.map((w,i)=>(
+          <div key={i} style={{ display:"flex", gap:6, marginTop:6, marginBottom:3, fontSize:11, color:"#d97706", fontWeight:600 }}>
+            <span>⚠</span>{w}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ── Package Card ─────────────────────────────────────────────────
 function PkgCard({ pkg, color, serviceId = "" }) {
   return (
@@ -502,18 +534,7 @@ function PkgCard({ pkg, color, serviceId = "" }) {
       <div style={{ fontSize:pkg.customPrice?"18px":"22px", fontWeight:900, color, marginBottom:1 }}>{pkg.price}<span style={{ fontSize:11, fontWeight:400, color:"#94a3b8" }}>{pkg.per}</span></div>
       <div style={{ fontSize:11, color:"#94a3b8", marginBottom:pkg.setup?8:12 }}>{pkg.year}</div>
       <SetupBadge setup={pkg.setup} note={pkg.setupNote} color={color} />
-      <div style={{ flex:1, borderTop:"1px solid #f1f5f9", paddingTop:8 }}>
-        {(pkg.features||[]).map((f,i)=>(
-          <div key={i} style={{ display:"flex", alignItems:"flex-start", gap:6, marginBottom:5, fontSize:12, color:"#374151", lineHeight:1.4 }}>
-            <span style={{ color, fontWeight:700, flexShrink:0, fontSize:11 }}>✓</span>{f}
-          </div>
-        ))}
-        {(pkg.warning||[]).map((w,i)=>(
-          <div key={i} style={{ display:"flex", gap:6, marginTop:6, marginBottom:3, fontSize:11, color:"#d97706", fontWeight:600 }}>
-            <span>⚠</span>{w}
-          </div>
-        ))}
-      </div>
+      <FeatureList features={pkg.features||[]} warnings={pkg.warning||[]} color={color} />
       <GSBtn color={color} featured={pkg.featured} name={pkg.name} price={pkg.price+"/mo"} serviceId={serviceId} description={(pkg.features||[]).join("\n")} />
     </div>
   );
@@ -731,16 +752,10 @@ function WebCard({ pkg, color }) {
         ))}
       </div>
       <div style={{ flex:1, borderTop:"1px solid #f1f5f9", paddingTop:12 }}>
-        {(tab==="service"?pkg.service:pkg.ecom).map((f,i)=>(
-          <div key={i} style={{ display:"flex", gap:8, marginBottom:8, fontSize:13, color:"#374151" }}>
-            <span style={{ color, fontWeight:700, flexShrink:0 }}>✓</span>{f}
-          </div>
-        ))}
-        {domainAddon && (
-          <div style={{ display:"flex", gap:8, marginBottom:8, fontSize:13, color:"#374151" }}>
-            <span style={{ color, fontWeight:700, flexShrink:0 }}>✓</span>🌐 Domain & Hosting (1 Year) included
-          </div>
-        )}
+        <FeatureList
+          features={[...(tab==="service"?pkg.service:pkg.ecom), ...(domainAddon?["🌐 Domain & Hosting (1 Year) included"]:[])]}
+          color={color}
+        />
       </div>
       <GSBtn color={color} featured={pkg.featured} name={`${pkg.name} Website${domainAddon ? " + Domain & Hosting" : ""}`} price={displayPrice} serviceId="webdev" description={[...(tab==="service"?pkg.service:pkg.ecom), ...(domainAddon ? ["Domain & Hosting (1 Year) included"] : [])].join("\n")} />
     </div>
@@ -804,11 +819,7 @@ function VideoService({ color }) {
                 </div>
               </div>
               <div style={{ fontSize:24, fontWeight:900, color, marginBottom:10 }}>{fmtPKR(unitPrice)}<span style={{ fontSize:12, fontWeight:400, color:"#94a3b8" }}> / video ({dur}s)</span></div>
-              {vt.feats.map((f,i)=>(
-                <div key={i} style={{ display:"flex", gap:8, marginBottom:6, fontSize:13, color:"#374151" }}>
-                  <span style={{ color, fontWeight:700, flexShrink:0 }}>✓</span>{f}
-                </div>
-              ))}
+              <FeatureList features={vt.feats} color={color} />
               <div style={{ marginTop:14, display:"flex", alignItems:"center", justifyContent:"space-between", gap:8, flexWrap:"wrap" }}>
                 <div style={{ fontSize:13, color:"#64748b", fontWeight:500 }}>Videos this month:</div>
                 <Ctr v={cnt} set={v=>setCounts(c=>({...c,[vt.key]:Math.max(0,v)}))} color={color} />
@@ -924,8 +935,7 @@ function SMMService({ color }) {
               <div style={{ fontSize:17, fontWeight:800, color:"#0f172a", marginBottom:6 }}>{pkg.name}</div>
               <div style={{ fontSize:26, fontWeight:900, color, marginBottom:16 }}>{pkg.price}<span style={{ fontSize:13, fontWeight:400, color:"#94a3b8" }}>{pkg.per}</span></div>
               <div style={{ flex:1, borderTop:"1px solid #f1f5f9", paddingTop:12 }}>
-                {pkg.features.map((f,j)=><div key={j} style={{ display:"flex", gap:8, marginBottom:8, fontSize:13, color:"#374151" }}><span style={{ color, fontWeight:700, flexShrink:0 }}>✓</span>{f}</div>)}
-                {pkg.warning.map((w,j)=><div key={j} style={{ display:"flex", gap:7, marginTop:10, marginBottom:5, fontSize:12, color:"#d97706", fontWeight:600 }}><span>⚠</span>{w}</div>)}
+                <FeatureList features={pkg.features} warnings={pkg.warning} color={color} />
               </div>
               <button onClick={()=>{ setGsPkg(pkg); setGsOpen(true); }} style={{ display:"block", width:"100%", marginTop:18, textAlign:"center", padding:"12px 0", background:pkg.featured?`linear-gradient(90deg,${color},${color}cc)`:"transparent", color:pkg.featured?"#fff":color, border:`2px solid ${color}`, borderRadius:12, fontWeight:700, fontSize:14, cursor:"pointer", transition:"all .2s" }}
                 onMouseEnter={e=>{if(!pkg.featured){e.currentTarget.style.background=color;e.currentTarget.style.color="#fff";}}}
@@ -1115,7 +1125,7 @@ function LeadGenService({ color }) {
               <div style={{ fontSize:26, fontWeight:900, color, marginBottom:4 }}>{pkg.price}<span style={{ fontSize:13, fontWeight:400, color:"#94a3b8" }}>{pkg.per}</span></div>
               <div style={{ fontSize:12, color:"#94a3b8", marginBottom:16 }}>{pkg.year}</div>
               <div style={{ flex:1, borderTop:"1px solid #f1f5f9", paddingTop:12 }}>
-                {pkg.features.map((f,j)=><div key={j} style={{ display:"flex", gap:8, marginBottom:8, fontSize:13, color:"#374151" }}><span style={{ color, fontWeight:700, flexShrink:0 }}>✓</span>{f}</div>)}
+                <FeatureList features={pkg.features} color={color} />
               </div>
               <button onClick={()=>{ setGsPkg(pkg); setGsOpen(true); }} style={{ display:"block", width:"100%", marginTop:18, textAlign:"center", padding:"12px 0", background:pkg.featured?`linear-gradient(90deg,${color},${color}cc)`:"transparent", color:pkg.featured?"#fff":color, border:`2px solid ${color}`, borderRadius:12, fontWeight:700, fontSize:14, cursor:"pointer", transition:"all .2s" }}
                 onMouseEnter={e=>{if(!pkg.featured){e.currentTarget.style.background=color;e.currentTarget.style.color="#fff";}}}
@@ -1280,7 +1290,7 @@ function ComboBuilder({ color }) {
               <div style={{ fontSize:26, fontWeight:900, color, marginBottom:2 }}>{pkg.price}<span style={{ fontSize:13, fontWeight:400, color:"#94a3b8" }}>{pkg.per}</span></div>
               <div style={{ fontSize:12, color:"#94a3b8", marginBottom:16 }}>{pkg.year}</div>
               <div style={{ flex:1, borderTop:"1px solid #f1f5f9", paddingTop:12 }}>
-                {pkg.features.map((f,j)=><div key={j} style={{ display:"flex", gap:8, marginBottom:8, fontSize:13, color:"#374151" }}><span style={{ color, fontWeight:700, flexShrink:0 }}>✓</span>{f}</div>)}
+                <FeatureList features={pkg.features} color={color} />
               </div>
               <button onClick={()=>{ setGsPkg(pkg); setGsOpen(true); }}
                 style={{ display:"block", width:"100%", marginTop:18, textAlign:"center", padding:"12px 0", background:pkg.featured?`linear-gradient(90deg,${color},${color}cc)`:"transparent", color:pkg.featured?"#fff":color, border:`2px solid ${color}`, borderRadius:12, fontWeight:700, fontSize:14, cursor:"pointer", transition:"all .2s" }}
