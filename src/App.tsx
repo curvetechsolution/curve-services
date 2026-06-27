@@ -972,6 +972,7 @@ function SMMService({ color }) {
             </div>
           ))}
         </div>
+        </SyncedFeatureGroup>
       )}
       {mode==="custom" && (
         <div style={{ display:"flex", flexDirection:"column", gap:20 }}>
