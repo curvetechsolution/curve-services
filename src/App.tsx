@@ -473,6 +473,35 @@ function SetupBadge({ setup, note, color }) {
   );
 }
 
+// ── Sticky Get Started Bar ────────────────────────────────────────
+function StickyBar({ price, label = "Get Started →", onClick, color, visible = true }) {
+  if (!visible) return null;
+  return createPortal(
+    <div style={{
+      position:"fixed", bottom:0, left:0, right:0, zIndex:8000,
+      background:"#fff", borderTop:`2px solid ${color}30`,
+      boxShadow:"0 -4px 24px rgba(0,0,0,0.10)",
+      padding:"12px 16px",
+      display:"flex", alignItems:"center", justifyContent:"space-between", gap:12,
+    }}>
+      <div>
+        <div style={{ fontSize:11, color:"#94a3b8", fontWeight:600 }}>Your Package Total</div>
+        <div style={{ fontSize:22, fontWeight:900, color, lineHeight:1 }}>{price}</div>
+      </div>
+      <button onClick={onClick} style={{
+        background:`linear-gradient(90deg,${color},${color}cc)`,
+        color:"#fff", border:"none", borderRadius:12,
+        padding:"13px 28px", fontSize:15, fontWeight:700,
+        cursor:"pointer", boxShadow:`0 4px 16px ${color}40`,
+        whiteSpace:"nowrap", flexShrink:0,
+      }}>
+        {label}
+      </button>
+    </div>,
+    document.body
+  );
+}
+
 // ── GSButton ─────────────────────────────────────────────────────
 function GSBtn({ color, featured, name, price, serviceId = "", description = "" }) {
   const [open, setOpen] = useState(false);
@@ -600,6 +629,7 @@ const WEB_FEATURES = {
 const BASE_PRICE = { service: 5000, ecom: 7000 };
 
 function WebPlanChooser({ color }) {
+  const [gsOpen, setGsOpen] = useState(false);
   const [tab, setTab] = useState("service");
   const features = WEB_FEATURES[tab];
   const initState = (t) => {
@@ -630,7 +660,7 @@ function WebPlanChooser({ color }) {
   });
 
   return (
-    <div style={{ marginBottom:40, background:"#fff", borderRadius:24, padding:"20px 18px", boxShadow:"0 4px 32px rgba(0,0,0,.07)", border:"1px solid #f0f4f8" }}>
+    <div style={{ marginBottom:40, background:"#fff", borderRadius:24, padding:"20px 18px 100px", boxShadow:"0 4px 32px rgba(0,0,0,.07)", border:"1px solid #f0f4f8" }}>
       <div style={{ textAlign:"center", marginBottom:16 }}>
         <div style={{ display:"inline-flex", alignItems:"center", gap:8, background:`${color}12`, borderRadius:99, padding:"6px 18px", marginBottom:10 }}>
           <span>✨</span>
@@ -714,7 +744,8 @@ function WebPlanChooser({ color }) {
               <div style={{ fontSize:32, fontWeight:900, color, lineHeight:1 }}>{fmtPrice(total)}</div>
             </div>
           </div>
-          <GSBtn color={color} featured={true} name={"Custom Website"} price={fmtPrice(total)} serviceId="webdev" description={picked.map(f => f.type==="counter" ? `${f.label} × ${sel[f.key]}` : f.label).join("\n")} />
+          <GSModal open={gsOpen} onClose={()=>setGsOpen(false)} name={"Custom Website"} price={fmtPrice(total)} serviceId="webdev" description={picked.map(f => f.type==="counter" ? `${f.label} × ${sel[f.key]}` : f.label).join("\n")} />
+          <StickyBar price={fmtPrice(total)} onClick={()=>setGsOpen(true)} color={color} visible={true} />
         </div>
       </div>
     </div>
@@ -816,8 +847,9 @@ function VideoService({ color }) {
   const totalVideos = Object.values(counts).reduce((a,b)=>a+b,0);
   const DURATION_OPTIONS = [30, 60, 90, 120];
   return (
-    <div>
+    <div style={{ paddingBottom: totalVideos>0 ? 80 : 0 }}>
       <GSModal open={gsOpen} onClose={()=>setGsOpen(false)} name={`Video Package (${totalVideos} videos)`} price={total?fmtPKR(total)+"/mo":""} serviceId="video" description={VIDEO_TYPES.filter(vt=>counts[vt.key]>0).map(vt=>`${vt.label}: ${counts[vt.key]} × ${durations[vt.key]}s`).join("\n")} />
+      <StickyBar price={total?fmtPKR(total)+"/mo":""} onClick={()=>setGsOpen(true)} color={color} visible={totalVideos>0} />
       <div style={{ textAlign:"center", marginBottom:28 }}>
         <h2 style={{ fontSize:22, fontWeight:900, color:"#0f172a", marginBottom:6 }}>Build Your Video Package</h2>
         <p style={{ color:"#64748b", fontSize:14 }}>Choose video type, pick duration — price updates instantly. +50% per extra 30 seconds.</p>
@@ -938,8 +970,10 @@ function SMMService({ color }) {
 
   const togPlat = id => setPlats(p => p.includes(id) ? p.length>1 ? p.filter(x=>x!==id) : p : [...p,id]);
 
+  const showStickySmm = mode === "custom";
   return (
-    <div>
+    <div style={{ paddingBottom: showStickySmm ? 80 : 0 }}>
+      <StickyBar price={fmtPKR(customTotal)+"/mo"} onClick={()=>{ setGsPkg(null); setGsOpen(true); }} color={color} visible={showStickySmm} />
       {/* Fixed packages GSModal — skipDuration=true kyunki monthly billing fixed hai */}
       <GSModal open={gsOpen && !!gsPkg} onClose={()=>{ setGsOpen(false); setGsPkg(null); }} name={gsPkg?.name} price={gsPkg?.price} serviceId="smm" skipDuration={true} description={gsPkg?.features ? gsPkg.features.join("\n") : ""} />
       {/* Custom builder GSModal — skipDuration=true kyunki monthly custom bhi fixed cycle hai */}
@@ -1129,8 +1163,10 @@ function LeadGenService({ color }) {
     { label:"🧑‍💼 Dedicated Lead Strategist", v:dedicatedStrat, set:setDedicatedStrat, price:STRAT_P },
   ];
 
+  const showStickyLg = mode === "custom";
   return (
-    <div>
+    <div style={{ paddingBottom: showStickyLg ? 80 : 0 }}>
+      <StickyBar price={fmtPKR(customTotal)+"/mo"} onClick={()=>{ setGsPkg(null); setGsOpen(true); }} color={color} visible={showStickyLg} />
       {/* Fixed packages — skipDuration=true */}
       <GSModal open={gsOpen && !!gsPkg} onClose={()=>{ setGsOpen(false); setGsPkg(null); }} name={gsPkg?.name} price={gsPkg?.price} serviceId="leadgen" skipDuration={true} description={gsPkg?.features ? gsPkg.features.join("\n") : ""} />
       {/* Custom builder — skipDuration=true */}
@@ -1282,8 +1318,10 @@ function ComboBuilder({ color }) {
     return `${svc.icon} ${svc.label} (${svc.tiers[selected[id]].name})`;
   }).join(", ");
 
+  const showStickyCombo = mode === "custom" && count >= 2;
   return (
-    <div>
+    <div style={{ paddingBottom: showStickyCombo ? 80 : 0 }}>
+      <StickyBar price={total?fmtPKR(total)+"/mo":""} onClick={()=>{ setGsPkg(null); setGsOpen(true); }} color={color} visible={showStickyCombo} />
       {/* Fixed combo packages — skipDuration=true */}
       <GSModal open={gsOpen && !!gsPkg} onClose={()=>{ setGsOpen(false); setGsPkg(null); }}
         name={gsPkg?.name}
