@@ -607,6 +607,7 @@ const WEB_FEATURES = {
     { key:"metapixel",  icon:"🎯", label:"Meta Pixel Setup",         type:"toggle",  price:1500,  desc:"Facebook/Instagram ad tracking" },
     { key:"googleindex",icon:"🔍", label:"Google Indexing",          type:"toggle",  price:1000,  desc:"Submit site to Google Search" },
     { key:"aichatbot",  icon:"🧠", label:"AI Chatbot",               type:"toggle",  price:5000,  desc:"Smart AI-powered website chatbot" },
+    { key:"productdisplay", icon:"🖼️", label:"Product Display",      type:"toggle",  price:200,   desc:"Showcase products on your website" },
     { key:"mobile",     icon:"📱", label:"Mobile Responsive",        type:"toggle",  price:0,     included:true, desc:"Works on all screen sizes" },
   ],
   ecom: [
