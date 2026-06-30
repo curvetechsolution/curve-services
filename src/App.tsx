@@ -221,6 +221,30 @@ function GSModal({ open, onClose, name, price, serviceId = "", skipDuration = fa
         const errText = await res.text();
         throw new Error("Status " + res.status + ": " + errText);
       }
+
+      // Bhi email notification curvetechsolution@gmail.com pe (FormSubmit — no backend needed)
+      try {
+        await fetch("https://formsubmit.co/ajax/curvetechsolution@gmail.com", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+          },
+          body: JSON.stringify({
+            _subject: "New Invoice Request — " + (name || "Unknown Service"),
+            Client_Name: form.name,
+            Client_Email: form.email,
+            Client_Phone: form.phone,
+            Service: selectedDur ? (name || "Unknown Service") + " · " + selectedDur : (name || "Unknown Service"),
+            Price: String(price || ""),
+            Message: description || "",
+          }),
+        });
+      } catch (mailErr) {
+        // Email fail hone par bhi request supabase me save ho chuki hai, isliye yahan sirf log karo
+        console.error("Email notification failed:", mailErr);
+      }
+
       setSubmitted(true);
     } catch (e: any) {
       console.error("Invoice request failed:", e?.message || e);
