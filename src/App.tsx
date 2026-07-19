@@ -1193,7 +1193,7 @@ function LeadGenService({ color }) {
   const [mode, setMode] = useState("packages");
   const [gsOpen, setGsOpen] = useState(false);
   const [gsPkg, setGsPkg] = useState(null);
-  const [leads, setLeads] = useState(100);
+  const [leads, setLeads] = useState(0);
   const [emailSeq, setEmailSeq] = useState(false);
   const [waOutreach, setWaOutreach] = useState(false);
   const [linkedinCamp, setLinkedinCamp] = useState(false);
@@ -1267,10 +1267,10 @@ function LeadGenService({ color }) {
                 <span style={{ fontSize:20, fontWeight:900, color }}>{leads} leads</span>
                 <span style={{ fontSize:14, fontWeight:700, color:"#0f172a" }}>{fmtPKR(leads*LEAD_P)}/mo</span>
               </div>
-              <input type="range" min={50} max={1000} step={50} value={leads} onChange={e=>setLeads(Number(e.target.value))}
+              <input type="range" min={0} max={1000} step={50} value={leads} onChange={e=>setLeads(Number(e.target.value))}
                 style={{ width:"100%", accentColor:color, height:6, borderRadius:3, cursor:"pointer" }} />
               <div style={{ display:"flex", justifyContent:"space-between", fontSize:10, color:"#94a3b8", marginTop:4 }}>
-                <span>50 leads</span><span>1,000 leads</span>
+                <span>0 leads</span><span>1,000 leads</span>
               </div>
               <div style={{ display:"flex", gap:8, marginTop:10, flexWrap:"wrap" }}>
                 {[100,300,700].map(n=>(
