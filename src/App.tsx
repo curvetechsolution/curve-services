@@ -1193,6 +1193,8 @@ function LeadGenService({ color }) {
   const [mode, setMode] = useState("packages");
   const [gsOpen, setGsOpen] = useState(false);
   const [gsPkg, setGsPkg] = useState(null);
+  // Custom builder Rs. 0 se start hota hai — leads 0 se shuru, user khud slider
+  // ya quick buttons se apna number chunta hai.
   const [leads, setLeads] = useState(0);
   const [emailSeq, setEmailSeq] = useState(false);
   const [waOutreach, setWaOutreach] = useState(false);
@@ -1539,9 +1541,9 @@ const SERVICES = [
       { name:"Premium / Pro", tier:"Pro", price:"Rs. 52,000", per:"/project", year:"❌ Domain & Hosting NOT included · ➕ Optional Add-on: +Rs. 10,000", service:["6–15 page fully custom website","Appointment booking + calendar","AI chatbot + Google Sheets CRM","Meta Pixel + Google indexing","Core Web Vitals optimization"], ecom:["6–15 pages, 50 products","Full payment: Stripe, PayPal, QR, Bank","Checkout + inventory + customer accounts"] },
     ],
     maintenance:[
-      { name:"Basic Care", tier:"Basic", price:"Rs. 3,500", per:"/mo", year:"~Rs. 42,000/year", ... },
-{ name:"Standard Care", tier:"Standard", featured:true, price:"Rs. 7,000", per:"/mo", year:"~Rs. 84,000/year", ... },
-{ name:"Pro Care", tier:"Pro", price:"Rs. 13,000", per:"/mo", year:"~Rs. 156,000/year", ... },
+      { name:"Basic Care", tier:"Basic", price:"Rs. 3,500", per:"/mo", year:"~Rs. 42,000/year" },
+      { name:"Standard Care", tier:"Standard", featured:true, price:"Rs. 7,000", per:"/mo", year:"~Rs. 84,000/year" },
+      { name:"Pro Care", tier:"Pro", price:"Rs. 13,000", per:"/mo", year:"~Rs. 156,000/year" },
     ]},
   { id:"smm", icon:"📱", label:"Social Media Marketing", tagline:"Fixed packages or build your own custom plan", desc:"Choose a ready-made package or customize your own — select platforms, posts, reels, and ad campaigns. Price updates live.", type:"smm" },
   { id:"seo", icon:"🔍", label:"SEO", tagline:"Rank higher on Google and get organic leads daily", desc:"Data-driven SEO — on-page, technical, keywords, backlinks, and monthly reporting.", type:"packages",
