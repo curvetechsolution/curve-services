@@ -1019,8 +1019,17 @@ function SMMService({ color }) {
     { name:"Digital Growth", tier:"Standard", price:"Rs 19,999", per:"/month", featured:true,
       features:["Platforms: Facebook + Instagram","One Optional: LinkedIn or TikTok","12 Posts per month","2 Reels (30–45 sec)","Copywriting & caption hooks","Page management","3 Paid Campaigns (Awareness + Engagement + Retargeting)","Monthly growth report"],
       warning:["Boosting Budget: PKR 15,000–20,000 (Client Paid)"] },
-    { name:"Brand Authority", tier:"Pro", price:"Rs 34,999", per:"/month", featured:false,
-      features:["Platforms: Facebook, Instagram, LinkedIn, YouTube","25 Custom Posts per month","4 Reels (30–60 sec with overlays)","Content calendar","Competitor analysis","Bi-weekly growth consultation","4 Campaigns (Includes Conversion + Retargeting)"],
+    { name:"Brand Authority", tier:"Pro", price:"Rs 38,500", per:"/month", featured:false,
+            features:[
+        "Platforms: Facebook, Instagram, TikTok",
+        "Content Creation",
+        "5 Creative Videos per month",
+        "5 Static Creative Posts per month",
+        "Social Media Pages Optimization",
+        "Monthly Performance Report",
+        "Competitor Analysis",
+        "5 Total Campaigns (4 Meta + 1 TikTok)"
+      ],
       warning:["Boosting Budget: PKR 30,000–50,000 (Client Paid)"] },
   ];
 
