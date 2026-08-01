@@ -635,6 +635,13 @@ function PkgCard({ pkg, color, serviceId = "" }) {
       <div style={{ fontSize:11, color:"#94a3b8", marginBottom:pkg.setup?8:12 }}>{pkg.year}</div>
       <SetupBadge setup={pkg.setup} note={pkg.setupNote} color={color} />
       <FeatureList features={pkg.features||[]} warnings={pkg.warning||[]} color={color} />
+      {pkg.footnote && pkg.footnote.length > 0 && (
+        <div style={{ marginTop:10, paddingTop:10, borderTop:"1px dashed #e2e8f0", display:"flex", flexDirection:"column", gap:6 }}>
+          {pkg.footnote.map((note, i) => (
+            <div key={i} style={{ fontSize:10.5, color:"#94a3b8", lineHeight:1.5 }}>{note}</div>
+          ))}
+        </div>
+      )}
       <GSBtn color={color} featured={pkg.featured} name={pkg.name} price={pkg.price+"/mo"} serviceId={serviceId} description={(pkg.features||[]).join("\n")} />
     </div>
   );
@@ -866,6 +873,16 @@ function WebCard({ pkg, color }) {
           color={color}
         />
       </div>
+
+      {/* Footnote block — only shows if pkg.footnote is set (e.g. Pro/Premium) */}
+      {pkg.footnote && pkg.footnote.length > 0 && (
+        <div style={{ marginTop:10, paddingTop:10, borderTop:"1px dashed #e2e8f0", display:"flex", flexDirection:"column", gap:6 }}>
+          {pkg.footnote.map((note, i) => (
+            <div key={i} style={{ fontSize:10.5, color:"#94a3b8", lineHeight:1.5 }}>{note}</div>
+          ))}
+        </div>
+      )}
+
       <GSBtn color={color} featured={pkg.featured} name={`${pkg.name} Website${domainAddon ? " + Domain & Hosting" : ""}`} price={displayPrice} serviceId="webdev" description={[...(tab==="service"?pkg.service:pkg.ecom), ...(domainAddon ? ["Domain & Hosting (1 Year) included"] : [])].join("\n")} />
     </div>
   );
@@ -1547,7 +1564,24 @@ const SERVICES = [
     packages:[
       { name:"Starter", tier:"Basic", price:"Rs. 10,000", per:"/project", year:"❌ Domain & Hosting NOT included · ➕ Optional Add-on: +Rs. 10,000", service:["4–6 page service-based website","CTA: WhatsApp button only","WhatsApp chatbot included","Query form + Google Map + Reviews"], ecom:["4 pages","10 product listings","WhatsApp button CTA"] },
       { name:"Standard", tier:"Standard", featured:true, price:"Rs. 28,000", per:"/project", year:"❌ Domain & Hosting NOT included · ➕ Optional Add-on: +Rs. 10,000", service:["4–10 page website","Appointment booking system","WhatsApp chatbot included","Google Map & Reviews integration","Mobile responsive"], ecom:["4–10 pages, 20 products, 5 categories","Add-to-cart + Cash on Delivery","Payment Gateway: Optional (+Rs. 5,000)"] },
-      { name:"Premium / Pro", tier:"Pro", price:"Rs. 52,000", per:"/project", year:"❌ Domain & Hosting NOT included · ➕ Optional Add-on: +Rs. 10,000", service:["6–15 page fully custom website","Appointment booking + calendar","AI chatbot + Google Sheets CRM","Meta Pixel + Google indexing","Core Web Vitals optimization"], ecom:["6–15 pages, 50 products","Full payment: Stripe, PayPal, QR, Bank","Checkout + inventory + customer accounts"] },
+      { name:"PRO / Premium", tier:"Pro", price:"Rs. 65,000", per:"/project",
+        year:"❌ Domain & Hosting NOT included · ➕ Optional Add-on: +Rs. 10,000",
+        service:[
+          "6–15 page fully custom healthcare website",
+          "Smart appointment booking + live Google Calendar 2-way sync",
+          "Instant WhatsApp booking confirmation message",
+          "Interactive WhatsApp reminders (Auto-confirm / Auto-cancel)",
+          "Auto Google Calendar slot deletion on patient cancellation",
+          "Automated post-consultation Google Review collector engine",
+          "Google Sheets CRM integration + Meta Pixel & SEO setup",
+          "Core Web Vitals & speed optimization"
+        ],
+        ecom:["6–15 pages, 50 products","Full payment: Stripe, PayPal, QR, Bank","Checkout + inventory + customer accounts"],
+        footnote:[
+          "📌 Monthly System Support & Maintenance: Rs. 15,000 / month — Includes 24/7 workflow monitoring, server uptime, and sync maintenance",
+          "📌 Third-Party API Charges: Meta WhatsApp API, OpenAI usage, and VPS server hosting charges are NOT included in setup or maintenance fee. These are usage-based charges billed directly to the clinic's credit/debit card."
+        ]
+      },
     ],
     maintenance:[
       { name:"Basic Care", tier:"Basic", price:"Rs. 3,500", per:"/mo", year:"~Rs. 42,000/year" },
