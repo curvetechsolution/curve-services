@@ -1583,11 +1583,36 @@ const SERVICES = [
         ]
       },
     ],
-    maintenance:[
-      { name:"Basic Care", tier:"Basic", price:"Rs. 3,500", per:"/mo", year:"~Rs. 42,000/year" },
-      { name:"Standard Care", tier:"Standard", featured:true, price:"Rs. 7,000", per:"/mo", year:"~Rs. 84,000/year" },
-      { name:"Pro Care", tier:"Pro", price:"Rs. 13,000", per:"/mo", year:"~Rs. 156,000/year" },
-    ]},
+maintenance:[
+  { name:"Basic Care", tier:"Basic", price:"Rs. 3,500", per:"/mo", year:"~Rs. 42,000/year",
+    features:[
+      "Monthly backups of your website",
+      "Security & plugin/software updates",
+      "Uptime monitoring (24/7)",
+      "Up to 2 minor content updates/month",
+      "Broken link & error checks",
+      "Email support (48hr response)"
+    ] },
+  { name:"Standard Care", tier:"Standard", featured:true, price:"Rs. 7,000", per:"/mo", year:"~Rs. 84,000/year",
+    features:[
+      "Everything in Basic Care",
+      "Weekly automated backups",
+      "Up to 5 content/image updates per month",
+      "Speed & performance optimization",
+      "Monthly Google ranking & traffic snapshot",
+      "Priority WhatsApp + email support (24hr response)"
+    ] },
+  { name:"Pro Care", tier:"Pro", price:"Rs. 13,000", per:"/mo", year:"~Rs. 156,000/year",
+    features:[
+      "Everything in Standard Care",
+      "Daily automated backups",
+      "Unlimited minor content updates",
+      "Malware scanning & security hardening",
+      "SEO health checks & Core Web Vitals monitoring",
+      "Detailed monthly performance report",
+      "Dedicated priority support (same-day response)"
+    ] },
+],
   { id:"smm", icon:"📱", label:"Social Media Marketing", tagline:"Fixed packages or build your own custom plan", desc:"Choose a ready-made package or customize your own — select platforms, posts, reels, and ad campaigns. Price updates live.", type:"smm" },
   { id:"seo", icon:"🔍", label:"SEO", tagline:"Rank higher on Google and get organic leads daily", desc:"Data-driven SEO — on-page, technical, keywords, backlinks, and monthly reporting.", type:"packages",
     packages:[
