@@ -1583,10 +1583,33 @@ const SERVICES = [
         ]
       },
     ],
-    maintenance:[
-      { name:"Basic Care", tier:"Basic", price:"Rs. 3,500", per:"/mo", year:"~Rs. 42,000/year" },
-      { name:"Standard Care", tier:"Standard", featured:true, price:"Rs. 7,000", per:"/mo", year:"~Rs. 84,000/year" },
-      { name:"Pro Care", tier:"Pro", price:"Rs. 13,000", per:"/mo", year:"~Rs. 156,000/year" },
+maintenance:[
+      { name:"Basic Care", tier:"Basic", price:"Rs. 3,500", per:"/mo", year:"~Rs. 42,000/year",
+        features:[
+          "Bug fixes & error monitoring",
+          "Up to 2 content updates / month",
+          "Uptime monitoring",
+          "Monthly backup",
+          "Email support (48hr response)"
+        ] },
+      { name:"Standard Care", tier:"Standard", featured:true, price:"Rs. 7,000", per:"/mo", year:"~Rs. 84,000/year",
+        features:[
+          "Everything in Basic Care",
+          "Up to 5 content updates / month",
+          "Security monitoring & patches",
+          "Performance & speed optimization",
+          "Bi-weekly backups",
+          "Priority WhatsApp support (24hr response)"
+        ] },
+      { name:"Pro Care", tier:"Pro", price:"Rs. 13,000", per:"/mo", year:"~Rs. 156,000/year",
+        features:[
+          "Everything in Standard Care",
+          "Unlimited content updates",
+          "Small feature additions / enhancements",
+          "Weekly backups",
+          "Monthly SEO health check",
+          "Dedicated priority support line (same-day response)"
+        ] },
     ]},
   { id:"smm", icon:"📱", label:"Social Media Marketing", tagline:"Fixed packages or build your own custom plan", desc:"Choose a ready-made package or customize your own — select platforms, posts, reels, and ad campaigns. Price updates live.", type:"smm" },
   { id:"seo", icon:"🔍", label:"SEO", tagline:"Rank higher on Google and get organic leads daily", desc:"Data-driven SEO — on-page, technical, keywords, backlinks, and monthly reporting.", type:"packages",
