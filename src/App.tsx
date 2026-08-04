@@ -1577,10 +1577,6 @@ const SERVICES = [
           "Core Web Vitals & speed optimization"
         ],
         ecom:["6–15 pages, 50 products","Full payment: Stripe, PayPal, QR, Bank","Checkout + inventory + customer accounts"],
-        footnote:[
-          "📌 Monthly System Support & Maintenance: Rs. 15,000 / month — Includes 24/7 workflow monitoring, server uptime, and sync maintenance",
-          "📌 Third-Party API Charges: Meta WhatsApp API, OpenAI usage, and VPS server hosting charges are NOT included in setup or maintenance fee. These are usage-based charges billed directly to the clinic's credit/debit card."
-        ]
       },
     ],
 maintenance:[
