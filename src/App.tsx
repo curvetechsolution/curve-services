@@ -1601,15 +1601,20 @@ maintenance:[
           "Bi-weekly backups",
           "Priority WhatsApp support (24hr response)"
         ] },
-      { name:"Pro Care", tier:"Pro", price:"Rs. 13,000", per:"/mo", year:"~Rs. 156,000/year",
-        features:[
-          "Everything in Standard Care",
-          "Unlimited content updates",
-          "Small feature additions / enhancements",
-          "Weekly backups",
-          "Monthly SEO health check",
-          "Dedicated priority support line (same-day response)"
-        ] },
+{ name:"Pro Care", tier:"Pro", price:"Rs. 15,000", per:"/mo", year:"~Rs. 180,000/year",
+  features:[
+    "Everything in Standard Care",
+    "Unlimited content updates",
+    "Small feature additions / enhancements",
+    "Weekly backups",
+    "Monthly SEO health check",
+    "Dedicated priority support line (same-day response)",
+    "Includes 24/7 workflow monitoring, server uptime, and sync maintenance"
+  ],
+  footnote:[
+    "📌 Third-Party API Charges: Meta WhatsApp API, OpenAI usage, and VPS server hosting charges are NOT included in setup or maintenance fee. These are usage-based charges billed directly to the clinic's credit/debit card."
+  ]
+},
     ]},
   { id:"smm", icon:"📱", label:"Social Media Marketing", tagline:"Fixed packages or build your own custom plan", desc:"Choose a ready-made package or customize your own — select platforms, posts, reels, and ad campaigns. Price updates live.", type:"smm" },
   { id:"seo", icon:"🔍", label:"SEO", tagline:"Rank higher on Google and get organic leads daily", desc:"Data-driven SEO — on-page, technical, keywords, backlinks, and monthly reporting.", type:"packages",
